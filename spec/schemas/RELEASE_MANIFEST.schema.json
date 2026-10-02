@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Docengine Release Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifest_schema_version", "package", "version", "target_engine_version", "runtime_build_version", "implementation_phase", "implementation_status", "files"],
+  "properties": {
+    "manifest_schema_version": {"const": "1.0.0"},
+    "package": {"const": "generic-documentation-engine-spec-runtime"},
+    "version": {"type": "string", "minLength": 1},
+    "target_engine_version": {"const": "0.1.0"},
+    "runtime_build_version": {"type": "string", "minLength": 1},
+    "implementation_phase": {"type": "string", "pattern": "^P[0-9]+$"},
+    "implementation_status": {"enum": ["acceptance_review", "accepted"]},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "size"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  }
+}

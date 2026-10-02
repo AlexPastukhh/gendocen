@@ -1,0 +1,10 @@
+{
+  "issues": [
+    {
+      "code": "state_latest_event_mismatch",
+      "message": "file://architecture/rationale.md: state valid/receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f vs latest event review_required/receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f"
+    }
+  ],
+  "ok": false,
+  "receipt_count": 1
+}

@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: '3.11'
+          - os: windows-latest
+            python: '3.14'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: python -m pip install -e '.[test]'
+      - name: Test suite
+        run: python -m pytest -q
+      - name: Specification audit
+        run: python tools/audit_spec.py
+      - name: Axis audit
+        run: python tools/audit_axes.py --json
+      - name: Release manifest validation
+        run: python tools/release_manifest.py validate --json
+      - name: Bundled lifecycle check
+        run: python tools/release_check.py --json
+      - name: Git worktree stays clean
+        run: python -c "import subprocess,sys; s=subprocess.check_output(['git','status','--porcelain'], text=True); print(s,end=''); raise SystemExit(1 if s else 0)"

@@ -1,0 +1,640 @@
+{
+  "phase_id": "P8",
+  "name": "Final verification, release gate, portability and handoff",
+  "status": "accepted",
+  "scope": [
+    "Run only after P7 hardening acceptance; consolidate all release-gate axes before producing final handoff artifacts.",
+    "Implement strict read-only verify over schemas, state, dependencies, generated parity and unresolved review.",
+    "Implement package/project manifest integrity checks.",
+    "Run full lifecycle on sample project from a clean checkout/archive.",
+    "Create release/handoff artifacts and updated system map.",
+    "Prove domain independence with at least one non-documentation fixture."
+  ],
+  "out_of_scope": [
+    "State migrations beyond current version unless schema changed during P0-P7.",
+    "Large-scale concurrency/performance hardening."
+  ],
+  "deliverables": [
+    "verify gate",
+    "manifest validator",
+    "clean-regeneration release check",
+    "portable archive/wheel",
+    "handoff checklist",
+    "acceptance report"
+  ],
+  "use_cases": [
+    "DOC16",
+    "DOC22"
+  ],
+  "acceptance_axes": [
+    "DAX01",
+    "DAX02",
+    "DAX03",
+    "DAX04",
+    "DAX05",
+    "DAX06",
+    "DAX07",
+    "DAX08",
+    "DAX09",
+    "DAX10",
+    "DAX11",
+    "DAX12",
+    "DAX13",
+    "DAX15",
+    "DAX17",
+    "DAX18",
+    "DAX19",
+    "DAX20"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "P8-A1",
+      "criterion": "Verify is read-only and always emits a complete report; unresolved required review, inconsistent state, invalid schemas or generated drift produce `ok=false` and a non-zero process exit code rather than an execution crash.",
+      "axis_ids": [
+        "DAX11",
+        "DAX12"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py::P6VerifyTests",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests",
+        "src/docengine/verification.py"
+      ],
+      "notes": "P8 release criterion verified; final immutable package freeze repeats the distribution checks."
+    },
+    {
+      "id": "P8-A2",
+      "criterion": "Clean archive install + sample lifecycle succeeds without hidden local paths/state.",
+      "axis_ids": [
+        "DAX13",
+        "DAX17",
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tools/release_check.py",
+        "plan/evidence/P8/release_lifecycle.json",
+        "plan/evidence/P8/clean_venv_candidate/exit_codes.txt",
+        "plan/evidence/P8/clean_venv_candidate/wheel_source_parity.txt",
+        "plan/evidence/P8/final_clean_venv/exit_codes.txt",
+        "plan/evidence/P8/final_clean_venv/wheel_source_parity.txt"
+      ],
+      "notes": "P8 release criterion verified; final immutable package freeze repeats the distribution checks."
+    },
+    {
+      "id": "P8-A3",
+      "criterion": "Manifest detects missing/changed tracked files and is regenerated only through release tooling.",
+      "axis_ids": [
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tools/release_manifest.py",
+        "tests/test_p8_release.py::P8ManifestToolTests",
+        "MANIFEST.json"
+      ],
+      "notes": "P8 release criterion verified; final immutable package freeze repeats the distribution checks."
+    },
+    {
+      "id": "P8-A4",
+      "criterion": "System map, README, CLI registry, schemas and use-case registry describe actual implementation.",
+      "axis_ids": [
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "README.md",
+        "START_HERE_AGENT.md",
+        "docs/SYSTEM_MAP.md",
+        "spec/registries/CLI_COMMANDS.json",
+        "docs/RELEASE_GATE.md",
+        "tools/audit_spec.py"
+      ],
+      "notes": "P8 release criterion verified; final immutable package freeze repeats the distribution checks."
+    },
+    {
+      "id": "P8-A5",
+      "criterion": "Non-documentation synthetic fixture passes core build/dependency workflow without core modifications.",
+      "axis_ids": [
+        "DAX17"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p8_release.py::P8SyntheticDomainFixtureTests",
+        "tests/test_domain_neutrality.py"
+      ],
+      "notes": "P8 release criterion verified; final immutable package freeze repeats the distribution checks."
+    },
+    {
+      "id": "P8-A6",
+      "criterion": "All prior phase acceptance records contain evidence and no unresolved blocking question remains for accepted phases.",
+      "axis_ids": [
+        "DAX19",
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/phase_records/",
+        "tools/audit_axes.py",
+        "plan/P8_POST_ACCEPTANCE_CONSISTENCY_REVIEW.md"
+      ],
+      "notes": "Post-axis global consistency audit validates accepted-phase carries, resolvable path-like evidence refs and absence of unresolved blocking questions."
+    },
+    {
+      "id": "P8-A7",
+      "criterion": "Final release review records pass/not_applicable with evidence for every release-gate DAX axis, including DAX15 completed in P7 and DAX18 closed from the P7 baseline, and no accepted phase has an unresolved blocking question.",
+      "axis_ids": [
+        "DAX01",
+        "DAX02",
+        "DAX03",
+        "DAX04",
+        "DAX05",
+        "DAX06",
+        "DAX07",
+        "DAX08",
+        "DAX09",
+        "DAX10",
+        "DAX11",
+        "DAX12",
+        "DAX13",
+        "DAX15",
+        "DAX17",
+        "DAX18",
+        "DAX19",
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tools/audit_axes.py",
+        "plan/P8_FINAL_AXIS_AUDIT.md",
+        "plan/evidence/P8/performance_gate.json",
+        "plan/evidence/P8/global_axis_closure.json",
+        "plan/P8_POST_ACCEPTANCE_CONSISTENCY_REVIEW.md"
+      ],
+      "notes": "Global axis closure remains PASS after v0.25 corrections; resolved carried gate and referential-integrity checks are enforced by audit_axes. Final immutable freeze repeats package checks."
+    },
+    {
+      "id": "P8-A8",
+      "criterion": "Establish and record an environment-normalized performance budget for the declared P7 10k-resource/50k-edge + 10k diff/render benchmark, rerun it under the release environment, and block P8 acceptance unless DAX18 passes that budget.",
+      "axis_ids": [
+        "DAX18"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "spec/release/PERFORMANCE_BUDGET.json",
+        "tools/benchmark_release.py",
+        "plan/evidence/P8/performance_gate.json",
+        "tests/test_p8_release.py::P8BenchmarkReproducibilityTests::test_release_benchmark_runs_from_clean_source_without_external_pythonpath",
+        "plan/evidence/P8/post_axis_consistency/clean_source_performance_gate.json"
+      ],
+      "notes": "Performance budget passes and the documented benchmark command is now reproducible from a clean source archive without caller PYTHONPATH setup."
+    }
+  ],
+  "pre_execution_questions": [
+    {
+      "id": "Q8.1",
+      "question": "Должен ли release verify разрешать `review_required` по умолчанию?",
+      "why_it_matters": "Release с неподтверждённой документацией может противоречить основной цели engine.",
+      "blocking": true,
+      "recommended_default": "No. Default verify fails on unresolved review_required; projects may later define explicit policy exceptions, never silent.",
+      "status": "answered",
+      "answer": "No. `docengine verify` must always emit its complete verification report. If unresolved `review_required` or another blocking issue exists, the report returns `ok=false` and the CLI returns a non-zero exit code; this is a verification result, not an execution crash.",
+      "decision": "Treat unresolved required review as a blocking verification result by default. `verify` is read-only, always reports findings, uses `ok=false` for failed verification, and returns a non-zero exit code for machine/CI signaling.",
+      "evidence_refs": [
+        "conversation-user-decision-2026-10-02"
+      ],
+      "acceptance_impact": "Resolved. P8 acceptance must test both complete report emission and non-zero exit status when verification is not successful.",
+      "owner": "user"
+    },
+    {
+      "id": "Q8.2",
+      "question": "Какой артефакт передачи считаем основным: wheel, source archive или оба?",
+      "why_it_matters": "Другому чату нужен и запускаемый engine, и читаемая спецификация/source.",
+      "blocking": true,
+      "recommended_default": "Both: source archive containing docs/examples/tests + buildable wheel; source archive is canonical handoff artifact.",
+      "status": "answered",
+      "answer": "Both: source archive containing docs/examples/tests + buildable wheel; source archive is canonical handoff artifact.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q8.3",
+      "question": "Что входит в engine release manifest, а что считается volatile project runtime state?",
+      "why_it_matters": "Нельзя смешивать package integrity и mutable baselines/events конкретного документационного проекта.",
+      "blocking": true,
+      "recommended_default": "Engine manifest tracks package/spec/examples/tests. Project runtime state is verified by project-level commands and not embedded as engine release integrity state.",
+      "status": "answered",
+      "answer": "Engine manifest tracks package/spec/examples/tests. Project runtime state is verified by project-level commands and not embedded as engine release integrity state.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q8.4",
+      "question": "Нужна ли compatibility guarantee до 1.0?",
+      "why_it_matters": "Определяет строгость migrations during rapid development.",
+      "blocking": true,
+      "recommended_default": "Persisted formats are explicitly versioned from v0.1; breaking changes allowed pre-1.0 only with migration or clear reset path documented and tested.",
+      "status": "answered",
+      "answer": "Persisted formats are explicitly versioned from v0.1; breaking changes allowed pre-1.0 only with migration or clear reset path documented and tested.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    }
+  ],
+  "emergent_questions": [
+    {
+      "id": "Q8.E1",
+      "question": "How should the P7 10k/50k benchmark be normalized so P8 does not bind release acceptance to one host clock speed?",
+      "why_it_matters": "An absolute wall-clock threshold would be brittle across machines, while no threshold would leave DAX18 partial.",
+      "blocking": true,
+      "recommended_default": "Use a deterministic same-interpreter CPU calibration and gate the ratio benchmark_total/calibration_median, plus an independent RSS ceiling and exact workload/correctness counts.",
+      "status": "answered",
+      "answer": "Use pure_python_integer_mix_v1 calibration (3,000,000 iterations, five samples, median) and require normalized total ratio <= 4.0, RSS <= 256 MiB, and exact 10k/50k + 10k diff/render counts.",
+      "decision": "The budget is stored in spec/release/PERFORMANCE_BUDGET.json before the release rerun; performance evidence records its SHA-256 and P8 acceptance is blocked unless every check passes.",
+      "evidence_refs": [
+        "spec/release/PERFORMANCE_BUDGET.json",
+        "tools/benchmark_release.py",
+        "plan/evidence/P8/performance_gate.json"
+      ],
+      "acceptance_impact": "Closes DAX18/P8-A8 with environment-relative CPU gating plus memory/workload correctness.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q8.E2",
+      "question": "Should bundled sample_project ship already semantically validated, or preserve its initial-review onboarding state?",
+      "why_it_matters": "A prevalidated sample is immediately verify-clean but no longer demonstrates the explicit semantic-review workflow that the sample was created to teach.",
+      "blocking": false,
+      "recommended_default": "Preserve sample_project as an initial-review onboarding fixture; prove release readiness by running the full lifecycle on a temporary clean copy. Keep product_tax_project as the immediately verify-clean fixture.",
+      "status": "answered",
+      "answer": "Preserve the initial-review sample state and verify the complete sync→explain→validate→sync→verify lifecycle in release_check.py.",
+      "decision": "The release archive does not bake human/AI semantic acceptance into the onboarding sample merely to make its initial verify pass. P8-A2 is demonstrated on a clean temporary copy.",
+      "evidence_refs": [
+        "tools/release_check.py",
+        "plan/evidence/P8/release_lifecycle.json",
+        "examples/sample_project/",
+        "examples/product_tax_project/"
+      ],
+      "acceptance_impact": "Clarifies P8-A2 without weakening verify semantics or hiding review_required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q8.E3",
+      "question": "How should P8 close the Windows shared-reader locking portability watch item for v0.1?",
+      "why_it_matters": "P7 accepted POSIX shared-reader locking but left Windows concurrent-reader parity as a P8 clarification. Final handoff must state whether safe serialized Windows locking is supported or parity is release-gating.",
+      "blocking": false,
+      "recommended_default": "Accept safe serialized Windows locking for v0.1; document that concurrent-reader parity is not guaranteed and is post-v0.1.",
+      "status": "answered",
+      "answer": "Safe Windows `msvcrt` serialization is accepted for v0.1. POSIX supports concurrent shared readers; Windows concurrent-reader parity is not guaranteed or release-gating.",
+      "decision": "Close A7 as an accepted v0.1 support limitation, not an unresolved watch item.",
+      "evidence_refs": [
+        "docs/HARDENING_RUNTIME.md",
+        "plan/P7_AXIS_AUDIT.md",
+        "OPEN_QUESTIONS_AND_AMBIGUITIES.md"
+      ],
+      "acceptance_impact": "Closes final portability handoff ambiguity without weakening crash/data-safety guarantees.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q8.E4",
+      "question": "How should the phase model represent a phase-local partial criterion intentionally carried into a later release gate?",
+      "why_it_matters": "P7 was historically accepted with P7-A5/DAX18 partial under Q7.E8, while the registry acceptance rule previously required every criterion/axis to pass. The machine auditor and declared model must agree.",
+      "blocking": true,
+      "recommended_default": "Represent the exception explicitly as a `carried_release_gate` naming source criterion/axis and concrete later target criterion. Final release is blocked until the carry is resolved.",
+      "status": "answered",
+      "answer": "Use canonical `carried_release_gates`. P7-CG1 carries P7-A5/DAX18 to P8-A8 and is marked resolved only because P8-A8 and P8/DAX18 pass.",
+      "decision": "Accepted phases may contain `partial` only when the exact source criterion/axis is covered by an explicit carry. Final P8 release rejects open carries.",
+      "evidence_refs": [
+        "spec/schemas/PHASE_EXECUTION_RECORD.schema.json",
+        "spec/registries/ACCEPTANCE_AXES.json",
+        "plan/phase_records/P7_EXECUTION_RECORD.json",
+        "tools/audit_axes.py",
+        "tests/test_p8_release.py"
+      ],
+      "acceptance_impact": "Removes the acceptance-rule/auditor/history contradiction while preserving P7 historical partial status.",
+      "owner": "implementer"
+    }
+  ],
+  "implementation_log": [
+    {
+      "entry": "Established environment-normalized P8 performance budget and blocking release benchmark gate.",
+      "evidence_refs": [
+        "spec/release/PERFORMANCE_BUDGET.json",
+        "tools/benchmark_release.py",
+        "plan/evidence/P8/performance_gate.json"
+      ]
+    },
+    {
+      "entry": "Implemented deterministic release-manifest generator/validator with tamper/missing-file detection.",
+      "evidence_refs": [
+        "tools/release_manifest.py",
+        "spec/schemas/RELEASE_MANIFEST.schema.json",
+        "tests/test_p8_release.py"
+      ]
+    },
+    {
+      "entry": "Implemented global phase/axis closure audit that requires every registry release gate plus promoted DAX18 to pass before P8 acceptance.",
+      "evidence_refs": [
+        "tools/audit_axes.py",
+        "tests/test_p8_release.py"
+      ]
+    },
+    {
+      "entry": "Implemented clean fixture release lifecycle check and synthetic telemetry numeric domain-independence proof.",
+      "evidence_refs": [
+        "tools/release_check.py",
+        "tests/test_p8_release.py",
+        "plan/evidence/P8/release_lifecycle.json"
+      ]
+    },
+    {
+      "entry": "Extended spec self-audit with release manifest, P8 performance evidence and final closure invariants.",
+      "evidence_refs": [
+        "tools/audit_spec.py"
+      ]
+    },
+    {
+      "entry": "global release audit correction: stale P7-A6 pending status was reconciled to PASS using already-existing dev15 package/portable regression evidence; no P7 runtime change was required.",
+      "evidence_refs": [
+        "plan/phase_records/P7_EXECUTION_RECORD.json",
+        "plan/P7_PACKAGE_AUDIT.md",
+        "plan/evidence/P7/final_package/portable_probe_audit.txt"
+      ]
+    },
+    {
+      "entry": "Post-axis consistency correction: release benchmark now injects the source tree into subprocess PYTHONPATH so the documented clean-source command is self-contained.",
+      "evidence_refs": [
+        "tools/benchmark_release.py",
+        "tests/test_p8_release.py::P8BenchmarkReproducibilityTests::test_release_benchmark_runs_from_clean_source_without_external_pythonpath"
+      ]
+    },
+    {
+      "entry": "Post-axis consistency correction: formalized carried_release_gates and strengthened global axis audit to validate carries plus path-like evidence-reference resolution.",
+      "evidence_refs": [
+        "spec/schemas/PHASE_EXECUTION_RECORD.schema.json",
+        "spec/registries/ACCEPTANCE_AXES.json",
+        "tools/audit_axes.py",
+        "tests/test_p8_release.py"
+      ]
+    },
+    {
+      "entry": "Post-axis consistency correction: repaired historical P1/P2 wheel evidence references to retained package evidence rather than deleted active-dist wheels.",
+      "evidence_refs": [
+        "plan/phase_records/P1_EXECUTION_RECORD.json",
+        "plan/phase_records/P2_EXECUTION_RECORD.json",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_install.txt",
+        "plan/evidence/P2/reaudit_final/wheel_sha256.txt"
+      ]
+    },
+    {
+      "entry": "Post-axis handoff correction: synchronized P7 historical acceptance docs and top-level ambiguity index with completed P8 release, including Windows lock support closure.",
+      "evidence_refs": [
+        "plan/P7_ACCEPTANCE_REVIEW.md",
+        "plan/P7_AXIS_AUDIT.md",
+        "plan/IMPLEMENTATION_PLAN.md",
+        "OPEN_QUESTIONS_AND_AMBIGUITIES.md"
+      ]
+    }
+  ],
+  "axis_reviews": [
+    {
+      "axis_id": "DAX01",
+      "status": "pass",
+      "evidence_refs": [
+        "docs/PRINCIPLES.md",
+        "tests/test_p1_resources.py",
+        "plan/P4_AXIS_AUDIT.md"
+      ],
+      "findings": [
+        "Historical P0–P4 audits and full regression preserve Markdown-first ownership; P8 adds no forced structured twin."
+      ]
+    },
+    {
+      "axis_id": "DAX02",
+      "status": "pass",
+      "evidence_refs": [
+        "docs/STORAGE_MODEL.md",
+        "tests/test_p5_materialization.py",
+        "plan/P5_POST_ACCEPTANCE_AXIS_REVIEW.md"
+      ],
+      "findings": [
+        "Storage ownership/layout remains documentation-owned; release tools do not introduce project runtime state into engine manifest semantics."
+      ]
+    },
+    {
+      "axis_id": "DAX03",
+      "status": "pass",
+      "evidence_refs": [
+        "tools/audit_spec.py",
+        "spec/schemas/",
+        "plan/P7_POST_ACCEPTANCE_AXIS_REVIEW.md"
+      ],
+      "findings": [
+        "All JSON schemas parse/validate; persisted/runtime/machine/release formats are explicit and versioned."
+      ]
+    },
+    {
+      "axis_id": "DAX04",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p7_hardening.py",
+        "plan/P7_POST_ACCEPTANCE_AXIS_REVIEW.md"
+      ],
+      "findings": [
+        "P7 path/symlink/recovery safety regressions remain green in the P8 full suite."
+      ]
+    },
+    {
+      "axis_id": "DAX05",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_objects.py",
+        "tests/test_builders.py",
+        "plan/P2_REAUDIT.md"
+      ],
+      "findings": [
+        "Raw immutability and derived provenance regressions remain green; P8 release tooling is external to resource semantics."
+      ]
+    },
+    {
+      "axis_id": "DAX06",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_builders.py",
+        "tests/test_p3_dependencies.py",
+        "plan/P3_POST_ACCEPTANCE_AXIS_REVIEW.md"
+      ],
+      "findings": [
+        "Tracked dependency granularity regressions remain green across builder and P3 suites."
+      ]
+    },
+    {
+      "axis_id": "DAX07",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py",
+        "tests/test_p4_semantic.py"
+      ],
+      "findings": [
+        "Baseline/comparator/diff suites remain green and release lifecycle uses the same persisted evidence."
+      ]
+    },
+    {
+      "axis_id": "DAX08",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py",
+        "tests/test_p4_semantic.py",
+        "tests/test_p5_materialization.py"
+      ],
+      "findings": [
+        "Invalidation semantics remain structurally correct through full P8 regression."
+      ]
+    },
+    {
+      "axis_id": "DAX09",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p4_semantic.py",
+        "tests/test_p6_protocol.py",
+        "src/docengine/verification.py"
+      ],
+      "findings": [
+        "Release verify blocks unresolved semantic review and release lifecycle explicitly validates rather than auto-accepting."
+      ]
+    },
+    {
+      "axis_id": "DAX10",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p4_semantic.py",
+        "tests/test_p5_materialization.py"
+      ],
+      "findings": [
+        "Idempotency/determinism regressions remain green; release tooling is deterministic/content-addressed where applicable."
+      ]
+    },
+    {
+      "axis_id": "DAX11",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py",
+        "tools/release_check.py",
+        "plan/evidence/P8/release_lifecycle.json"
+      ],
+      "findings": [
+        "Clean deletion/regeneration and post-regeneration verify pass in P8 release lifecycle."
+      ]
+    },
+    {
+      "axis_id": "DAX12",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py",
+        "docs/CLI_CONTRACT.md"
+      ],
+      "findings": [
+        "Frozen P6 CLI envelope/exit/mutation contracts remain green under P8 regression."
+      ]
+    },
+    {
+      "axis_id": "DAX13",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py",
+        "tools/release_check.py",
+        "docs/AI_USAGE_PROTOCOL.md"
+      ],
+      "findings": [
+        "Fresh clean lifecycle is machine-driven through CLI JSON; no internal runtime file editing is required."
+      ]
+    },
+    {
+      "axis_id": "DAX15",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p7_hardening.py",
+        "plan/P7_POST_ACCEPTANCE_AXIS_REVIEW.md"
+      ],
+      "findings": [
+        "P7 post-axis crash/recovery/locking hardening remains green under P8 full regression."
+      ]
+    },
+    {
+      "axis_id": "DAX17",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p8_release.py::P8SyntheticDomainFixtureTests",
+        "tests/test_domain_neutrality.py"
+      ],
+      "findings": [
+        "Telemetry numeric synthetic project builds, records dependencies and verifies without core changes."
+      ]
+    },
+    {
+      "axis_id": "DAX18",
+      "status": "pass",
+      "evidence_refs": [
+        "spec/release/PERFORMANCE_BUDGET.json",
+        "plan/evidence/P8/performance_gate.json",
+        "plan/evidence/P8/post_axis_consistency/clean_source_performance_gate.json",
+        "plan/evidence/P8/post_axis_consistency/portable_candidate/performance_gate.json"
+      ],
+      "findings": [
+        "Environment-normalized 10k/50k + 10k diff/render budget passes every blocking check.",
+        "v0.25 documented clean-source benchmark invocation is self-contained and passes with caller PYTHONPATH removed."
+      ]
+    },
+    {
+      "axis_id": "DAX19",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/",
+        "plan/P7_POST_ACCEPTANCE_AXIS_REVIEW.md",
+        "tests/test_p8_release.py",
+        "plan/P8_POST_ACCEPTANCE_CONSISTENCY_REVIEW.md",
+        "plan/evidence/P8/post_axis_consistency/source_full_tests.txt",
+        "plan/evidence/P8/post_axis_consistency/portable_candidate/tests.txt"
+      ],
+      "findings": [
+        "Full cross-phase suite plus dedicated P8 release tests exercise release failure and success paths.",
+        "Post-axis v0.25 adds clean-source benchmark subprocess coverage, carried-gate validation and evidence-reference integrity tests."
+      ]
+    },
+    {
+      "axis_id": "DAX20",
+      "status": "pass",
+      "evidence_refs": [
+        "tools/release_manifest.py",
+        "tools/audit_spec.py",
+        "tools/audit_axes.py",
+        "plan/P8_PACKAGE_AUDIT.md",
+        "MANIFEST.json",
+        "plan/P8_POST_ACCEPTANCE_CONSISTENCY_REVIEW.md",
+        "OPEN_QUESTIONS_AND_AMBIGUITIES.md",
+        "plan/evidence/P8/post_axis_consistency/final_clean_venv/wheel_source_parity.txt",
+        "plan/evidence/P8/post_axis_consistency/portable_candidate/manifest_validate.json"
+      ],
+      "findings": [
+        "v0.25 synchronizes P7/P8 history, closes the Windows portability watch item, formalizes carried gates, repairs historical evidence refs and makes benchmark invocation self-contained.",
+        "dev17 final README/wheel, clean-venv lifecycle, wheel/source parity and candidate manifest-only portable gate pass; final immutable manifest/ZIP freeze repeats the same checks."
+      ]
+    }
+  ],
+  "acceptance_summary": {
+    "decision": "accepted",
+    "unresolved_blocking_questions": [],
+    "failed_criteria": [],
+    "notes": "P8 accepted after v0.25 post-axis consistency correction. Runtime/core semantics are unchanged; benchmark reproducibility, P7/P8 handoff history, carried-gate modeling, Windows support closure and evidence-reference integrity are corrected and regression-tested. Final dev17 clean-venv and candidate portable gates pass; immutable manifest/ZIP freeze repeats them. No unresolved blocking/user-owned question remains."
+  }
+}

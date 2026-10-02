@@ -1,0 +1,197 @@
+[
+  {
+    "command": "init",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "status",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "check",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "diff",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "explain",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "sync",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "rebuild",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "validate",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "materialize",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "verify",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "history",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "graph",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  },
+  {
+    "command": "resources",
+    "exit_code": 2,
+    "keys": [
+      "command",
+      "data",
+      "engine_version",
+      "issues",
+      "machine_output_schema_version",
+      "ok",
+      "status"
+    ],
+    "schema": "1.0.0",
+    "status": "not_implemented"
+  }
+]

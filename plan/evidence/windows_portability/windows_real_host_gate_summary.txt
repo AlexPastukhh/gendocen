@@ -1,0 +1,15 @@
+Real Windows 11 / Python 3.14 acceptance gate — v0.27 dev19
+
+Targeted portability regression: 10 passed, 1 skipped
+Full source suite: 230 passed, 1 skipped
+SPEC AUDIT: OK
+Axis audit: ok=true, findings=[]
+Manifest validation: actual_files=581, tracked_files=581, findings=[]
+Release lifecycle: ok=true, findings=[]
+Release benchmark: ok=true
+Benchmark platform: Windows-11-10.0.26200-SP0
+Python: 3.14.7
+Peak RSS: 57296 KiB (limit 262144 KiB)
+Normalized total ratio: 0.27508799919456584 (limit 4.0)
+
+Source: user-executed PowerShell gate; full output retained in windows_real_host_gate_full.txt.

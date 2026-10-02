@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "P8 Performance Budget",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["budget_schema_version", "benchmark_schema_version", "fixture", "normalization", "limits", "policy"],
+  "properties": {
+    "budget_schema_version": {"const": "1.0.0"},
+    "benchmark_schema_version": {"const": "2.0.0"},
+    "fixture": {"type": "object"},
+    "normalization": {"type": "object"},
+    "limits": {"type": "object"},
+    "policy": {"type": "object"}
+  }
+}

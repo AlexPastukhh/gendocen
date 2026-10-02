@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DocumentationEngineUseCaseRegistry",
+  "type": "object",
+  "required": [
+    "version",
+    "contract_version",
+    "use_cases"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "use_cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "group",
+          "interaction_type",
+          "actor_intent",
+          "preconditions",
+          "inputs",
+          "reads",
+          "writes",
+          "outputs",
+          "side_effects",
+          "failure_modes",
+          "cli_surface",
+          "acceptance",
+          "implementation_target",
+          "cli_commands"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^DOC[0-9]{2}$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "group": {
+            "type": "string"
+          },
+          "interaction_type": {
+            "enum": [
+              "command",
+              "query",
+              "orchestration"
+            ]
+          },
+          "actor_intent": {
+            "type": "string"
+          },
+          "preconditions": {
+            "type": "array"
+          },
+          "inputs": {
+            "type": "array"
+          },
+          "reads": {
+            "type": "array"
+          },
+          "writes": {
+            "type": "array"
+          },
+          "outputs": {
+            "type": "array"
+          },
+          "side_effects": {
+            "type": "array"
+          },
+          "failure_modes": {
+            "type": "array"
+          },
+          "cli_surface": {
+            "type": "string"
+          },
+          "acceptance": {
+            "type": "array",
+            "minItems": 1
+          },
+          "implementation_target": {
+            "enum": [
+              "v0.1",
+              "future"
+            ]
+          },
+          "cli_commands": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  }
+}

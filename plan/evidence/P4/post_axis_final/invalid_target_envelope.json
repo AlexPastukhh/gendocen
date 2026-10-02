@@ -1,0 +1,1 @@
+{"command": "explain", "data": {}, "engine_version": "0.1.0.dev9", "issues": [{"code": "dependency_command_failed", "details": null, "message": "file ref must use non-empty canonical relative path segments", "severity": "error"}], "machine_output_schema_version": "1.0.0", "ok": false, "status": "dependency_command_failed"}

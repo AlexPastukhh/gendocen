@@ -1,0 +1,871 @@
+{
+  "version": "0.3.0",
+  "contract_version": "1.1.0",
+  "use_cases": [
+    {
+      "id": "DOC01",
+      "name": "Initialize documentation project",
+      "group": "lifecycle",
+      "interaction_type": "orchestration",
+      "actor_intent": "Подключить engine к существующей документации без требования структурировать все Markdown.",
+      "preconditions": [],
+      "inputs": [
+        "documentation_root",
+        "optional project config"
+      ],
+      "reads": [
+        "filesystem documentation tree"
+      ],
+      "writes": [
+        "engine project config",
+        "runtime directories"
+      ],
+      "outputs": [
+        "initialized project descriptor"
+      ],
+      "side_effects": [
+        "create docs/_dependency if configured"
+      ],
+      "failure_modes": [
+        "root_not_writable",
+        "path_escape",
+        "invalid_existing_config"
+      ],
+      "cli_surface": "`docengine init`",
+      "acceptance": [
+        "Plain Markdown остаётся usable без JSON migration.",
+        "Runtime directories создаются только внутри configured documentation root/project state paths.",
+        "Повторный init идемпотентен или явно сообщает конфликт."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "init"
+      ]
+    },
+    {
+      "id": "DOC02",
+      "name": "Register managed resource",
+      "group": "resources",
+      "interaction_type": "command",
+      "actor_intent": "Добавить structured resource с canonical data и materialization metadata.",
+      "preconditions": [
+        "project initialized"
+      ],
+      "inputs": [
+        "managed resource JSON"
+      ],
+      "reads": [
+        "resource schema registry"
+      ],
+      "writes": [
+        "docs/_structured resource"
+      ],
+      "outputs": [
+        "registered resource"
+      ],
+      "side_effects": [
+        "resource becomes discoverable"
+      ],
+      "failure_modes": [
+        "schema_invalid",
+        "duplicate_resource_id",
+        "materialization_path_escape"
+      ],
+      "cli_surface": "Author managed JSON under docs/_structured; inspect/discover via `docengine resources`.",
+      "acceptance": [
+        "Resource проходит schema validation.",
+        "Materialization target определён в $docengine metadata.",
+        "Регистрация не создаёт dependency logic в JSON."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "resources"
+      ]
+    },
+    {
+      "id": "DOC03",
+      "name": "Register dependency rule",
+      "group": "dependencies",
+      "interaction_type": "command",
+      "actor_intent": "Определить code-level dependency между source и target.",
+      "preconditions": [
+        "target/source addressable or file path valid"
+      ],
+      "inputs": [
+        "project code rule"
+      ],
+      "reads": [
+        "resource/file registry"
+      ],
+      "writes": [
+        "project dependency rule code/index"
+      ],
+      "outputs": [
+        "registered dependency rule"
+      ],
+      "side_effects": [
+        "future checks track dependency"
+      ],
+      "failure_modes": [
+        "unknown_ref",
+        "cyclic_dependency_disallowed",
+        "invalid_dependency_type"
+      ],
+      "cli_surface": "Project code API/registry only; dependency semantics are authored in code, not persisted through a runtime registration CLI.",
+      "acceptance": [
+        "Dependency semantics находится в code, не canonical resource data.",
+        "Granularity/type/comparator определены.",
+        "Rule can be inspected by graph/explain."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": []
+    },
+    {
+      "id": "DOC04",
+      "name": "Load structured objects",
+      "group": "runtime",
+      "interaction_type": "query",
+      "actor_intent": "Загрузить managed structured resources как validated typed/raw objects.",
+      "preconditions": [
+        "managed resources discoverable"
+      ],
+      "inputs": [
+        "resource refs or scope"
+      ],
+      "reads": [
+        "docs/_structured",
+        "schemas"
+      ],
+      "writes": [],
+      "outputs": [
+        "immutable raw objects"
+      ],
+      "side_effects": [],
+      "failure_modes": [
+        "schema_invalid",
+        "deserialization_error",
+        "unknown_resource"
+      ],
+      "cli_surface": "Internal/library loader API.",
+      "acceptance": [
+        "Stored fields map automatically without manual per-field assignment.",
+        "Raw object does not gain derived fields.",
+        "Loading does not mutate source files."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": []
+    },
+    {
+      "id": "DOC05",
+      "name": "Build derived object",
+      "group": "runtime",
+      "interaction_type": "command",
+      "actor_intent": "Построить новый derived object из raw/derived inputs обычным project code.",
+      "preconditions": [
+        "builder registered",
+        "inputs resolvable"
+      ],
+      "inputs": [
+        "target ref",
+        "builder args"
+      ],
+      "reads": [
+        "raw/derived objects via BuildContext"
+      ],
+      "writes": [
+        "derived object store",
+        "dependency receipt",
+        "baseline slices"
+      ],
+      "outputs": [
+        "derived object",
+        "dependency receipt"
+      ],
+      "side_effects": [
+        "tracked reads captured"
+      ],
+      "failure_modes": [
+        "missing_input",
+        "builder_error",
+        "cycle",
+        "write_failure"
+      ],
+      "cli_surface": "Builder API; runtime execution via `docengine rebuild TARGET`.",
+      "acceptance": [
+        "Raw inputs remain unchanged.",
+        "Derived object is a new object.",
+        "Actual dependency-aware reads are captured in receipt.",
+        "Derived-of-derived is supported."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "rebuild"
+      ]
+    },
+    {
+      "id": "DOC06",
+      "name": "Materialize view",
+      "group": "presentation",
+      "interaction_type": "command",
+      "actor_intent": "Сгенерировать human/machine view из object.",
+      "preconditions": [
+        "renderer registered",
+        "target object available"
+      ],
+      "inputs": [
+        "resource/target",
+        "renderer"
+      ],
+      "reads": [
+        "object",
+        "materialization metadata"
+      ],
+      "writes": [
+        "configured view path"
+      ],
+      "outputs": [
+        "materialized view"
+      ],
+      "side_effects": [
+        "replace generated view atomically"
+      ],
+      "failure_modes": [
+        "renderer_error",
+        "path_escape",
+        "target_unavailable"
+      ],
+      "cli_surface": "materialize",
+      "acceptance": [
+        "Output path is resolved from managed resource metadata or explicit derived target config.",
+        "Renderer performs presentation only.",
+        "Generated output is reproducible from canonical inputs."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "materialize"
+      ]
+    },
+    {
+      "id": "DOC07",
+      "name": "Check dependency state",
+      "group": "dependencies",
+      "interaction_type": "command",
+      "actor_intent": "Сравнить current dependency slices с validated baselines.",
+      "preconditions": [
+        "receipts/baselines exist or target never validated"
+      ],
+      "inputs": [
+        "scope"
+      ],
+      "reads": [
+        "dependency receipts",
+        "baselines",
+        "current sources"
+      ],
+      "writes": [
+        "dependency state",
+        "events"
+      ],
+      "outputs": [
+        "affected targets",
+        "diff summaries"
+      ],
+      "side_effects": [
+        "mark changed targets stale/review/rebuild required"
+      ],
+      "failure_modes": [
+        "baseline_missing",
+        "source_unavailable",
+        "comparator_error"
+      ],
+      "cli_surface": "check",
+      "acceptance": [
+        "Only declared/captured dependency slices are compared.",
+        "Unrelated field changes do not invalidate field-level dependencies.",
+        "Change detection does not claim semantic incorrectness."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "check"
+      ]
+    },
+    {
+      "id": "DOC08",
+      "name": "Show project status",
+      "group": "operations",
+      "interaction_type": "query",
+      "actor_intent": "Получить current operational state документации.",
+      "preconditions": [],
+      "inputs": [
+        "optional scope/filter"
+      ],
+      "reads": [
+        "dependency state",
+        "resource registry"
+      ],
+      "writes": [],
+      "outputs": [
+        "valid/stale/review/rebuild counts and targets"
+      ],
+      "side_effects": [],
+      "failure_modes": [
+        "state_unavailable"
+      ],
+      "cli_surface": "status",
+      "acceptance": [
+        "Human output and --json represent same underlying state.",
+        "No mutation occurs."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "status"
+      ]
+    },
+    {
+      "id": "DOC09",
+      "name": "Explain target state",
+      "group": "operations",
+      "interaction_type": "query",
+      "actor_intent": "Понять почему target stale/valid и от чего зависит.",
+      "preconditions": [
+        "target exists"
+      ],
+      "inputs": [
+        "target ref"
+      ],
+      "reads": [
+        "dependency state",
+        "receipts",
+        "rules",
+        "events"
+      ],
+      "writes": [],
+      "outputs": [
+        "explanation with upstream refs and last validation"
+      ],
+      "side_effects": [],
+      "failure_modes": [
+        "unknown_target"
+      ],
+      "cli_surface": "explain",
+      "acceptance": [
+        "Explanation identifies exact changed dependencies and granularity.",
+        "Includes last validated baseline/receipt identifiers."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "explain"
+      ]
+    },
+    {
+      "id": "DOC10",
+      "name": "Show dependency diff",
+      "group": "operations",
+      "interaction_type": "query",
+      "actor_intent": "Показать difference между validated dependency state и current state.",
+      "preconditions": [
+        "target has changed dependency or baseline"
+      ],
+      "inputs": [
+        "target ref"
+      ],
+      "reads": [
+        "baseline slices",
+        "current slices",
+        "comparator"
+      ],
+      "writes": [],
+      "outputs": [
+        "typed diff"
+      ],
+      "side_effects": [],
+      "failure_modes": [
+        "baseline_missing",
+        "comparator_error"
+      ],
+      "cli_surface": "diff",
+      "acceptance": [
+        "Diff is limited to dependency slices.",
+        "Comparator semantics are explicit.",
+        "Whole-file Markdown dependency can produce diff without target JSON."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "diff"
+      ]
+    },
+    {
+      "id": "DOC11",
+      "name": "Rebuild deterministic target",
+      "group": "runtime",
+      "interaction_type": "command",
+      "actor_intent": "Пересобрать computational target после invalidation.",
+      "preconditions": [
+        "builder registered",
+        "required inputs available"
+      ],
+      "inputs": [
+        "target ref"
+      ],
+      "reads": [
+        "current dependencies"
+      ],
+      "writes": [
+        "new derived object",
+        "new receipt/baseline",
+        "events",
+        "views if requested"
+      ],
+      "outputs": [
+        "rebuilt target"
+      ],
+      "side_effects": [
+        "replace/advance derived version"
+      ],
+      "failure_modes": [
+        "builder_error",
+        "missing_input",
+        "cycle"
+      ],
+      "cli_surface": "rebuild",
+      "acceptance": [
+        "Old raw sources are not mutated.",
+        "Successful rebuild advances baseline.",
+        "Failure leaves previous consistent state recoverable."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "rebuild"
+      ]
+    },
+    {
+      "id": "DOC12",
+      "name": "Review semantic dependency",
+      "group": "review",
+      "interaction_type": "orchestration",
+      "actor_intent": "Предоставить человеку/AI всё необходимое для смысловой проверки stale target.",
+      "preconditions": [
+        "target review_required"
+      ],
+      "inputs": [
+        "target ref"
+      ],
+      "reads": [
+        "target content",
+        "old baseline",
+        "current dependency slices",
+        "diff",
+        "rules"
+      ],
+      "writes": [],
+      "outputs": [
+        "review packet"
+      ],
+      "side_effects": [],
+      "failure_modes": [
+        "missing_baseline",
+        "unknown_target"
+      ],
+      "cli_surface": "Review workflow uses `explain` + `diff`, then explicit `validate`.",
+      "acceptance": [
+        "Packet contains target, old/current dependency state and diff.",
+        "Engine does not decide still-valid vs needs-update."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "explain",
+        "diff",
+        "validate"
+      ]
+    },
+    {
+      "id": "DOC13",
+      "name": "Accept current dependency state",
+      "group": "review",
+      "interaction_type": "command",
+      "actor_intent": "Зафиксировать результат semantic review и новый validated baseline.",
+      "preconditions": [
+        "review performed"
+      ],
+      "inputs": [
+        "target ref",
+        "result still-valid|updated",
+        "reason",
+        "optional evidence"
+      ],
+      "reads": [
+        "current target",
+        "current dependencies"
+      ],
+      "writes": [
+        "new receipt/baseline",
+        "dependency state",
+        "event"
+      ],
+      "outputs": [
+        "validation record"
+      ],
+      "side_effects": [
+        "target becomes valid on success"
+      ],
+      "failure_modes": [
+        "invalid_result",
+        "target_changed_during_review",
+        "write_failure"
+      ],
+      "cli_surface": "validate",
+      "acceptance": [
+        "Reason is recorded.",
+        "New baseline matches current dependencies.",
+        "State cannot be cleared by ordinary direct state-file mutation workflow."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "validate"
+      ]
+    },
+    {
+      "id": "DOC14",
+      "name": "Update stale document",
+      "group": "review",
+      "interaction_type": "orchestration",
+      "actor_intent": "Исправить stale Markdown/managed target и перевалидировать.",
+      "preconditions": [
+        "target stale/review_required"
+      ],
+      "inputs": [
+        "target edits",
+        "review result"
+      ],
+      "reads": [
+        "diff/review packet"
+      ],
+      "writes": [
+        "target content",
+        "new baseline/receipt/event"
+      ],
+      "outputs": [
+        "updated valid target"
+      ],
+      "side_effects": [
+        "content change plus validation"
+      ],
+      "failure_modes": [
+        "edit_conflict",
+        "validation_failure"
+      ],
+      "cli_surface": "Edit target with normal editor/AI tooling, then `validate`.",
+      "acceptance": [
+        "Updated content is validated against current dependencies.",
+        "History preserves prior stale event/reason."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "validate"
+      ]
+    },
+    {
+      "id": "DOC15",
+      "name": "Synchronize project",
+      "group": "operations",
+      "interaction_type": "orchestration",
+      "actor_intent": "Выполнить безопасный полный рабочий цикл после изменений.",
+      "preconditions": [],
+      "inputs": [
+        "scope/options"
+      ],
+      "reads": [
+        "resources",
+        "state",
+        "baselines",
+        "rules"
+      ],
+      "writes": [
+        "state",
+        "rebuilt deterministic targets",
+        "generated views",
+        "events"
+      ],
+      "outputs": [
+        "sync summary"
+      ],
+      "side_effects": [
+        "check + safe rebuild/materialize"
+      ],
+      "failure_modes": [
+        "partial_failure",
+        "builder_error",
+        "materialization_error"
+      ],
+      "cli_surface": "sync",
+      "acceptance": [
+        "Deterministic affected targets rebuild automatically.",
+        "Semantic targets remain review_required.",
+        "Summary lists all unresolved work."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "sync"
+      ]
+    },
+    {
+      "id": "DOC16",
+      "name": "Verify project",
+      "group": "release",
+      "interaction_type": "query",
+      "actor_intent": "Проверить готовность проекта без исправления состояния.",
+      "preconditions": [],
+      "inputs": [
+        "optional strictness/profile"
+      ],
+      "reads": [
+        "schemas",
+        "state",
+        "resources",
+        "generated views",
+        "receipts",
+        "release rules"
+      ],
+      "writes": [],
+      "outputs": [
+        "verification report + exit code"
+      ],
+      "side_effects": [],
+      "failure_modes": [
+        "verification_failed"
+      ],
+      "cli_surface": "verify",
+      "acceptance": [
+        "Unresolved stale/review-required can fail configured release gate.",
+        "Generated drift is detected.",
+        "Command is read-only.",
+        "--json sufficient for CI/AI."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "verify"
+      ]
+    },
+    {
+      "id": "DOC17",
+      "name": "Inspect history",
+      "group": "operations",
+      "interaction_type": "query",
+      "actor_intent": "Понять chronology validation/invalidation/rebuild одного target.",
+      "preconditions": [
+        "target known"
+      ],
+      "inputs": [
+        "target ref"
+      ],
+      "reads": [
+        "append-only events",
+        "receipts"
+      ],
+      "writes": [],
+      "outputs": [
+        "ordered history"
+      ],
+      "side_effects": [],
+      "failure_modes": [
+        "unknown_target"
+      ],
+      "cli_surface": "history",
+      "acceptance": [
+        "History is append-only and traceable to receipts/baselines."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "history"
+      ]
+    },
+    {
+      "id": "DOC18",
+      "name": "Promote plain document",
+      "group": "resources",
+      "interaction_type": "command",
+      "actor_intent": "Перевести конкретный Markdown в managed structured resource постепенно.",
+      "preconditions": [
+        "plain document exists"
+      ],
+      "inputs": [
+        "document path",
+        "target schema/model"
+      ],
+      "reads": [
+        "plain Markdown"
+      ],
+      "writes": [
+        "structured resource",
+        "materialization metadata",
+        "possibly regenerated view"
+      ],
+      "outputs": [
+        "managed resource"
+      ],
+      "side_effects": [
+        "document ownership changes from manual to managed"
+      ],
+      "failure_modes": [
+        "extraction_ambiguous",
+        "schema_invalid",
+        "path_conflict"
+      ],
+      "cli_surface": "Future authoring helper (`promote`), deferred beyond v0.1.",
+      "acceptance": [
+        "Promotion does not require promoting unrelated Markdown.",
+        "Canonical ownership after promotion is explicit.",
+        "Generated Markdown parity is established."
+      ],
+      "implementation_target": "future",
+      "cli_commands": []
+    },
+    {
+      "id": "DOC19",
+      "name": "Demote managed document",
+      "group": "resources",
+      "interaction_type": "command",
+      "actor_intent": "Вернуть managed document к plain Markdown.",
+      "preconditions": [
+        "managed resource exists"
+      ],
+      "inputs": [
+        "resource ref",
+        "demotion policy"
+      ],
+      "reads": [
+        "structured resource",
+        "current materialized view",
+        "dependencies"
+      ],
+      "writes": [
+        "plain Markdown",
+        "archived/exported structured metadata per policy"
+      ],
+      "outputs": [
+        "plain document"
+      ],
+      "side_effects": [
+        "managed generation disabled"
+      ],
+      "failure_modes": [
+        "downstream_dependency_block",
+        "export_failure"
+      ],
+      "cli_surface": "Future authoring helper (`demote`), deferred beyond v0.1.",
+      "acceptance": [
+        "No downstream dependency is silently broken.",
+        "Human-readable content remains available.",
+        "Audit trail records ownership change."
+      ],
+      "implementation_target": "future",
+      "cli_commands": []
+    },
+    {
+      "id": "DOC20",
+      "name": "Inspect dependency graph",
+      "group": "dependencies",
+      "interaction_type": "query",
+      "actor_intent": "Посмотреть upstream/downstream graph и affected set.",
+      "preconditions": [],
+      "inputs": [
+        "optional target/scope"
+      ],
+      "reads": [
+        "dependency rules",
+        "receipts"
+      ],
+      "writes": [],
+      "outputs": [
+        "graph/affected-set"
+      ],
+      "side_effects": [],
+      "failure_modes": [
+        "graph_inconsistent"
+      ],
+      "cli_surface": "graph",
+      "acceptance": [
+        "Graph distinguishes object refs from dependency edges.",
+        "Field/file granularity is visible."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "graph"
+      ]
+    },
+    {
+      "id": "DOC21",
+      "name": "List resources",
+      "group": "resources",
+      "interaction_type": "query",
+      "actor_intent": "Показать plain, managed and derived resources и materialization targets.",
+      "preconditions": [],
+      "inputs": [
+        "filters"
+      ],
+      "reads": [
+        "documentation tree",
+        "managed resource metadata",
+        "derived registry"
+      ],
+      "writes": [],
+      "outputs": [
+        "resource inventory"
+      ],
+      "side_effects": [],
+      "failure_modes": [
+        "scan_error"
+      ],
+      "cli_surface": "resources",
+      "acceptance": [
+        "Inventory distinguishes plain/managed/generated/derived.",
+        "Managed outputs are shown with documentation-root-relative paths."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "resources"
+      ]
+    },
+    {
+      "id": "DOC22",
+      "name": "Clean regenerate managed views",
+      "group": "release",
+      "interaction_type": "command",
+      "actor_intent": "Пересоздать generated views из canonical inputs для parity/release.",
+      "preconditions": [
+        "canonical resources valid"
+      ],
+      "inputs": [
+        "scope/all"
+      ],
+      "reads": [
+        "structured/derived objects",
+        "renderers"
+      ],
+      "writes": [
+        "generated views"
+      ],
+      "outputs": [
+        "clean regenerated views"
+      ],
+      "side_effects": [
+        "replace generated outputs"
+      ],
+      "failure_modes": [
+        "renderer_error",
+        "builder_required",
+        "path_escape"
+      ],
+      "cli_surface": "`docengine materialize --all` / clean regeneration mode.",
+      "acceptance": [
+        "Generated views can be recreated after deletion.",
+        "No manual-only state is required to reproduce them.",
+        "Post-regeneration parity passes."
+      ],
+      "implementation_target": "v0.1",
+      "cli_commands": [
+        "materialize"
+      ]
+    }
+  ]
+}

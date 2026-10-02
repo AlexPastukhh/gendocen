@@ -1,0 +1,748 @@
+{
+  "phase_id": "P6",
+  "name": "Complete CLI and AI/CI operating protocol",
+  "status": "accepted",
+  "scope": [
+    "Wire status/check/diff/explain/sync/rebuild/validate/materialize/verify/history/graph/resources to implemented services.",
+    "Freeze machine-readable command envelope and error model.",
+    "Freeze exit-code policy and mutation/query boundaries.",
+    "Demonstrate clean handoff workflow in a fresh process/chat-like environment."
+  ],
+  "out_of_scope": [
+    "Release archive signing/distribution.",
+    "Concurrency hardening beyond current safe assumptions."
+  ],
+  "deliverables": [
+    "complete CLI command set",
+    "versioned JSON output schema",
+    "exit-code table",
+    "AI operating runbook",
+    "E2E command fixtures"
+  ],
+  "use_cases": [
+    "DOC07",
+    "DOC08",
+    "DOC09",
+    "DOC10",
+    "DOC11",
+    "DOC12",
+    "DOC13",
+    "DOC15",
+    "DOC16",
+    "DOC17",
+    "DOC20",
+    "DOC21",
+    "DOC01"
+  ],
+  "acceptance_axes": [
+    "DAX03",
+    "DAX04",
+    "DAX08",
+    "DAX09",
+    "DAX11",
+    "DAX12",
+    "DAX13",
+    "DAX14",
+    "DAX16",
+    "DAX19",
+    "DAX20"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "P6-A1",
+      "criterion": "Every canonical command has human and `--json` output with the same underlying facts.",
+      "axis_ids": [
+        "DAX12",
+        "DAX13"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py::P6AgentWorkflowTests::test_human_and_json_status_share_same_counts",
+        "tests/test_cli.py::CliContractTests::test_every_command_emits_same_json_envelope",
+        "docs/CLI_CONTRACT.md"
+      ],
+      "notes": "P6 phase scope verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A2",
+      "criterion": "Machine envelope/error schema is versioned and stable across success, attention-required and failure cases.",
+      "axis_ids": [
+        "DAX12",
+        "DAX13"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "spec/schemas/CLI_OUTPUT.schema.json",
+        "tests/test_p6_protocol.py::P6ExitCodeAndEnvelopeTests::test_exit_code_classes_are_stable",
+        "plan/evidence/P6/final_clean_venv/exit_codes.txt"
+      ],
+      "notes": "P6 phase scope verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A3",
+      "criterion": "Query commands do not mutate state; command/orchestration mutations are explicitly documented and tested.",
+      "axis_ids": [
+        "DAX12",
+        "DAX19"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py::P6ReadOnlyBoundaryTests::test_all_read_only_commands_preserve_project_file_tree",
+        "docs/CLI_CONTRACT.md",
+        "plan/evidence/P6/final_clean_venv/verify_clean.json"
+      ],
+      "notes": "P6 phase scope verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A4",
+      "criterion": "A fresh AI-style consumer can inspect status, understand stale cause/diff, perform allowed action and reach verify without opening internal state files.",
+      "axis_ids": [
+        "DAX13"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py::P6AgentWorkflowTests::test_fresh_ai_cli_only_workflow_reaches_verify",
+        "plan/evidence/P6/fresh_agent_workflow.json",
+        "plan/evidence/P6/final_clean_venv/verify_final.json"
+      ],
+      "notes": "P6 phase scope verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A5",
+      "criterion": "History/explain output contains sufficient receipt/baseline/event references for audit.",
+      "axis_ids": [
+        "DAX14"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py",
+        "tests/test_p4_semantic.py",
+        "docs/AI_USAGE_PROTOCOL.md"
+      ],
+      "notes": "P6 phase scope verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A6",
+      "criterion": "CLI documentation and registries match implemented flags/exit codes exactly.",
+      "axis_ids": [
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "spec/registries/CLI_COMMANDS.json",
+        "docs/CLI_CONTRACT.md",
+        "tests/test_p6_protocol.py",
+        "plan/P6_PACKAGE_AUDIT.md"
+      ],
+      "notes": "P6 phase scope verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A7",
+      "criterion": "`verify` is read-only, emits a complete report after multiple simultaneous findings, fails blocking release findings with exit 3 rather than crashing, and detects generated drift/unresolved semantic review/required deterministic build evidence.",
+      "axis_ids": [
+        "DAX09",
+        "DAX11",
+        "DAX12",
+        "DAX13",
+        "DAX14"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "spec/schemas/VERIFICATION_REPORT.schema.json",
+        "tests/test_p6_protocol.py::P6VerifyTests",
+        "plan/evidence/P6/verify_drift.json",
+        "plan/evidence/P6/verify_plain_markdown.json"
+      ],
+      "notes": "P6 phase scope verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A8",
+      "criterion": "The incompatible pre-P6 JSON envelope is replaced only with an explicit machine schema version bump, and usage/internal failures remain inside the canonical envelope when `--json` is requested.",
+      "axis_ids": [
+        "DAX03",
+        "DAX12",
+        "DAX13",
+        "DAX16"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/output.py",
+        "src/docengine/cli.py",
+        "spec/schemas/CLI_OUTPUT.schema.json",
+        "tests/test_cli.py",
+        "tests/test_p6_protocol.py::P6ExitCodeAndEnvelopeTests::test_exit_code_classes_are_stable"
+      ],
+      "notes": "P6 phase scope verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A9",
+      "criterion": "Verification-domain corruption and project callback termination remain inside the versioned machine protocol: expected corruption is reported with exit 3/4, not uncaught/internal process termination.",
+      "axis_ids": [
+        "DAX04",
+        "DAX12",
+        "DAX13",
+        "DAX14"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py::P6VerifyTests::test_verify_dependency_runtime_corruption_is_report_not_internal_error",
+        "tests/test_p6_protocol.py::P6ProtocolBoundaryRegressionTests",
+        "plan/evidence/P6/postaxis/verify_dependency_runtime_symlink.json",
+        "plan/evidence/P6/postaxis/project_systemexit_protocol.json"
+      ],
+      "notes": "Post-acceptance correction verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A10",
+      "criterion": "Verification status classification matches canonical dependency/semantic runtime semantics, including unavailable semantic rules and incomplete audit evidence.",
+      "axis_ids": [
+        "DAX08",
+        "DAX14"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p6_protocol.py::P6VerifyTests::test_verify_classifies_missing_semantic_rule_as_invalid",
+        "plan/evidence/P6/postaxis/semantic_rule_unavailable_verify.json"
+      ],
+      "notes": "Post-acceptance correction verified; global release-gate closure remains P8."
+    },
+    {
+      "id": "P6-A11",
+      "criterion": "Explicit root shape, human/JSON diagnostic parity, and machine registry/parser parity are enforced by regression tests and current docs.",
+      "axis_ids": [
+        "DAX04",
+        "DAX12",
+        "DAX13",
+        "DAX19",
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_project.py",
+        "tests/test_p6_protocol.py::P6ExitCodeAndEnvelopeTests::test_cli_registry_matches_parser_surface_and_exit_table",
+        "tests/test_p6_protocol.py::P6ProtocolBoundaryRegressionTests::test_human_status_failure_retains_invalid_target_facts",
+        "docs/PROJECT_CONFIG.md",
+        "docs/CLI_CONTRACT.md"
+      ],
+      "notes": "Post-acceptance correction verified; global release-gate closure remains P8."
+    }
+  ],
+  "pre_execution_questions": [
+    {
+      "id": "Q6.1",
+      "question": "Как выглядит canonical JSON envelope для всех CLI команд?",
+      "why_it_matters": "AI integration становится хрупкой, если каждая команда возвращает произвольную форму.",
+      "blocking": true,
+      "recommended_default": "Top-level: `schema_version`, `command`, `ok`, `attention_required`, `data`, `warnings`, `errors`, `meta`.",
+      "status": "answered",
+      "answer": "Top-level: `schema_version`, `command`, `ok`, `attention_required`, `data`, `warnings`, `errors`, `meta`.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.2",
+      "question": "Фиксируем ли единый набор exit codes?",
+      "why_it_matters": "CI/AI должны различать usage error, verification failure and unresolved review.",
+      "blocking": true,
+      "recommended_default": "Yes. Recommended: 0 success/no blocking attention; 2 completed but attention/review required; 3 verification/domain validation failure; 4 usage/config error; 5 internal/runtime failure.",
+      "status": "answered",
+      "answer": "Yes. Recommended: 0 success/no blocking attention; 2 completed but attention/review required; 3 verification/domain validation failure; 4 usage/config error; 5 internal/runtime failure.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.3",
+      "question": "Какие команды строго read-only?",
+      "why_it_matters": "Это влияет на возможность безопасно исследовать проект перед изменениями.",
+      "blocking": true,
+      "recommended_default": "`status`, `diff`, `explain`, `history`, `graph`, `resources`, `verify` are read-only; `check`, `sync`, `rebuild`, `validate`, `materialize` may mutate runtime/generated state as documented.",
+      "status": "answered",
+      "answer": "`status`, `diff`, `explain`, `history`, `graph`, `resources`, and `verify` are read-only; `check`, `sync`, `rebuild`, `validate`, `materialize`, and `init` may mutate only the state/output documented for each command.",
+      "decision": "Freeze query/mutation boundaries in CLI contract and test them.",
+      "evidence_refs": [
+        "conversation-design-decision"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.4",
+      "question": "Нужно ли поддерживать stdin/stdout-only режим для агента?",
+      "why_it_matters": "Удобно для automation, но может расширить surface.",
+      "blocking": true,
+      "recommended_default": "JSON stdout is mandatory; structured stdin for bulk actions deferred unless a concrete use case appears.",
+      "status": "answered",
+      "answer": "JSON stdout is mandatory; structured stdin for bulk actions deferred unless a concrete use case appears.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    }
+  ],
+  "emergent_questions": [
+    {
+      "id": "Q6.E1",
+      "question": "Does freezing the Q6.1 envelope require a machine-output schema-version bump?",
+      "why_it_matters": "The existing schema version 1.0.0 described a different top-level shape; silently reusing it would make AI/CI consumers unable to distinguish protocols.",
+      "blocking": true,
+      "recommended_default": "Yes. Freeze the P6 canonical envelope as machine schema 2.0.0.",
+      "status": "answered",
+      "answer": "Yes. Freeze the P6 canonical envelope as machine schema 2.0.0.",
+      "decision": "Machine output schema is bumped from 1.0.0 to 2.0.0; the new top level is exactly `schema_version`, `command`, `ok`, `attention_required`, `data`, `warnings`, `errors`, `meta`.",
+      "evidence_refs": [
+        "src/docengine/output.py",
+        "src/docengine/versions.py",
+        "spec/schemas/CLI_OUTPUT.schema.json",
+        "tests/test_output.py"
+      ],
+      "acceptance_impact": "DAX03/DAX13/DAX16.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E2",
+      "question": "Can a read-only CLI command import project code if that import writes Python bytecode into the project?",
+      "why_it_matters": "P6 declares verify/explain/graph and other queries read-only; creating `__pycache__` is still a project mutation.",
+      "blocking": true,
+      "recommended_default": "No. Project extension loading must suppress bytecode writes while preserving the caller process setting afterwards.",
+      "status": "answered",
+      "answer": "No. Project extension loading must suppress bytecode writes while preserving the caller process setting afterwards.",
+      "decision": "Project package import and lazy registration imports run with temporary `sys.dont_write_bytecode=True`; the previous global value is restored in `finally`.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p6_protocol.py::P6ReadOnlyBoundaryTests"
+      ],
+      "acceptance_impact": "DAX12 read-only boundary.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E3",
+      "question": "Which deterministic builders are independently required by `verify`?",
+      "why_it_matters": "Internal helper derived objects may legitimately have no documentation descriptor/standalone receipt, while documentation-owned derived outputs must be release-verifiable.",
+      "blocking": false,
+      "recommended_default": "Release-gate documentation-owned derived descriptors and active recorded targets; do not require standalone receipts for internal-only helper builders.",
+      "status": "answered",
+      "answer": "Release-gate documentation-owned derived descriptors and active recorded targets; do not require standalone receipts for internal-only helper builders.",
+      "decision": "`verify` executes/checks managed `derived_descriptor` targets and persisted active receipts; internal-only helpers are verified transitively when required builders execute.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p6_protocol.py"
+      ],
+      "acceptance_impact": "Avoids false release blockers while preserving required build evidence.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E4",
+      "question": "Should `verify` fail fast when one project extension component is broken?",
+      "why_it_matters": "A complete report is more useful to CI/AI and the accepted verify semantics require reporting all available blocking findings rather than crashing at the first one.",
+      "blocking": true,
+      "recommended_default": "No. Load base builder/semantic components and renderer component separately; record component failures as findings and continue independent integrity/state checks.",
+      "status": "answered",
+      "answer": "No. Load base builder/semantic components and renderer component separately; record component failures as findings and continue independent integrity/state checks.",
+      "decision": "Verification aggregates component findings and continues dependency/state checks; renderer failure cannot erase persisted dependency diagnostics.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "src/docengine/cli.py",
+        "tests/test_p6_protocol.py"
+      ],
+      "acceptance_impact": "DAX13/DAX14 complete-report behavior.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E5",
+      "question": "Is the configured project Python package mandatory for `verify` on a documentation-only project?",
+      "why_it_matters": "P1-P5 treat project code as optional when no code-owned semantics are needed; making verify require it would reject valid plain-Markdown projects.",
+      "blocking": true,
+      "recommended_default": "No. If the configured package directory is absent, verify uses empty builder/semantic registries and built-in renderers; actual derived/code-owned requirements still surface through resource evidence.",
+      "status": "answered",
+      "answer": "No. Documentation-only projects verify without creating a placeholder project package.",
+      "decision": "`verify` only loads the project package when it exists. Missing required builders are still reported for documentation-owned derived descriptors.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_p6_protocol.py::P6VerifyTests::test_verify_allows_plain_markdown_project_without_project_package"
+      ],
+      "acceptance_impact": "DAX13/DAX17 domain-independent CLI behavior; resolved in P6.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E6",
+      "question": "How should `verify` behave if the dependency runtime cannot even be constructed because its machine-owned root is unsafe/corrupt?",
+      "why_it_matters": "A symlinked/unsafe `_dependency` tree is a verification finding, not an engine crash; fail-fast exit 5 loses the complete report contract.",
+      "blocking": true,
+      "recommended_default": "Convert dependency-runtime construction failure into a blocking verification finding/section, continue independent checks, and return exit 3.",
+      "status": "answered",
+      "answer": "Verification now reports `dependency_runtime_unavailable` inside the complete report and continues independent builder/component checks where possible.",
+      "decision": "Domain corruption of dependency runtime is exit 3 verification evidence, not exit 5 internal failure.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p6_protocol.py::P6VerifyTests::test_verify_dependency_runtime_corruption_is_report_not_internal_error",
+        "plan/evidence/P6/postaxis/verify_dependency_runtime_symlink.json"
+      ],
+      "acceptance_impact": "Closes complete-report semantics for DAX12/DAX13/DAX14 and safety reporting for DAX04.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E7",
+      "question": "May explicit project/documentation roots be nonexistent paths or regular files and still verify as an empty clean project?",
+      "why_it_matters": "Returning success for a nonexistent/file project root makes usage/config errors indistinguishable from a genuinely empty project.",
+      "blocking": true,
+      "recommended_default": "Explicit project root must exist and be a directory; an existing documentation root must also be a directory. An absent documentation directory may represent an empty/uninitialized docs tree.",
+      "status": "answered",
+      "answer": "Root discovery now rejects nonexistent/non-directory project roots and existing non-directory documentation roots.",
+      "decision": "Invalid root shape is usage/config error (exit 4), never a clean verification success.",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "tests/test_project.py",
+        "tests/test_p6_protocol.py::P6VerifyTests::test_nonexistent_or_file_project_root_is_usage_error_not_clean_project",
+        "plan/evidence/P6/postaxis/invalid_root_protocol.json"
+      ],
+      "acceptance_impact": "Strengthens DAX04/DAX12/DAX13 root/usage semantics.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E8",
+      "question": "Should accidental `SystemExit` from project imports/registration/builders/renderers be allowed to escape the machine protocol?",
+      "why_it_matters": "Project-owned code can accidentally call `sys.exit`; if uncaught, `--json` produces stderr/process exit without the canonical envelope.",
+      "blocking": true,
+      "recommended_default": "Catch `SystemExit` at project extension/builder/renderer boundaries and convert it into the same domain/component error classes; do not swallow `KeyboardInterrupt`.",
+      "status": "answered",
+      "answer": "Project import/registration/builder/renderer `SystemExit` is wrapped into engine domain/component errors and remains inside the JSON protocol.",
+      "decision": "Catch `SystemExit` specifically at project callback boundaries; cooperative code is still not sandboxed.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "src/docengine/builders.py",
+        "src/docengine/materialization.py",
+        "tests/test_p6_protocol.py::P6ProtocolBoundaryRegressionTests",
+        "plan/evidence/P6/postaxis/project_systemexit_protocol.json"
+      ],
+      "acceptance_impact": "Closes DAX12/DAX13 machine-protocol escape without changing A1 trusted-code boundary.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E9",
+      "question": "When a human CLI command fails or requires attention but already has structured diagnostic data, may the human renderer collapse it to only a status/roots line?",
+      "why_it_matters": "P6-A1 requires human and JSON surfaces to expose the same underlying facts; hiding invalid targets makes the human surface non-diagnostic.",
+      "blocking": false,
+      "recommended_default": "Render available command data for human failure/attention results as well as success, then append envelope issues.",
+      "status": "answered",
+      "answer": "Human dependency/orchestration output now preserves available diagnostic data on non-success; verify usage/config errors fall back to the generic issue renderer when no report exists.",
+      "decision": "Human output may summarize but must not discard the core diagnostic facts already present in `CommandResult.data`.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_p6_protocol.py::P6ProtocolBoundaryRegressionTests::test_human_status_failure_retains_invalid_target_facts",
+        "plan/evidence/P6/postaxis/human_json_failure_parity.json"
+      ],
+      "acceptance_impact": "Strengthens P6-A1 / DAX12/DAX13.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E10",
+      "question": "How is the claimed CLI registry/parser parity protected against future drift?",
+      "why_it_matters": "The P6 contract states acceptance tests compare the registry with parser surface, but the accepted v0.20 suite only checked the command set/envelope.",
+      "blocking": false,
+      "recommended_default": "Add parser introspection regression coverage for command list, command-specific options and target cardinality, while checking the frozen exit table.",
+      "status": "answered",
+      "answer": "A dedicated P6 regression test now compares `CLI_COMMANDS.json` with the actual argparse surface and exit-code table.",
+      "decision": "Registry/parser parity is executable assurance rather than documentation-only intent.",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py::P6ExitCodeAndEnvelopeTests::test_cli_registry_matches_parser_surface_and_exit_table",
+        "plan/evidence/P6/postaxis/cli_registry_parser_parity.json"
+      ],
+      "acceptance_impact": "Closes DAX19/DAX20 assurance gap; runtime registry/parser already matched when probed.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q6.E11",
+      "question": "Should P6 verification reclassify a receipt with an unavailable semantic rule using only the old receipt dependency type?",
+      "why_it_matters": "P3/P4 canonical semantics treat `semantic_rule_unavailable` as invalid; calling it merely `review_required` makes verify disagree with runtime state semantics.",
+      "blocking": true,
+      "recommended_default": "Use the canonical invalidation rules: incomplete audit or unavailable source/builder/target/semantic rule is `invalid`; only inspectable structural changes use dependency-type-derived stale/review/build states.",
+      "status": "answered",
+      "answer": "Verification current-check classification now mirrors the canonical runtime semantics, including `semantic_rule_unavailable → invalid` and `audit_complete=false → invalid`.",
+      "decision": "Verify does not maintain a weaker parallel status classifier.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p6_protocol.py::P6VerifyTests::test_verify_classifies_missing_semantic_rule_as_invalid",
+        "plan/evidence/P6/postaxis/semantic_rule_unavailable_verify.json"
+      ],
+      "acceptance_impact": "Closes DAX08/DAX14 semantic-state consistency.",
+      "owner": "implementer"
+    }
+  ],
+  "implementation_log": [
+    {
+      "entry": "Implemented canonical machine-output envelope schema 2.0.0 and stable exit codes 0/2/3/4/5.",
+      "evidence_refs": [
+        "src/docengine/output.py",
+        "src/docengine/cli.py",
+        "spec/schemas/CLI_OUTPUT.schema.json",
+        "tests/test_p6_protocol.py"
+      ]
+    },
+    {
+      "entry": "Implemented read-only complete verification report over dependency integrity/current state, semantic review, required builders and materialization parity.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "spec/schemas/VERIFICATION_REPORT.schema.json",
+        "tests/test_p6_protocol.py"
+      ]
+    },
+    {
+      "entry": "Converted argparse/usage and last-resort internal failures into canonical JSON envelopes when `--json` is requested.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_cli.py",
+        "tests/test_p6_protocol.py"
+      ]
+    },
+    {
+      "entry": "Suppressed project-package bytecode writes so read-only commands preserve the project file tree.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p6_protocol.py"
+      ]
+    },
+    {
+      "entry": "Added fresh AI-style CLI-only workflow coverage from sync attention through semantic validation to successful verify.",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py::P6AgentWorkflowTests"
+      ]
+    },
+    {
+      "entry": "acceptance correction: verify no longer requires an optional project package for plain documentation-only projects.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_p6_protocol.py"
+      ]
+    },
+    {
+      "entry": "post-axis correction: verification dependency-runtime construction failures are blocking report findings rather than exit-5 internal failures.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "plan/evidence/P6/postaxis/verify_dependency_runtime_symlink.json"
+      ]
+    },
+    {
+      "entry": "post-axis correction: explicit project roots must exist/be directories and existing docs roots must be directories.",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "plan/evidence/P6/postaxis/invalid_root_protocol.json"
+      ]
+    },
+    {
+      "entry": "post-axis correction: project import/registration/builder/renderer SystemExit is wrapped into domain/component errors so JSON protocol remains intact.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "src/docengine/builders.py",
+        "src/docengine/materialization.py",
+        "plan/evidence/P6/postaxis/project_systemexit_protocol.json"
+      ]
+    },
+    {
+      "entry": "post-axis correction: human non-success rendering preserves available diagnostic data and verify config errors surface issue text.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "plan/evidence/P6/postaxis/human_json_failure_parity.json"
+      ]
+    },
+    {
+      "entry": "post-axis correction: verification status classification mirrors canonical invalid/unavailable semantics.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "plan/evidence/P6/postaxis/semantic_rule_unavailable_verify.json"
+      ]
+    },
+    {
+      "entry": "post-axis assurance: CLI registry/parser/target/exit table parity is now regression-tested; current registry matched the parser.",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py",
+        "plan/evidence/P6/postaxis/cli_registry_parser_parity.json"
+      ]
+    },
+    {
+      "entry": "post-axis documentation correction: active materialization runtime documentation now identifies verify as implemented in P6.",
+      "evidence_refs": [
+        "docs/MATERIALIZATION_RUNTIME.md",
+        "tools/audit_spec.py"
+      ]
+    }
+  ],
+  "axis_reviews": [
+    {
+      "axis_id": "DAX03",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/versions.py",
+        "spec/schemas/CLI_OUTPUT.schema.json",
+        "spec/schemas/VERIFICATION_REPORT.schema.json",
+        "tests/test_p6_protocol.py"
+      ],
+      "findings": [
+        "Machine protocol incompatibility is explicit through schema version 2.0.0; verification/report schemas are versioned and validated."
+      ]
+    },
+    {
+      "axis_id": "DAX04",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "src/docengine/verification.py",
+        "tests/test_project.py",
+        "tests/test_p6_protocol.py"
+      ],
+      "findings": [
+        "Explicit root shape is validated; unsafe dependency-runtime roots become verification findings rather than internal crashes."
+      ]
+    },
+    {
+      "axis_id": "DAX08",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p6_protocol.py::P6VerifyTests::test_verify_classifies_missing_semantic_rule_as_invalid"
+      ],
+      "findings": [
+        "Verify status classification now mirrors canonical invalidation semantics including semantic_rule_unavailable and incomplete audit evidence."
+      ]
+    },
+    {
+      "axis_id": "DAX09",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p6_protocol.py::P6VerifyTests",
+        "plan/evidence/P6/fresh_agent_workflow.json"
+      ],
+      "findings": [
+        "Verify reports unresolved semantic review as blocking evidence and never auto-accepts semantic validity."
+      ]
+    },
+    {
+      "axis_id": "DAX11",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p6_protocol.py::P6VerifyTests::test_verify_detects_generated_drift_read_only",
+        "plan/evidence/P6/verify_drift.json"
+      ],
+      "findings": [
+        "Verify detects generated drift/missing/outdated/error/orphan state read-only and does not repair it."
+      ]
+    },
+    {
+      "axis_id": "DAX12",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "docs/CLI_CONTRACT.md",
+        "tests/test_cli.py",
+        "tests/test_p6_protocol.py",
+        "plan/evidence/P6/postaxis/project_systemexit_protocol.json",
+        "plan/evidence/P6/postaxis/human_json_failure_parity.json"
+      ],
+      "findings": [
+        "All canonical command/error paths use stable 0/2/3/4/5 policy; read-only commands preserve engine-owned project file tree.",
+        "Project callback SystemExit no longer escapes the machine protocol; human non-success output retains diagnostic facts."
+      ]
+    },
+    {
+      "axis_id": "DAX13",
+      "status": "pass",
+      "evidence_refs": [
+        "docs/AI_USAGE_PROTOCOL.md",
+        "spec/registries/CLI_COMMANDS.json",
+        "plan/evidence/P6/fresh_agent_workflow.json",
+        "plan/evidence/P6/final_clean_venv/exit_codes.txt",
+        "plan/evidence/P6/postaxis/invalid_root_protocol.json",
+        "plan/evidence/P6/postaxis/project_systemexit_protocol.json"
+      ],
+      "findings": [
+        "Fresh AI workflow reaches verify through CLI JSON only; canonical envelope is stable in installed-wheel smoke.",
+        "Invalid roots and project callback termination now remain machine-readable with stable exit classes."
+      ]
+    },
+    {
+      "axis_id": "DAX14",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p3_dependencies.py",
+        "tests/test_p4_semantic.py",
+        "docs/AI_USAGE_PROTOCOL.md",
+        "plan/evidence/P6/postaxis/verify_dependency_runtime_symlink.json",
+        "plan/evidence/P6/postaxis/semantic_rule_unavailable_verify.json"
+      ],
+      "findings": [
+        "Explain/history/integrity evidence remains available and verify aggregates component findings instead of fail-fast.",
+        "Complete verification survives dependency-runtime construction corruption and reports canonical semantic invalidation."
+      ]
+    },
+    {
+      "axis_id": "DAX16",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/versions.py",
+        "spec/schemas/CLI_OUTPUT.schema.json",
+        "tests/test_p6_protocol.py::P6ExitCodeAndEnvelopeTests::test_exit_code_classes_are_stable"
+      ],
+      "findings": [
+        "Historical incompatible envelope is not silently reused; machine schema is explicitly bumped to 2.0.0."
+      ]
+    },
+    {
+      "axis_id": "DAX19",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p6_protocol.py",
+        "plan/evidence/P6/final_source_tests.txt",
+        "plan/evidence/P6/portable_probe_tests.txt",
+        "plan/evidence/P6/postaxis/cli_registry_parser_parity.json"
+      ],
+      "findings": [
+        "Full source and manifest-only portable regressions pass, including P0–P5 suites and dedicated P6 boundaries.",
+        "Registry/parser parity and post-acceptance failure modes now have explicit regression coverage."
+      ]
+    },
+    {
+      "axis_id": "DAX20",
+      "status": "pass",
+      "evidence_refs": [
+        "README.md",
+        "START_HERE_AGENT.md",
+        "plan/P6_PACKAGE_AUDIT.md",
+        "plan/evidence/P6/postaxis_final_clean_venv/wheel_source_parity.txt",
+        "plan/evidence/P6/postaxis_final_clean_venv/wheel_sha256.txt",
+        "plan/evidence/P6/postaxis_portable_probe/pytest.txt",
+        "plan/evidence/P6/postaxis_portable_probe/audit.txt",
+        "plan/evidence/P6/postaxis_portable_probe/file_set.txt",
+        "docs/MATERIALIZATION_RUNTIME.md",
+        "docs/CLI_CONTRACT.md",
+        "docs/AI_USAGE_PROTOCOL.md",
+        "tools/audit_spec.py"
+      ],
+      "findings": [
+        "Final post-axis docs and runtime build are synchronized at v0.21 / dev13.",
+        "Final dev13 wheel matches all 19 runtime Python modules in source.",
+        "Clean-venv protocol probes reproduce the corrected invalid-root, dependency-corruption and project-SystemExit behavior.",
+        "Manifest-only portable probe passes the full suite/spec audit with exact file set and hashes."
+      ]
+    }
+  ],
+  "acceptance_summary": {
+    "decision": "accepted",
+    "unresolved_blocking_questions": [],
+    "failed_criteria": [],
+    "notes": "P6 remains accepted after independent post-axis correction and final dev13 package gate. Confirmed verify/root/protocol/human-rendering/status-classification defects plus registry-test/documentation assurance gaps were corrected. Q6.E1–E11 are resolved implementer decisions; no unresolved blocking/user-owned question remains before P7."
+  }
+}

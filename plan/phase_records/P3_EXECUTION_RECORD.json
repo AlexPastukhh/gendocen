@@ -1,0 +1,802 @@
+{
+  "phase_id": "P3",
+  "name": "Dependency receipts, baselines, comparators, diff and state",
+  "status": "accepted",
+  "scope": [
+    "Persist DependencyReceipt from tracked reads/explicit rules.",
+    "Store validated dependency slices, not unrelated upstream content.",
+    "Implement comparator registry and typed diffs.",
+    "Implement dependency graph/reverse affected-set lookup.",
+    "Implement current dependency state and append-only events.",
+    "Detect upstream change and mark affected targets stale/build-required/review-required according to dependency mode."
+  ],
+  "out_of_scope": [
+    "Human/AI semantic acceptance workflow beyond state generation.",
+    "Renderer/materialization rebuilds."
+  ],
+  "deliverables": [
+    "receipt store",
+    "baseline store",
+    "comparator registry",
+    "diff model",
+    "state store",
+    "event log",
+    "check/diff/explain/graph core"
+  ],
+  "use_cases": [
+    "DOC07",
+    "DOC08",
+    "DOC09",
+    "DOC10",
+    "DOC17",
+    "DOC20"
+  ],
+  "acceptance_axes": [
+    "DAX01",
+    "DAX02",
+    "DAX03",
+    "DAX04",
+    "DAX05",
+    "DAX06",
+    "DAX07",
+    "DAX08",
+    "DAX09",
+    "DAX10",
+    "DAX12",
+    "DAX13",
+    "DAX14",
+    "DAX17",
+    "DAX19",
+    "DAX20"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "P3-A1",
+      "criterion": "Field-level dependency snapshots contain only the referenced field slice; unrelated field changes do not invalidate target.",
+      "axis_ids": [
+        "DAX06",
+        "DAX07"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3BuildReceiptTests::test_field_baseline_contains_only_referenced_slice_and_ignores_unrelated_change",
+        "plan/evidence/P3/field_dependency_and_diff.json"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P3-A2",
+      "criterion": "Whole-file Markdown dependency works without introducing JSON for the target/source merely to track the file.",
+      "axis_ids": [
+        "DAX01",
+        "DAX06"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3MarkdownDependencyTests::test_whole_markdown_dependency_needs_no_json_and_becomes_review_required",
+        "plan/evidence/P3/markdown_dependency_review.json"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P3-A3",
+      "criterion": "Diff shows validated baseline versus current state using the declared comparator and is stable across retries.",
+      "axis_ids": [
+        "DAX07",
+        "DAX10"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3BuildReceiptTests::test_referenced_field_change_marks_build_required_and_diff_is_stable",
+        "tests/test_p3_dependencies.py::P3ComparatorTests::test_required_comparators_are_present_and_deterministic"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P3-A4",
+      "criterion": "Dependency change updates runtime state but does not modify canonical source content or assert semantic falsity.",
+      "axis_ids": [
+        "DAX08"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3MarkdownDependencyTests::test_whole_markdown_dependency_needs_no_json_and_becomes_review_required",
+        "tests/test_p3_dependencies.py::P3MarkdownDependencyTests::test_explicit_validation_tracks_target_revision_and_target_edit_requires_review",
+        "plan/evidence/P3/target_revision_invalidation.json"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P3-A5",
+      "criterion": "Reverse graph identifies exactly affected targets for a changed dependency.",
+      "axis_ids": [
+        "DAX06",
+        "DAX19"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3BuildReceiptTests::test_reverse_graph_exactly_maps_recorded_sources",
+        "src/docengine/dependencies.py"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P3-A6",
+      "criterion": "Receipts, state and append-only events are mutually explainable and inconsistent fixtures are detected.",
+      "axis_ids": [
+        "DAX14",
+        "DAX19"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3IntegrityTests",
+        "plan/evidence/P3/integrity_detection.json",
+        "src/docengine/dependencies.py"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P3-A7",
+      "criterion": "Changing project builder/helper source revision with unchanged data dependencies is detected as a derivation change, recorded in evidence/history and makes affected deterministic targets build_required until rebuilt.",
+      "axis_ids": [
+        "DAX03",
+        "DAX05",
+        "DAX08",
+        "DAX10"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3BuildReceiptTests::test_builder_revision_change_alone_marks_build_required",
+        "plan/evidence/P3/builder_revision_invalidation.json"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P3-A8",
+      "criterion": "Dependency persistence stays under documentation-owned _dependency storage; read-only dependency queries do not create runtime state, and symlink/path escapes are rejected.",
+      "axis_ids": [
+        "DAX02",
+        "DAX04",
+        "DAX12"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3ReadOnlyAndFailureSemanticsTests",
+        "src/docengine/dependencies.py",
+        "src/docengine/cli.py"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P3-A9",
+      "criterion": "Human/JSON query surfaces expose structural invalidation evidence without semantic verdicts, and the same runtime works for plain Markdown and an unrelated product/tax domain.",
+      "axis_ids": [
+        "DAX09",
+        "DAX13",
+        "DAX17"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3CliTests",
+        "examples/sample_project",
+        "examples/product_tax_project",
+        "plan/evidence/P3/installed_status.json",
+        "plan/evidence/P3/installed_graph.json"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P3-A10",
+      "criterion": "Persisted receipts/baselines/state/events are versioned, cross-linked, corruption-detecting and represented consistently in schemas, examples, documentation and transferable package metadata.",
+      "axis_ids": [
+        "DAX03",
+        "DAX14",
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "spec/schemas/DEPENDENCY_RECEIPT.schema.json",
+        "spec/schemas/BASELINE_SNAPSHOT.schema.json",
+        "spec/schemas/DEPENDENCY_STATE.schema.json",
+        "spec/schemas/DEPENDENCY_EVENT.schema.json",
+        "docs/DEPENDENCY_RUNTIME.md",
+        "plan/P3_PACKAGE_AUDIT.md",
+        "plan/evidence/P3/full_test_summary.txt",
+        "plan/evidence/P3/spec_audit_after_tests.txt"
+      ],
+      "notes": "P3 scope verified; global DAX closure remains deferred to P8."
+    }
+  ],
+  "pre_execution_questions": [
+    {
+      "id": "Q3.1",
+      "question": "Как хранить baseline snapshots: per-target files или content-addressed blobs?",
+      "why_it_matters": "Определяет deduplication, history and ease of repair.",
+      "blocking": true,
+      "recommended_default": "Content-addressed normalized blobs referenced by receipts; target history lives in receipts/events.",
+      "status": "answered",
+      "answer": "Content-addressed normalized blobs referenced by receipts; target history lives in receipts/events.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.2",
+      "question": "Какие comparators обязательны в v0.1?",
+      "why_it_matters": "Нельзя корректно diff-ить scalar, sets and Markdown одной exact-строкой.",
+      "blocking": true,
+      "recommended_default": "`exact`, `json_structured`, `sequence`, `set`, `text_unified`; Markdown AST/semantic comparator deferred.",
+      "status": "answered",
+      "answer": "`exact`, `json_structured`, `sequence`, `set`, `text_unified`; Markdown AST/semantic comparator deferred.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.3",
+      "question": "Должен ли `check` изменять dependency state?",
+      "why_it_matters": "CLI contract сейчас допускает mutation; надо закрепить границу query/command.",
+      "blocking": true,
+      "recommended_default": "Yes: `check` is a command that updates detected runtime state/events but never canonical content or validated baselines.",
+      "status": "answered",
+      "answer": "Проверка зависимостей должна при обнаружении изменения сразу отражать stale/review состояние; semantic validity затем проверяет пользователь/AI.",
+      "decision": "`check` обновляет runtime dependency state/events, но не canonical content и не validated baseline.",
+      "evidence_refs": [
+        "conversation-design-decision"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "user"
+    },
+    {
+      "id": "Q3.4",
+      "question": "Какие status значения считаем каноническими?",
+      "why_it_matters": "От них зависят CLI, verify и AI workflow.",
+      "blocking": true,
+      "recommended_default": "At least `valid`, `stale`, `build_required`, `review_required`, `invalid`; `stale` may be umbrella in human text but machine state uses the more specific state when known.",
+      "status": "answered",
+      "answer": "At least `valid`, `stale`, `build_required`, `review_required`, `invalid`; `stale` may be umbrella in human text but machine state uses the more specific state when known.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.5",
+      "question": "Нормализуем ли Markdown перед baseline/hash в v0.1?",
+      "why_it_matters": "Whitespace-only changes могут создавать шум, но сложная normalization может скрыть meaningful edits.",
+      "blocking": true,
+      "recommended_default": "Use raw UTF-8 normalized line endings for v0.1 text comparator; add AST-aware comparator later.",
+      "status": "answered",
+      "answer": "Use raw UTF-8 normalized line endings for v0.1 text comparator; add AST-aware comparator later.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.6",
+      "question": "Как P3 должен учитывать изменение builder/helper code при неизменных data dependencies?",
+      "why_it_matters": "Derivation logic lives in code; without code revision a changed formula could remain falsely valid until an unrelated data change.",
+      "blocking": true,
+      "recommended_default": "Persist the P2 builder_revision/source revision in builder receipts/state and compare it during check; revision change produces build_required for deterministic targets.",
+      "status": "answered",
+      "answer": "Persist the P2 builder_revision/source revision in builder receipts/state and compare it during check; revision change produces build_required for deterministic targets.",
+      "decision": "Treat builder source revision as a first-class invalidation input in P3.",
+      "evidence_refs": [
+        "P2 re-audit decision Q2.E10",
+        "src/docengine/builders.py",
+        "src/docengine/extensions.py"
+      ],
+      "acceptance_impact": "Required for P3-A7 and DAX03/DAX05/DAX08/DAX10.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.7",
+      "question": "What exactly does a whole structured resource dependency snapshot/compare in P3: domain data only or the entire managed JSON envelope?",
+      "why_it_matters": "Engine metadata such as materialization destination should not accidentally invalidate a formula unless whole-resource semantics intentionally include it.",
+      "blocking": true,
+      "recommended_default": "Treat resource://<id> dependency value as the entire domain data object/array. Engine envelope metadata is ownership/runtime metadata and needs a separate explicit dependency mechanism if it ever affects derivation.",
+      "status": "answered",
+      "answer": "Use the entire domain data object/array as the v0.1 whole structured-resource baseline; do not let unrelated $docengine materialization metadata drive derivation invalidation.",
+      "decision": "P3 baselines/diffs for whole structured resources operate on domain data, while observed source/version metadata may remain diagnostic evidence.",
+      "evidence_refs": [
+        "P2 independent re-audit A4",
+        "docs/STORAGE_MODEL.md",
+        "docs/BUILD_RUNTIME.md"
+      ],
+      "acceptance_impact": "Required to make P3-A1/P3-A3 dependency granularity deterministic and avoid metadata-only false invalidation.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.8",
+      "question": "How precise must builder code revision invalidation be in v0.1?",
+      "why_it_matters": "P2 hashes the whole top-level project Python package, which is safe but can mark unrelated builders as changed.",
+      "blocking": false,
+      "recommended_default": "Keep the conservative package-wide source revision for v0.1 and expose the reason clearly; finer per-builder/helper code dependency tracking is a later optimization.",
+      "status": "answered",
+      "answer": "Use the package-wide content revision in v0.1. Accept possible extra build_required targets rather than risk missing helper-code changes.",
+      "decision": "Correctness-first conservative code invalidation for v0.1; revisit granularity only with evidence of excessive rebuild noise.",
+      "evidence_refs": [
+        "P2 independent re-audit A3",
+        "src/docengine/extensions.py"
+      ],
+      "acceptance_impact": "P3-A7 may conservatively affect more targets, but must never miss a code-only change in the loaded project package.",
+      "owner": "implementer"
+    }
+  ],
+  "emergent_questions": [
+    {
+      "id": "Q3.E1",
+      "question": "Should read-only dependency query commands create `_dependency` directories when none exist?",
+      "why_it_matters": "Creating state during inspection would violate command/query boundaries and make AI diagnostics mutate untouched documentation.",
+      "blocking": false,
+      "recommended_default": "No. Read-only commands must inspect without creating runtime directories.",
+      "status": "answered",
+      "answer": "No. Read-only commands must inspect without creating runtime directories.",
+      "decision": "`status`, `diff`, `explain`, `history`, and `graph` remain read-only. Stores create parent directories only on actual writes.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3ReadOnlyAndFailureSemanticsTests::test_read_only_status_and_graph_do_not_create_dependency_tree"
+      ],
+      "acceptance_impact": "Resolved within P3 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.E2",
+      "question": "How should P3 classify a target when a required source or current builder cannot be loaded?",
+      "why_it_matters": "Treating unavailable evidence as an ordinary changed value would overstate what comparison proved.",
+      "blocking": true,
+      "recommended_default": "Use `invalid`, preserving the diagnostic reason (`source_unavailable` or `builder_unavailable`).",
+      "status": "answered",
+      "answer": "Use `invalid`, preserving the diagnostic reason (`source_unavailable` or `builder_unavailable`).",
+      "decision": "Unavailable evidence is not a semantic diff. P3 records `invalid` until the source/builder can be inspected again.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3ReadOnlyAndFailureSemanticsTests::test_missing_dependency_source_marks_target_invalid"
+      ],
+      "acceptance_impact": "Resolved within P3 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.E3",
+      "question": "Can a P2 build with `audit_complete=false` be persisted as `valid` in P3?",
+      "why_it_matters": "Untracked accesses mean the persisted dependency set is known to be incomplete.",
+      "blocking": true,
+      "recommended_default": "No. Preserve the receipt for diagnostics but state must be `invalid` with `audit_incomplete`.",
+      "status": "answered",
+      "answer": "No. Preserve the receipt for diagnostics but state must be `invalid` with `audit_incomplete`.",
+      "decision": "P3 never labels an incompletely tracked build as valid.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3BuildReceiptTests::test_incomplete_provenance_is_not_marked_valid"
+      ],
+      "acceptance_impact": "Resolved within P3 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.E4",
+      "question": "Should P3 invent a virtual ref syntax for `field_set` or `collection` granularities?",
+      "why_it_matters": "The conceptual registry mentions them, but v0.1 canonical refs currently address fields, resources and files only.",
+      "blocking": false,
+      "recommended_default": "No. Aggregate builders persist the many exact canonical refs they consumed; virtual collection addressing is deferred until there is a real addressing contract.",
+      "status": "answered",
+      "answer": "No. Aggregate builders persist the many exact canonical refs they consumed; virtual collection addressing is deferred until there is a real addressing contract.",
+      "decision": "Executable v0.1 receipt granularity is limited to `field`, `resource`, and `whole_file`; conceptual aggregate semantics remain supported through multiple edges.",
+      "evidence_refs": [
+        "spec/schemas/DEPENDENCY_RECEIPT.schema.json",
+        "docs/DEPENDENCY_MODEL.md"
+      ],
+      "acceptance_impact": "Resolved within P3 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.E5",
+      "question": "Should persisted status/history/graph diagnostics require the current project builder package to import successfully?",
+      "why_it_matters": "Diagnostics are most valuable when current code is broken; coupling them to builder import would hide history during failures.",
+      "blocking": false,
+      "recommended_default": "No. Persisted status/history/graph read only dependency state. `check/diff/explain` attempt current builders but degrade to explicit unavailable diagnostics instead of erasing state.",
+      "status": "answered",
+      "answer": "No. Persisted status/history/graph read only dependency state. `check/diff/explain` attempt current builders but degrade to explicit unavailable diagnostics instead of erasing state.",
+      "decision": "Diagnostic read-side remains available independently of current executable project code.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_p3_dependencies.py::P3ReadOnlyAndFailureSemanticsTests::test_status_history_graph_remain_available_when_builder_package_is_broken"
+      ],
+      "acceptance_impact": "Resolved within P3 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.E6",
+      "question": "How should receipt tampering be detected without sacrificing idempotent receipt identity?",
+      "why_it_matters": "Receipt IDs intentionally ignore recording time so exact retries can reuse the same logical receipt, but diagnostic timestamp/content still needs integrity checking.",
+      "blocking": false,
+      "recommended_default": "Keep deterministic `receipt_id` over logical stable content and add `receipt_hash` over the full persisted receipt including `validated_at`.",
+      "status": "answered",
+      "answer": "Keep deterministic `receipt_id` over logical stable content and add `receipt_hash` over the full persisted receipt including `validated_at`.",
+      "decision": "Retries remain idempotent while edits to persisted receipt metadata/content are detectable.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "spec/schemas/DEPENDENCY_RECEIPT.schema.json",
+        "tests/test_p3_dependencies.py::P3IntegrityTests::test_receipt_timestamp_tampering_is_detected_by_receipt_hash"
+      ],
+      "acceptance_impact": "Resolved within P3 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.E7",
+      "question": "Should an explicit semantic/validation receipt also pin the revision of the target that was reviewed?",
+      "why_it_matters": "Without target identity, editing the reviewed document itself while upstream dependencies stay unchanged could leave an old validation receipt appearing current.",
+      "blocking": true,
+      "recommended_default": "Yes. Explicit receipts automatically record the current target revision; a later target edit requires re-review (or becomes invalid if target is unavailable).",
+      "status": "answered",
+      "answer": "Yes. Explicit receipts automatically record the current target revision and compare it during check/diff.",
+      "decision": "`record_explicit` pins `target_revision`; target edits produce `target_changed_since_validation`, while an unavailable target produces `target_unavailable` and `invalid`.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3MarkdownDependencyTests::test_explicit_validation_tracks_target_revision_and_target_edit_requires_review",
+        "tests/test_p3_dependencies.py::P3MarkdownDependencyTests::test_missing_explicit_validation_target_is_invalid",
+        "plan/evidence/P3/target_revision_invalidation.json"
+      ],
+      "acceptance_impact": "Required for honest P4 semantic-review baselines; resolved within P3 acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.E8",
+      "question": "How strict must cross-link integrity be between state/events and their referenced receipt?",
+      "why_it_matters": "A state/event can be syntactically valid yet claim changed dependencies that the referenced receipt never contained, making diagnostics non-explainable.",
+      "blocking": true,
+      "recommended_default": "Validate that state/event targets match the receipt and every changed dependency is explainable by the receipt (or its builder revision pseudo-edge); persisted state is authoritative for the currently active receipt.",
+      "status": "answered",
+      "answer": "Cross-links are validated against the referenced receipt, including changed-dependency membership and active-receipt state identity.",
+      "decision": "`verify_integrity` rejects unknown changed dependencies, target mismatches, missing receipts and `valid` state over incomplete audit receipts. It does not infer current selection from receipt timestamps.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3IntegrityTests::test_state_changed_dependency_must_be_explainable_by_receipt",
+        "tests/test_p3_dependencies.py::P3IntegrityTests::test_event_changed_dependency_must_be_explainable_by_receipt",
+        "plan/evidence/P3/integrity_detection.json"
+      ],
+      "acceptance_impact": "Strengthens P3-A6 / DAX14; resolved within P3 acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.E9",
+      "question": "Should persisted receipt/event parsing trust JSON coercions or enforce the schema-critical primitive types at runtime?",
+      "why_it_matters": "Coercing values such as the string `\"false\"` with Python truthiness can hide corruption and preserve a misleading audit status.",
+      "blocking": true,
+      "recommended_default": "Enforce schema-critical types and canonical refs in the runtime parser; malformed persisted evidence is corruption, not a value to coerce.",
+      "status": "answered",
+      "answer": "Strict runtime parsing is required for receipt/event audit-critical fields.",
+      "decision": "Receipt/event loaders reject wrong primitive types, invalid source kinds and non-canonical event targets instead of coercing them.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3IntegrityTests::test_receipt_audit_complete_must_be_boolean_even_if_old_hash_would_otherwise_match"
+      ],
+      "acceptance_impact": "Required for DAX03/DAX14 integrity; resolved within P3 acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q3.E10",
+      "question": "How should content-stable receipt identity coexist with repeated activation history when a target moves A → B → A?",
+      "why_it_matters": "A content-stable receipt may legitimately be reused after an intervening receipt. Timestamp-based “latest receipt” selection and content-deduplicated events can then misidentify current state or erase the later re-activation from history.",
+      "blocking": true,
+      "recommended_default": "Keep receipts content-stable, make persisted state authoritative for current selection, and give every real state mutation a monotonic state_revision that participates in event identity.",
+      "status": "answered",
+      "answer": "Use content-stable receipts for evidence identity and monotonic state_revision for transition-occurrence identity.",
+      "decision": "State, graph and integrity use the active receipt selected by persisted state. Every changed state increments state_revision; event IDs include that revision, so exact retries remain idempotent while A→B→A records all three occurrences.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3ReceiptReactivationTests::test_reactivating_content_stable_receipt_is_current_and_has_new_event_revision",
+        "plan/evidence/P3/receipt_reactivation.json"
+      ],
+      "acceptance_impact": "Required for DAX07/DAX10/DAX14 correctness; resolved before post-acceptance handoff.",
+      "owner": "implementer"
+    }
+  ],
+  "implementation_log": [
+    {
+      "entry": "Implemented content-addressed, versioned dependency-slice baseline storage under documentation-owned `_dependency/baselines`.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "spec/schemas/BASELINE_SNAPSHOT.schema.json"
+      ]
+    },
+    {
+      "entry": "Implemented deterministic dependency receipts, receipt integrity hashes, current state and append-only event history.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "spec/schemas/DEPENDENCY_RECEIPT.schema.json",
+        "spec/schemas/DEPENDENCY_STATE.schema.json",
+        "spec/schemas/DEPENDENCY_EVENT.schema.json"
+      ]
+    },
+    {
+      "entry": "Implemented exact/json_structured/sequence/set/text_unified comparators and typed deterministic diffs.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3ComparatorTests"
+      ]
+    },
+    {
+      "entry": "Implemented builder-revision invalidation and exact field/resource/file baseline comparison without using unrelated structured envelope metadata.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3BuildReceiptTests"
+      ]
+    },
+    {
+      "entry": "Implemented P3 CLI surfaces `status/check/diff/explain/history/graph` with JSON output and read-only/query mutation boundaries.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "docs/CLI_CONTRACT.md",
+        "tests/test_p3_dependencies.py::P3CliTests"
+      ]
+    },
+    {
+      "entry": "Added cross-link/corruption diagnostics for state → receipt → baseline and event → receipt/target.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3IntegrityTests"
+      ]
+    },
+    {
+      "entry": "Added whole-file plain Markdown dependency flow without introducing JSON and preserved semantic-review authority for human/AI.",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3MarkdownDependencyTests",
+        "docs/DEPENDENCY_RUNTIME.md"
+      ]
+    },
+    {
+      "entry": "acceptance correction: Explicit validation receipts now pin and compare target revision so editing the reviewed target cannot leave an old validation current.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py",
+        "plan/evidence/P3/target_revision_invalidation.json"
+      ]
+    },
+    {
+      "entry": "acceptance correction: Integrity verification now checks state/event changed-dependency membership against receipts and state latest-receipt identity.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py",
+        "plan/evidence/P3/integrity_detection.json"
+      ]
+    },
+    {
+      "entry": "acceptance correction: Persisted receipt/event parsing now strictly validates audit-critical primitive types instead of coercing malformed JSON values.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py"
+      ]
+    },
+    {
+      "at": "2026-10-02",
+      "entry": "post-acceptance axis correction: content-stable receipts can be re-activated after an intervening receipt; current selection now comes from persisted state and every real transition receives a monotonic state_revision used by event identity.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3ReceiptReactivationTests::test_reactivating_content_stable_receipt_is_current_and_has_new_event_revision"
+      ]
+    }
+  ],
+  "axis_reviews": [
+    {
+      "axis_id": "DAX01",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3MarkdownDependencyTests",
+        "docs/DEPENDENCY_RUNTIME.md"
+      ],
+      "findings": [
+        "Whole-file Markdown participates directly in dependency review without JSON twins or section parsing.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX02",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "docs/STORAGE_MODEL.md"
+      ],
+      "findings": [
+        "Baselines, receipts, state and events remain under documentation-owned `_dependency` storage.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX03",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "spec/schemas/DEPENDENCY_RECEIPT.schema.json",
+        "tests/test_p3_dependencies.py::P3IntegrityTests"
+      ],
+      "findings": [
+        "Canonical refs, state schema version, receipt hashes, strict persisted parsing and builder revision evidence are enforced.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX04",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3ReadOnlyAndFailureSemanticsTests"
+      ],
+      "findings": [
+        "Dependency writes are confined and symlink/path escapes are rejected; read-only queries do not create state.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX05",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3BuildReceiptTests::test_incomplete_provenance_is_not_marked_valid"
+      ],
+      "findings": [
+        "P2 provenance is persisted without mutating raw inputs; incomplete audit is never marked valid.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX06",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P3/field_dependency_and_diff.json",
+        "tests/test_p3_dependencies.py"
+      ],
+      "findings": [
+        "Exact field/resource/plain-file slices are persisted; aggregate semantics use multiple exact edges.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX07",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3ComparatorTests"
+      ],
+      "findings": [
+        "Content-addressed relevant slices and deterministic comparators produce reproducible diffs.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX08",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P3/builder_revision_invalidation.json",
+        "plan/evidence/P3/target_revision_invalidation.json"
+      ],
+      "findings": [
+        "Dependency, builder-code and target-revision changes map deterministically to non-valid states without semantic falsity claims.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX09",
+      "status": "pass",
+      "evidence_refs": [
+        "docs/DEPENDENCY_RUNTIME.md",
+        "tests/test_p3_dependencies.py::P3MarkdownDependencyTests"
+      ],
+      "findings": [
+        "P3 exposes structural evidence only; semantic acceptance remains explicitly P4 human/AI work.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX10",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p3_dependencies.py::P3BuildReceiptTests::test_recording_same_build_twice_is_idempotent",
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3ReceiptReactivationTests::test_reactivating_content_stable_receipt_is_current_and_has_new_event_revision"
+      ],
+      "findings": [
+        "Content-addressed baselines plus stable logical receipt/event IDs make retry behavior idempotent.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX12",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "docs/CLI_CONTRACT.md",
+        "tests/test_p3_dependencies.py::P3CliTests"
+      ],
+      "findings": [
+        "`status/diff/explain/history/graph` are read-only while `check` only mutates dependency state/events.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX13",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P3/installed_status.json",
+        "plan/evidence/P3/installed_check.json",
+        "tests/test_p3_dependencies.py::P3ReadOnlyAndFailureSemanticsTests::test_status_history_graph_remain_available_when_builder_package_is_broken"
+      ],
+      "findings": [
+        "Versioned JSON protocol works from the installed wheel and diagnostics remain usable with broken builder imports.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX14",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p3_dependencies.py::P3IntegrityTests",
+        "plan/evidence/P3/integrity_detection.json",
+        "plan/evidence/P3/receipt_reactivation.json"
+      ],
+      "findings": [
+        "State→latest receipt→baseline and event→receipt cross-links plus changed-dependency membership are integrity-checked.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX17",
+      "status": "pass",
+      "evidence_refs": [
+        "examples/sample_project",
+        "examples/product_tax_project",
+        "tests/test_domain_neutrality.py"
+      ],
+      "findings": [
+        "The same dependency runtime covers plain Markdown and unrelated product/tax structured fixtures.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX19",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P3/full_test_summary.txt",
+        "tests/test_p3_dependencies.py"
+      ],
+      "findings": [
+        "Full source suite, corruption fixtures, retry, mutation, path and CLI tests pass.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    },
+    {
+      "axis_id": "DAX20",
+      "status": "pass",
+      "evidence_refs": [
+        "README.md",
+        "START_HERE_AGENT.md",
+        "plan/P3_PACKAGE_AUDIT.md",
+        "plan/evidence/P3/spec_audit_after_tests.txt",
+        "plan/P3_POST_ACCEPTANCE_AXIS_REVIEW.md"
+      ],
+      "findings": [
+        "Active docs, schemas, examples, dev7 wheel, manifest and handoff instructions are synchronized; final archive verification is recorded separately.",
+        "PASS is phase-local; global release-gate closure remains P8."
+      ]
+    }
+  ],
+  "acceptance_summary": {
+    "decision": "accepted",
+    "unresolved_blocking_questions": [],
+    "failed_criteria": [],
+    "notes": "P3 accepted after full regression, independent DAX review, clean-wheel install and persisted-state integrity corrections. Final archive/manifest evidence is in P3_PACKAGE_AUDIT.md; post-axis receipt re-activation correction independently verified without P0–P2 regression."
+  }
+}

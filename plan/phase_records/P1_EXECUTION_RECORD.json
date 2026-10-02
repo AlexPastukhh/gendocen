@@ -1,0 +1,707 @@
+{
+  "phase_id": "P1",
+  "name": "Project, resource, storage and loader core",
+  "status": "accepted",
+  "scope": [
+    "Implement documentation-root/project discovery and configuration.",
+    "Discover plain Markdown and managed structured resources.",
+    "Implement `$docengine` envelope parsing, schema validation and resource identity.",
+    "Implement ResourceRef/FieldRef parsing and resolver.",
+    "Implement immutable generic structured objects and adapters.",
+    "Enforce mirrored `_structured/` convention and materialization path confinement."
+  ],
+  "out_of_scope": [
+    "Derived builders.",
+    "Baselines and dependency state."
+  ],
+  "deliverables": [
+    "project config contract",
+    "resource catalog",
+    "ResourceRef/FieldRef implementation",
+    "managed resource loader",
+    "schema-validation adapter",
+    "immutable object representation",
+    "resources CLI/query payload"
+  ],
+  "use_cases": [
+    "DOC01",
+    "DOC02",
+    "DOC04",
+    "DOC21"
+  ],
+  "acceptance_axes": [
+    "DAX01",
+    "DAX02",
+    "DAX03",
+    "DAX04",
+    "DAX05",
+    "DAX12",
+    "DAX17",
+    "DAX19",
+    "DAX20"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "P1-A1",
+      "criterion": "Plain Markdown works without JSON sidecars and is not silently promoted to managed form.",
+      "axis_ids": [
+        "DAX01",
+        "DAX02"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "src/docengine/resources.py",
+        "tests/test_p1_init.py",
+        "tests/test_p1_resources.py",
+        "plan/evidence/P1/clean_venv_plain_resources.json"
+      ],
+      "notes": "P1 scope verified by positive and negative tests; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P1-A2",
+      "criterion": "Managed JSON under documentation root validates and loads without project code manually mapping every field.",
+      "axis_ids": [
+        "DAX03",
+        "DAX17"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/config.py",
+        "src/docengine/schema.py",
+        "src/docengine/jsonio.py",
+        "src/docengine/objects.py",
+        "src/docengine/resources.py",
+        "examples/sample_project/docengine_project/schemas/",
+        "tests/test_schema_runtime.py",
+        "tests/test_p1_resources.py"
+      ],
+      "notes": "P1 scope verified by positive and negative tests; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P1-A3",
+      "criterion": "`$docengine.materialize[].path` resolves relative to documentation root and traversal outside root is rejected.",
+      "axis_ids": [
+        "DAX02",
+        "DAX04"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "src/docengine/project.py",
+        "docs/STORAGE_MODEL.md",
+        "tests/test_p1_resources.py",
+        "tests/test_p1_init.py"
+      ],
+      "notes": "P1 scope verified by positive and negative tests; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P1-A4",
+      "criterion": "ResourceRef/FieldRef round-trip parsing is stable and malformed/ambiguous refs fail clearly.",
+      "axis_ids": [
+        "DAX03"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/refs.py",
+        "tests/test_refs.py",
+        "docs/RESOURCE_MODEL.md"
+      ],
+      "notes": "P1 scope verified by positive and negative tests; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P1-A5",
+      "criterion": "Loaded raw objects are immutable through engine APIs.",
+      "axis_ids": [
+        "DAX05"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/objects.py",
+        "tests/test_objects.py"
+      ],
+      "notes": "P1 scope verified by positive and negative tests; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P1-A6",
+      "criterion": "Sample project resource inventory is deterministic in both human and JSON output.",
+      "axis_ids": [
+        "DAX12",
+        "DAX19"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "src/docengine/resources.py",
+        "plan/evidence/P1/sample_resources.json",
+        "plan/evidence/P1/sample_resources.txt",
+        "plan/evidence/P1/clean_venv_resources.json",
+        "tests/test_p1_resources.py"
+      ],
+      "notes": "P1 scope verified by positive and negative tests; global DAX closure remains deferred to P8."
+    }
+  ],
+  "pre_execution_questions": [
+    {
+      "id": "Q1.1",
+      "question": "Как engine находит project/documentation root при запуске?",
+      "why_it_matters": "Ошибочная discovery-логика может заставить AI работать не с тем деревом.",
+      "blocking": true,
+      "recommended_default": "Priority: explicit `--project-root`/`--docs-root` > project config > upward search from cwd; never guess across filesystem boundaries.",
+      "status": "answered",
+      "answer": "Priority: explicit `--project-root`/`--docs-root` > project config > upward search from cwd; never guess across filesystem boundaries.",
+      "decision": "Adopt safe deterministic root discovery with strict path confinement.",
+      "evidence_refs": [
+        "conversation-design-decision"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q1.2",
+      "question": "Где хранить project-level config и как его назвать?",
+      "why_it_matters": "Structured data принадлежит docs, но engine registration/config нужна всему project.",
+      "blocking": true,
+      "recommended_default": "`docengine.toml` в project root; documentation-owned structured/runtime data остаётся under docs.",
+      "status": "answered",
+      "answer": "`docengine.toml` в project root; documentation-owned structured/runtime data остаётся under docs.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q1.3",
+      "question": "Каким будет базовый runtime object representation для произвольных JSON schemas?",
+      "why_it_matters": "Нужно сохранить generic loading без генерации project-specific классов вручную.",
+      "blocking": true,
+      "recommended_default": "Immutable generic mapping/object wrapper with field/path access; optional project adapters/dataclasses may layer on top.",
+      "status": "answered",
+      "answer": "Immutable generic mapping/object wrapper with field/path access; optional project adapters/dataclasses may layer on top.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q1.4",
+      "question": "Фиксируем ли exact ResourceRef syntax уже в P1?",
+      "why_it_matters": "Receipts, baselines and project code будут зависеть от стабильного адресного формата.",
+      "blocking": true,
+      "recommended_default": "Yes: `resource://<namespace>/<id>#/<json-pointer>` for structured resources and `file://<docs-relative-path>` for files; escaping follows URI + JSON Pointer rules.",
+      "status": "answered",
+      "answer": "Yes: `resource://<namespace>/<id>#/<json-pointer>` for structured resources and `file://<docs-relative-path>` for files; escaping follows URI + JSON Pointer rules.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    }
+  ],
+  "emergent_questions": [
+    {
+      "id": "Q1.E1",
+      "owner": "implementer",
+      "question": "Как разрешить обнаруженное расхождение между старыми docs-примерами `resource://policies.method_policy` и уже принятым Q1.4 форматом `resource://<namespace>/<id>`?",
+      "why_it_matters": "Receipts/builders/baselines следующих фаз должны опираться на один канонический ref format.",
+      "blocking": true,
+      "recommended_default": "Q1.4/phase contract имеет приоритет; исправить старые docs examples и тестировать round-trip.",
+      "status": "answered",
+      "answer": "Использовать `resource://<namespace>/<id>#/<json-pointer>`; dotted resource_id отображается как namespace + local id.",
+      "decision": "Старые dot-form URI examples исправлены; canonical parser/formatter реализован и malformed/ambiguous refs rejected.",
+      "evidence_refs": [
+        "src/docengine/refs.py",
+        "tests/test_refs.py",
+        "docs/RESOURCE_MODEL.md"
+      ],
+      "acceptance_impact": "Required for DAX03/P1-A4."
+    },
+    {
+      "id": "Q1.E2",
+      "owner": "implementer",
+      "question": "Нужна ли обязательная runtime dependency на полный `jsonschema` validator уже в P1?",
+      "why_it_matters": "Полная dependency увеличивает distribution surface, но silent partial validation также недопустима.",
+      "blocking": true,
+      "recommended_default": "Сохранить stdlib-first core: явный validator adapter + строгий небольшой v0.1 subset; unsupported keywords должны fail, а не игнорироваться.",
+      "status": "answered",
+      "answer": "Обязательную dependency не добавлять в P1; реализовать `SchemaValidator` boundary и `CoreSchemaValidator` с explicit supported subset.",
+      "decision": "P1 runtime остаётся dependency-free; unknown schema URI, malformed schema и unsupported semantic keyword дают явную ошибку.",
+      "evidence_refs": [
+        "src/docengine/schema.py",
+        "docs/RUNTIME_SCHEMA_VALIDATION.md",
+        "tests/test_schema_runtime.py",
+        "plan/evidence/P1/clean_venv_pip_check.txt"
+      ],
+      "acceptance_impact": "Required for DAX03/DAX17/P1-A2."
+    },
+    {
+      "id": "Q1.E3",
+      "owner": "implementer",
+      "question": "`docs/_structured/` mirror — только рекомендация или runtime invariant для Markdown materialization в v0.1?",
+      "why_it_matters": "Без enforcement JSON может физически выглядеть принадлежащим одному документу, но владеть несвязанным Markdown path.",
+      "blocking": true,
+      "recommended_default": "Для Markdown outputs enforce single mirrored target; non-Markdown outputs могут иметь отдельные explicit targets.",
+      "status": "answered",
+      "answer": "Enforce mirror rule for Markdown materialization in v0.1.",
+      "decision": "`_structured/a/b.json` с Markdown output обязан владеть `a/b.md`; mismatch is ResourceError.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "tests/test_p1_resources.py",
+        "docs/STORAGE_MODEL.md"
+      ],
+      "acceptance_impact": "Required for DAX02/P1-A3."
+    },
+    {
+      "id": "Q1.E4",
+      "owner": "implementer",
+      "question": "Должен ли P1 distribution иметь новую runtime build version относительно P0?",
+      "why_it_matters": "Два различных wheel с одинаковой version делают provenance/handoff неоднозначными.",
+      "blocking": true,
+      "recommended_default": "Increment development build identity while target stable runtime remains 0.1.0.",
+      "status": "answered",
+      "answer": "Да; P1 wheel/version = `0.1.0.dev1`.",
+      "decision": "`pyproject.toml` и `ENGINE_VERSION` синхронно обновлены до `0.1.0.dev1`; persisted/machine schema versions не изменены.",
+      "evidence_refs": [
+        "pyproject.toml",
+        "src/docengine/versions.py",
+        "plan/evidence/P1/clean_venv_version.txt"
+      ],
+      "acceptance_impact": "Required for DAX03."
+    },
+    {
+      "id": "Q1.E5",
+      "owner": "implementer",
+      "question": "Как P1 должен обращаться с symlink/path edge cases для config, structured sources и Markdown inventory?",
+      "why_it_matters": "Symlink может обойти lexical path confinement и вывести reads/writes за project/docs roots.",
+      "blocking": true,
+      "recommended_default": "Resolve real paths for confinement; reject config symlink during init and reject documentation/structured escapes.",
+      "status": "answered",
+      "answer": "Следовать real-path confinement; `docengine.toml` symlink не использовать для v0.1 initialization/config loading.",
+      "decision": "Добавлены checks и regression tests для dangling config symlink, docs symlink outside, structured-dir escape и plain Markdown symlink escape.",
+      "evidence_refs": [
+        "src/docengine/config.py",
+        "src/docengine/project.py",
+        "src/docengine/resources.py",
+        "tests/test_p1_init.py",
+        "tests/test_p1_resources.py",
+        "tests/test_project.py"
+      ],
+      "acceptance_impact": "Required for DAX04."
+    },
+    {
+      "id": "Q1.E6",
+      "owner": "implementer",
+      "question": "Должен ли source-package test extra явно включать pytest, если canonical reproduction command использует `python -m pytest`?",
+      "why_it_matters": "Иначе handoff source environment не полностью описывает собственный test harness, даже если runtime wheel не требует pytest.",
+      "blocking": false,
+      "recommended_default": "Да; добавить pytest только в optional `test` extra, не в runtime dependencies.",
+      "status": "answered",
+      "answer": "Да; `pytest>=8,<9` добавлен в optional test dependencies рядом с jsonschema.",
+      "decision": "Runtime dependency list остаётся пустым; wheel metadata содержит pytest/jsonschema только под extra `test`.",
+      "evidence_refs": [
+        "pyproject.toml",
+        "plan/evidence/P1/artifacts/generic_documentation_engine-0.1.0.dev1-py3-none-any.whl",
+        "plan/evidence/P1/clean_venv_pip_check.txt"
+      ],
+      "acceptance_impact": "Improves DAX19 source-harness reproducibility without changing runtime portability."
+    },
+    {
+      "id": "Q1.E7",
+      "owner": "implementer",
+      "question": "Как upward discovery должен трактовать dangling/non-file `docengine.toml` marker в родительском каталоге?",
+      "why_it_matters": "Игнорирование malformed marker позволяло ошибочно считать вложенный cwd новым project root и `init` мог записать новый проект не там, где ожидалось.",
+      "blocking": true,
+      "recommended_default": "Лексическое наличие marker останавливает upward search; затем config loader обязан явно отклонить symlink/non-file marker.",
+      "status": "answered",
+      "answer": "Лексическое наличие marker теперь останавливает search даже для dangling symlink/не-файла.",
+      "decision": "`_find_project_root` использует marker presence, а не только `is_file()`; malformed marker приводит к явной ошибке, не к silent fallback.",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "tests/test_project.py"
+      ],
+      "acceptance_impact": "Required to retain DAX03/DAX04 pass for P1 scope."
+    },
+    {
+      "id": "Q1.E8",
+      "owner": "implementer",
+      "question": "Могут ли `structured_dir` и `dependency_dir` совпадать/пересекаться, и могут ли materialization outputs писать внутрь этих reserved trees?",
+      "why_it_matters": "Пересечение или generated writes в reserved trees могут смешать canonical structured data, dependency state и generated outputs.",
+      "blocking": true,
+      "recommended_default": "Reserved trees должны быть disjoint; materialization внутрь любого reserved tree запрещена.",
+      "status": "answered",
+      "answer": "Нет: reserved trees должны быть disjoint, dedicated subtrees, а generated output не может их таргетировать.",
+      "decision": "Config validation rejects equal/ancestor overlap/`.`; materialization validation rejects targets under structured/dependency roots for every renderer.",
+      "evidence_refs": [
+        "src/docengine/config.py",
+        "src/docengine/resources.py",
+        "tests/test_config.py",
+        "tests/test_p1_resources.py"
+      ],
+      "acceptance_impact": "Required for DAX02/DAX04."
+    },
+    {
+      "id": "Q1.E9",
+      "owner": "implementer",
+      "question": "Должен ли strict JSON loader отклонять numeric literals, которые Python преобразует в `inf` из-за overflow (например `1e999`)?",
+      "why_it_matters": "Иначе canonical JSON может породить non-finite runtime value и позднее нестабильный hash/serialization.",
+      "blocking": true,
+      "recommended_default": "Да, все runtime numeric values из canonical JSON должны оставаться finite.",
+      "status": "answered",
+      "answer": "Да; overflow-to-infinity запрещён так же, как NaN/Infinity literals.",
+      "decision": "Добавлен strict `parse_float` finite check и regression tests.",
+      "evidence_refs": [
+        "src/docengine/jsonio.py",
+        "tests/test_jsonio.py"
+      ],
+      "acceptance_impact": "Required for DAX03."
+    },
+    {
+      "id": "Q1.E10",
+      "owner": "implementer",
+      "question": "Должен ли active `dist/` содержать исторические wheels вместе с текущим?",
+      "why_it_matters": "Несколько версий одного package в `dist/*.whl` дают ambiguous/conflicting install и ломают handoff.",
+      "blocking": true,
+      "recommended_default": "Нет; `dist/` содержит ровно один current wheel. Исторические wheels хранятся только в phase evidence.",
+      "status": "answered",
+      "answer": "Нет. Active dist должен содержать ровно текущую distribution.",
+      "decision": "P0/P1 historical wheels перенесены в `plan/evidence/<phase>/artifacts/`; spec audit проверяет exactly-one current wheel + version/metadata identity. Runtime build bumped to 0.1.0.dev2.",
+      "evidence_refs": [
+        "tools/audit_spec.py",
+        "plan/evidence/P0/artifacts/",
+        "plan/evidence/P1/artifacts/",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_install.txt"
+      ],
+      "acceptance_impact": "Adds/fixes DAX20 coverage for P1 handoff."
+    },
+    {
+      "id": "Q1.E11",
+      "owner": "implementer",
+      "question": "Должен ли DAX20 быть mapped axis P1, если каждый phase выпускает новый manifest/wheel/README/transferable archive?",
+      "why_it_matters": "Без mapping package/handoff defects могут не попасть в обязательный phase review.",
+      "blocking": true,
+      "recommended_default": "Да; любой phase, который изменяет distributable handoff package, должен review DAX20 for its scope.",
+      "status": "answered",
+      "answer": "Да; P1 materially changes distribution/handoff and therefore maps DAX20.",
+      "decision": "DAX20 добавлен в P1.acceptance_axes и axis_reviews; P8 всё равно выполняет global consolidated closure.",
+      "evidence_refs": [
+        "plan/P1_POST_ACCEPTANCE_AXIS_REVIEW.md",
+        "plan/phase_records/P1_EXECUTION_RECORD.json"
+      ],
+      "acceptance_impact": "Corrects phase-axis mapping completeness."
+    },
+    {
+      "id": "Q1.E12",
+      "owner": "implementer",
+      "question": "Должен ли передаваемый source checkout запускать canonical test suite без ручного PYTHONPATH или предварительной установки package?",
+      "why_it_matters": "AI/другой чат должен уметь проверить архив одной документированной командой без скрытого shell state.",
+      "blocking": true,
+      "recommended_default": "Да; `python -m pytest -q` из project root должен работать непосредственно из checkout.",
+      "status": "answered",
+      "answer": "Да. Source checkout должен быть self-contained для запуска тестов.",
+      "decision": "Добавлен `[tool.pytest.ini_options] pythonpath=[\"src\"]`; README/START_HERE используют bare `python -m pytest -q`; regression test фиксирует contract.",
+      "evidence_refs": [
+        "pyproject.toml",
+        "tests/test_audit_hygiene.py",
+        "README.md",
+        "START_HERE_AGENT.md"
+      ],
+      "acceptance_impact": "Required to retain DAX19 pass for P1 scope."
+    }
+  ],
+  "implementation_log": [
+    {
+      "entry": "Implemented versioned project config contract, safe root discovery and idempotent project initialization without Markdown promotion.",
+      "evidence_refs": [
+        "src/docengine/config.py",
+        "src/docengine/project.py",
+        "docs/PROJECT_CONFIG.md",
+        "tests/test_p1_init.py",
+        "tests/test_project.py"
+      ]
+    },
+    {
+      "entry": "Implemented strict canonical JSON loading, project schema registry/adapter and explicit subset validation.",
+      "evidence_refs": [
+        "src/docengine/jsonio.py",
+        "src/docengine/schema.py",
+        "docs/RUNTIME_SCHEMA_VALIDATION.md",
+        "tests/test_jsonio.py",
+        "tests/test_schema_runtime.py"
+      ]
+    },
+    {
+      "entry": "Implemented canonical ResourceRef/FieldRef parsing, JSON Pointer semantics and immutable generic RawObject representation.",
+      "evidence_refs": [
+        "src/docengine/refs.py",
+        "src/docengine/objects.py",
+        "tests/test_refs.py",
+        "tests/test_objects.py"
+      ]
+    },
+    {
+      "entry": "Implemented managed resource loader/catalog/resolver/version helper with plain/managed/derived/generated inventory classes.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "src/docengine/cli.py",
+        "tests/test_p1_resources.py",
+        "plan/evidence/P1/sample_resources.json"
+      ]
+    },
+    {
+      "entry": "Enforced documentation-root materialization confinement, mirrored `_structured` Markdown ownership and symlink escape safety.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "src/docengine/project.py",
+        "tests/test_p1_resources.py",
+        "tests/test_p1_init.py"
+      ]
+    },
+    {
+      "entry": "Updated sample project with project config and project-owned schemas used by runtime loading.",
+      "evidence_refs": [
+        "examples/sample_project/docengine.toml",
+        "examples/sample_project/docengine_project/schemas/"
+      ]
+    },
+    {
+      "entry": "Built runtime wheel 0.1.0.dev1 and exercised installed `init`/`resources` in a clean virtual environment.",
+      "evidence_refs": [
+        "plan/evidence/P1/artifacts/generic_documentation_engine-0.1.0.dev1-py3-none-any.whl",
+        "plan/evidence/P1/clean_venv_install.txt",
+        "plan/evidence/P1/clean_venv_resources.json",
+        "plan/evidence/P1/clean_venv_init_first.json",
+        "plan/evidence/P1/clean_venv_init_second.json"
+      ]
+    },
+    {
+      "entry": "Completed P1 candidate full-suite/spec/package verification and froze acceptance evidence.",
+      "evidence_refs": [
+        "plan/evidence/P1/final_full_tests.txt",
+        "plan/evidence/P1/final_spec_audit.txt",
+        "plan/evidence/P1/final_compileall.txt",
+        "plan/P1_PACKAGE_AUDIT.md"
+      ]
+    },
+    {
+      "entry": "Independent post-acceptance axis audit fixed malformed upward config-marker fallback, reserved-tree overlap/materialization hazards and strict-JSON float overflow.",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "src/docengine/config.py",
+        "src/docengine/resources.py",
+        "src/docengine/jsonio.py",
+        "tests/test_project.py",
+        "tests/test_config.py",
+        "tests/test_p1_resources.py",
+        "tests/test_jsonio.py"
+      ]
+    },
+    {
+      "entry": "Handoff/distribution audit moved historical wheels out of active dist, added exactly-one-current-wheel audit, mapped DAX20 to P1 and advanced runtime build identity to 0.1.0.dev2.",
+      "evidence_refs": [
+        "tools/audit_spec.py",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_install.txt",
+        "plan/P1_POST_ACCEPTANCE_AXIS_REVIEW.md"
+      ]
+    },
+    {
+      "entry": "Completed independent P1 axis-correction candidate run: expanded tests, clean dev2 wheel install, wildcard active-dist install, installed init/resources/plain inventory and pip check all pass.",
+      "evidence_refs": [
+        "plan/evidence/P1/post_axis_audit/pre_manifest_tests.txt",
+        "plan/evidence/P1/post_axis_audit/clean_venv_install.txt",
+        "plan/evidence/P1/post_axis_audit/wildcard_install.txt",
+        "plan/evidence/P1/post_axis_audit/resources.json",
+        "plan/evidence/P1/post_axis_audit/init_first.json",
+        "plan/evidence/P1/post_axis_audit/init_second.json",
+        "plan/evidence/P1/post_axis_audit/plain_resources.json",
+        "plan/evidence/P1/post_axis_audit/pip_check.txt"
+      ]
+    }
+  ],
+  "axis_reviews": [
+    {
+      "axis_id": "DAX01",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p1_init.py",
+        "tests/test_p1_resources.py",
+        "plan/evidence/P1/clean_venv_plain_resources.json",
+        "plan/evidence/P1/post_axis_audit/plain_resources.json",
+        "plan/evidence/P1/post_axis_audit/init_first.json",
+        "plan/evidence/P1/post_axis_audit/resources.json"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX02",
+      "status": "pass",
+      "evidence_refs": [
+        "docs/STORAGE_MODEL.md",
+        "src/docengine/resources.py",
+        "examples/sample_project/docs/_structured/",
+        "tests/test_p1_resources.py",
+        "tests/test_config.py",
+        "plan/evidence/P1/post_axis_audit/plain_resources.json",
+        "plan/evidence/P1/post_axis_audit/init_first.json",
+        "plan/evidence/P1/post_axis_audit/resources.json"
+      ],
+      "findings": [
+        "Post-acceptance audit found and fixed reserved-tree overlap/output-target hazards."
+      ]
+    },
+    {
+      "axis_id": "DAX03",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/refs.py",
+        "src/docengine/schema.py",
+        "src/docengine/jsonio.py",
+        "src/docengine/versions.py",
+        "spec/schemas/MANAGED_RESOURCE.schema.json",
+        "tests/test_refs.py",
+        "tests/test_schema_runtime.py",
+        "tests/test_jsonio.py",
+        "plan/evidence/P1/final_spec_audit.txt",
+        "plan/evidence/P1/artifacts/generic_documentation_engine-0.1.0.dev1-py3-none-any.whl",
+        "tests/test_project.py",
+        "plan/evidence/P1/post_axis_audit/pre_manifest_tests.txt",
+        "plan/evidence/P1/post_axis_audit/clean_venv_install.txt",
+        "plan/evidence/P1/post_axis_audit/wildcard_install.txt"
+      ],
+      "findings": [
+        "Post-acceptance audit found and fixed malformed-marker fallback and float-overflow acceptance."
+      ]
+    },
+    {
+      "axis_id": "DAX04",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "src/docengine/config.py",
+        "src/docengine/resources.py",
+        "tests/test_p1_init.py",
+        "tests/test_p1_resources.py",
+        "tests/test_project.py",
+        "plan/evidence/P1/post_axis_audit/pre_manifest_tests.txt",
+        "plan/evidence/P1/post_axis_audit/clean_venv_install.txt",
+        "plan/evidence/P1/post_axis_audit/wildcard_install.txt"
+      ],
+      "findings": [
+        "Post-acceptance audit found and fixed malformed-marker fallback and generated writes into reserved state trees."
+      ]
+    },
+    {
+      "axis_id": "DAX05",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/objects.py",
+        "tests/test_objects.py"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX12",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "plan/evidence/P1/sample_resources.json",
+        "plan/evidence/P1/sample_resources.txt",
+        "plan/evidence/P1/clean_venv_init_first.json",
+        "plan/evidence/P1/clean_venv_resources.json",
+        "plan/evidence/P1/post_axis_audit/pre_manifest_tests.txt",
+        "plan/evidence/P1/post_axis_audit/clean_venv_install.txt",
+        "plan/evidence/P1/post_axis_audit/wildcard_install.txt",
+        "plan/evidence/P1/post_axis_audit_final/bare_pytest.txt",
+        "plan/evidence/P1/post_axis_audit_final/wheel_source_parity.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_install.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_pip_check.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_version.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_resources.json",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_init_first.json",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_init_second.json"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX17",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/core.py",
+        "src/docengine/schema.py",
+        "tests/test_domain_neutrality.py",
+        "examples/sample_project/docengine_project/schemas/",
+        "plan/evidence/P1/post_axis_audit/resources.json",
+        "plan/evidence/P1/post_axis_audit/clean_venv_version.txt"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX19",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/",
+        "plan/evidence/P1/pre_manifest_tests.txt",
+        "plan/evidence/P1/p1_focused_tests.txt",
+        "plan/evidence/P1/clean_venv_resources.json",
+        "plan/evidence/P1/final_full_tests.txt",
+        "plan/P1_PACKAGE_AUDIT.md",
+        "tests/test_config.py",
+        "tests/test_jsonio.py",
+        "plan/evidence/P1/post_axis_audit/pre_manifest_tests.txt",
+        "plan/evidence/P1/post_axis_audit/clean_venv_install.txt",
+        "plan/evidence/P1/post_axis_audit/wildcard_install.txt",
+        "pyproject.toml",
+        "tests/test_audit_hygiene.py",
+        "plan/evidence/P1/post_axis_audit_final/bare_pytest.txt",
+        "plan/evidence/P1/post_axis_audit_final/wheel_source_parity.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_install.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_pip_check.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_version.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_resources.json",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_init_first.json",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_init_second.json"
+      ],
+      "findings": [
+        "Regression coverage expanded by independent axis audit.",
+        "Source-checkout import path gap was found after interruption and fixed; bare `python -m pytest -q` now works from project root."
+      ]
+    },
+    {
+      "axis_id": "DAX20",
+      "status": "pass",
+      "evidence_refs": [
+        "tools/audit_spec.py",
+        "README.md",
+        "START_HERE_AGENT.md",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_install.txt",
+        "plan/P1_POST_ACCEPTANCE_AXIS_REVIEW.md",
+        "plan/evidence/P1/post_axis_audit/pre_manifest_tests.txt",
+        "plan/evidence/P1/post_axis_audit/clean_venv_install.txt",
+        "plan/evidence/P1/post_axis_audit/wildcard_install.txt",
+        "plan/evidence/P1/post_axis_audit_final/spec_audit.txt",
+        "plan/evidence/P1/post_axis_audit_final/bare_pytest.txt",
+        "plan/evidence/P1/post_axis_audit_final/wheel_source_parity.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_install.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_pip_check.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_version.txt",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_resources.json",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_init_first.json",
+        "plan/evidence/P1/post_axis_audit_final/clean_venv_init_second.json"
+      ],
+      "findings": [
+        "Initial P1 package incorrectly retained both dev0 and dev1 wheels in active dist; corrected so active dist has exactly one current wheel and historical wheels live under phase evidence.",
+        "Final audit now verifies wheel/source Python parity and rejects transient build/ in the transferable package."
+      ]
+    }
+  ],
+  "acceptance_summary": {
+    "decision": "accepted",
+    "unresolved_blocking_questions": [],
+    "failed_criteria": [],
+    "notes": "Post-acceptance independent axis audit completed; P1-scope defects corrected. Phase-local PASS does not imply global axis closure before P8."
+  }
+}

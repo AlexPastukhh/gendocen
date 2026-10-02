@@ -1,0 +1,1 @@
+{"event_id":"migration-16ae0821-78a1-4ed6-aaf6-762f90735df4","event_schema_version":"1.0.0","from_version":"legacy-p6-unmarked","migration_id":"p6-unmarked-to-runtime-layout-1","preserved_evidence_digest":"sha256:e0d429ec6210734ae13facb98dc4f2dd8cf53010e7110766fb3ab27f6d23f063","preserved_file_count":3,"recorded_at":"2026-10-02T05:53:58.554243Z","to_version":"1.0.0"}

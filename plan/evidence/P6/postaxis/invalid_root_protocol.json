@@ -1,0 +1,50 @@
+{
+  "file": {
+    "exit_code": 4,
+    "payload": {
+      "attention_required": false,
+      "command": "verify",
+      "data": {},
+      "errors": [
+        {
+          "code": "invalid_configuration",
+          "details": null,
+          "message": "project root does not exist or is not a directory: /tmp/tmpfagc_31i/file-root",
+          "severity": "error"
+        }
+      ],
+      "meta": {
+        "engine_version": "0.1.0.dev13",
+        "exit_code": 4,
+        "status": "invalid_configuration"
+      },
+      "ok": false,
+      "schema_version": "2.0.0",
+      "warnings": []
+    }
+  },
+  "missing": {
+    "exit_code": 4,
+    "payload": {
+      "attention_required": false,
+      "command": "verify",
+      "data": {},
+      "errors": [
+        {
+          "code": "invalid_configuration",
+          "details": null,
+          "message": "project root does not exist or is not a directory: /tmp/tmpfagc_31i/missing",
+          "severity": "error"
+        }
+      ],
+      "meta": {
+        "engine_version": "0.1.0.dev13",
+        "exit_code": 4,
+        "status": "invalid_configuration"
+      },
+      "ok": false,
+      "schema_version": "2.0.0",
+      "warnings": []
+    }
+  }
+}

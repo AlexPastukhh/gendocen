@@ -1,0 +1,10 @@
+WARNING: The directory '/home/oai/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing /mnt/data/docengine_p0_work/generic_documentation_engine_spec_v0_4_decisions_resolved
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: generic-documentation-engine
+  Building wheel for generic-documentation-engine (pyproject.toml): started
+  Building wheel for generic-documentation-engine (pyproject.toml): finished with status 'done'
+  Created wheel for generic-documentation-engine: filename=generic_documentation_engine-0.1.0.dev0-py3-none-any.whl size=9601 sha256=7fb31a469d2314d4315ca1780cae88d7ae5595c24cdffa8c67e175219b79a152
+  Stored in directory: /tmp/pip-ephem-wheel-cache-6b2ef0zx/wheels/12/5f/86/444ea5893af69fcae8914c798e66b791536338b13c5eba646c
+Successfully built generic-documentation-engine

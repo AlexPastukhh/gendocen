@@ -1,0 +1,133 @@
+{
+  "registry_version": "1.0.0",
+  "status_enum": [
+    "pass",
+    "partial",
+    "fail",
+    "not_tested",
+    "not_applicable"
+  ],
+  "acceptance_rule": "A phase may be accepted when every blocking question is resolved and every acceptance criterion/mapped axis is pass or not_applicable, except that an explicitly partial criterion/axis may be accepted only when it is represented by a canonical carried_release_gate naming the source criterion/axis and a concrete target phase/criterion. An open carried gate remains a blocker for final release; after the target criterion/axis passes, the carry is marked resolved while the source phase retains its historical partial status. A phase-local pass does not close the axis globally. P8 performs consolidated global review of every release-gate axis plus promoted carried gates before release.",
+  "axes": [
+    {
+      "id": "DAX01",
+      "name": "Purpose & Markdown-first boundary",
+      "definition": "Engine preserves Markdown-first documentation and only introduces structured/managed machinery where explicitly justified.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX02",
+      "name": "Documentation ownership & storage layout",
+      "definition": "Structured data and dependency state remain documentation-owned, with mirrored _structured layout and clear separation from engine code.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX03",
+      "name": "Resource identity, schema & version integrity",
+      "definition": "Resources, schemas, refs, versions and metadata envelopes are unambiguous, validated and evolvable.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX04",
+      "name": "Path confinement & data safety",
+      "definition": "Reads/writes/materialization cannot escape configured roots or silently destroy canonical data.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX05",
+      "name": "Raw/derived separation & provenance",
+      "definition": "Raw objects remain immutable; derived objects are new values with traceable provenance.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX06",
+      "name": "Dependency capture & granularity correctness",
+      "definition": "Tracked reads and explicit rules capture the exact field/object/file/collection dependencies intended by code.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX07",
+      "name": "Baseline, comparator & diff correctness",
+      "definition": "Only relevant dependency slices are baselined; comparisons and diffs are semantically correct and reproducible.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX08",
+      "name": "Invalidation & state semantics",
+      "definition": "Upstream changes deterministically produce correct stale/review/build-required states without claiming semantic falsity.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX09",
+      "name": "Semantic review & human/AI agency",
+      "definition": "The engine exposes evidence and accepts explicit review decisions; it never invents semantic verdicts.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX10",
+      "name": "Builder/validator determinism & idempotency",
+      "definition": "Deterministic operations are reproducible, retry-safe and do not create divergent state on repeated execution.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX11",
+      "name": "Materialization & derived-view parity",
+      "definition": "Generated views are reproducible from canonical inputs; drift is detectable; output ownership is explicit.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX12",
+      "name": "CLI contract, exit codes & command boundaries",
+      "definition": "Commands have stable responsibilities, predictable mutations, documented exit codes and consistent human/JSON surfaces.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX13",
+      "name": "AI/CI usability & machine-readable protocol",
+      "definition": "A new AI/CI consumer can inspect, act, validate and verify without editing internal runtime files directly.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX14",
+      "name": "History, provenance, diagnostics & repairability",
+      "definition": "Receipts/events/reasons make changes explainable and allow diagnosis/reconciliation after failures.",
+      "release_gate": false
+    },
+    {
+      "id": "DAX15",
+      "name": "Crash, retry, concurrency & transactional integrity",
+      "definition": "Interrupted or concurrent operations do not leave contradictory canonical/runtime state.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX16",
+      "name": "Migration & backward compatibility",
+      "definition": "Persisted state and project contracts are versioned and can evolve without silently invalidating prior evidence.",
+      "release_gate": false
+    },
+    {
+      "id": "DAX17",
+      "name": "Domain independence, configurability & extensibility",
+      "definition": "Core runtime contains no research-domain assumptions and project-specific code plugs in through explicit interfaces.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX18",
+      "name": "Performance & scalability",
+      "definition": "Graph traversal, diffing and materialization remain practical on declared synthetic project sizes.",
+      "release_gate": false
+    },
+    {
+      "id": "DAX19",
+      "name": "Test quality & assurance",
+      "definition": "Unit, integration, property/fixture and end-to-end tests exercise semantics rather than only happy-path compilation.",
+      "release_gate": true
+    },
+    {
+      "id": "DAX20",
+      "name": "Release, manifest, documentation & handoff integrity",
+      "definition": "Package contents, docs, schemas, examples, manifests and handoff instructions agree with implemented behavior.",
+      "release_gate": true
+    }
+  ]
+}

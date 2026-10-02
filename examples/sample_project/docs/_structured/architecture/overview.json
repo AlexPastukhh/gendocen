@@ -1,0 +1,17 @@
+{
+  "$docengine": {
+    "resource_id": "architecture.overview",
+    "schema": "example://schemas/architecture-overview/v1",
+    "materialize": [
+      {
+        "renderer": "markdown",
+        "path": "architecture/overview.md",
+        "path_base": "documentation_root"
+      }
+    ]
+  },
+  "data": {
+    "title": "Architecture Overview",
+    "summary": "Example managed document."
+  }
+}

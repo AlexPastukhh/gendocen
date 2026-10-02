@@ -1,0 +1,21 @@
+{
+  "$docengine": {
+    "resource_id": "policies.method_policy",
+    "schema": "example://schemas/method-policy/v1",
+    "materialize": [
+      {
+        "renderer": "markdown",
+        "path": "policies/method_policy.md",
+        "path_base": "documentation_root"
+      }
+    ]
+  },
+  "data": {
+    "title": "Method Policy",
+    "status": "active",
+    "allowed_methods": [
+      "method_a",
+      "method_b"
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "current_check": {
+    "changed_dependencies": [
+      "rule://architecture.rationale-method-policy"
+    ],
+    "kind": "dependency",
+    "reason_codes": [
+      "semantic_rule_unavailable"
+    ],
+    "status": "invalid",
+    "target": "file://architecture/rationale.md"
+  },
+  "exit_code": 3,
+  "findings": [
+    {
+      "code": "current_dependency_change",
+      "details": {
+        "reason_codes": [
+          "semantic_rule_unavailable"
+        ]
+      },
+      "message": "current evidence classifies target as invalid",
+      "severity": "blocking",
+      "target": "file://architecture/rationale.md"
+    },
+    {
+      "code": "current_dependency_change",
+      "details": {
+        "reason_codes": [
+          "builder_revision_changed"
+        ]
+      },
+      "message": "current evidence classifies target as build_required",
+      "severity": "blocking",
+      "target": "resource://architecture/system_summary"
+    },
+    {
+      "code": "materialization_not_current",
+      "details": {
+        "drift": false,
+        "error": "derived materialization requires rebuild/check before rendering changed target: resource://architecture/system_summary",
+        "needs_materialization": false,
+        "outdated": false,
+        "owner_ref": "resource://architecture/system_summary",
+        "registered": true,
+        "renderer": "markdown",
+        "state": "error"
+      },
+      "message": "generated view state is error",
+      "severity": "blocking",
+      "target": "file://architecture/system_summary.md"
+    }
+  ]
+}

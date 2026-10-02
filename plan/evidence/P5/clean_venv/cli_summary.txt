@@ -1,0 +1,10 @@
+product_rebuild.json True rebuilt
+product_materialize_all.json True materialized
+product_sync_affected.json True ok
+product_sync_repeat.json True ok
+sample_sync_attention.json True attention_required
+affected_rebuilt ['resource://catalog/price_with_tax']
+affected_paths ['catalog/price_with_tax.md', 'catalog/product.md']
+repeat_rebuilt []
+repeat_results []
+attention_targets ['file://architecture/rationale.md']

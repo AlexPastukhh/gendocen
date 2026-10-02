@@ -1,0 +1,3 @@
+P0/P1 foundation + resource layer: 55 passed, 46 subtests passed
+P2 builder + extension layer: 32 passed, 99 subtests passed
+P3 + spec contracts: 31 passed, 23 subtests passed

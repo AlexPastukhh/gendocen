@@ -1,0 +1,18 @@
+{
+  "version": "0.1.0",
+  "types": {
+    "copy_reference": "Target copies/references source value; rebuildable.",
+    "compute": "Deterministic calculation from source values; rebuildable.",
+    "aggregate": "Derived from collection/query/many objects; rebuildable if all inputs available.",
+    "semantic_review": "Source change requires human/AI semantic review.",
+    "validity": "Source change removes confirmation of target validity until revalidation.",
+    "compatibility": "Source change can change comparability/compatibility semantics."
+  },
+  "granularities": [
+    "field",
+    "field_set",
+    "resource",
+    "whole_file",
+    "collection"
+  ]
+}

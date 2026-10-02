@@ -1,0 +1,8 @@
+{
+  "$docengine": {
+    "resource_id": "catalog.price_with_tax",
+    "resource_kind": "derived_descriptor",
+    "materialize": [{"renderer": "markdown", "path": "catalog/price_with_tax.md", "path_base": "documentation_root"}]
+  },
+  "data": {}
+}

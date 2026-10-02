@@ -1,0 +1,698 @@
+{
+  "phase_id": "P2",
+  "name": "Builders, derived objects and tracked reads",
+  "status": "accepted",
+  "scope": [
+    "Implement builder registry and BuildContext.",
+    "Allow project code to create new derived objects from raw and/or derived inputs.",
+    "Capture actual dependency-aware reads at field/resource granularity.",
+    "Support derived-of-derived chains and deterministic cycle detection.",
+    "Keep pure business functions separate from dependency infrastructure."
+  ],
+  "out_of_scope": [
+    "Persisted baselines/diff/state.",
+    "Semantic review decisions."
+  ],
+  "deliverables": [
+    "builder registry/API",
+    "BuildContext",
+    "derived object envelope/provenance metadata",
+    "tracked-read capture",
+    "cycle detection",
+    "synthetic non-documentation fixture"
+  ],
+  "use_cases": [
+    "DOC03",
+    "DOC05"
+  ],
+  "acceptance_axes": [
+    "DAX02",
+    "DAX03",
+    "DAX04",
+    "DAX05",
+    "DAX06",
+    "DAX10",
+    "DAX14",
+    "DAX17",
+    "DAX19",
+    "DAX20"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "P2-A1",
+      "criterion": "Builder returns a new derived object; raw input values/objects remain unchanged.",
+      "axis_ids": [
+        "DAX05"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "tests/test_builders.py"
+      ],
+      "notes": "P2 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P2-A2",
+      "criterion": "Only fields/resources actually read through tracked APIs appear in captured dependency evidence.",
+      "axis_ids": [
+        "DAX06"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "tests/test_builders.py",
+        "tests/test_p2_extensions.py",
+        "plan/evidence/P2/product_tax_build.json"
+      ],
+      "notes": "P2 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P2-A3",
+      "criterion": "raw+raw, raw+derived and derived+derived chains execute reproducibly.",
+      "axis_ids": [
+        "DAX10"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_builders.py"
+      ],
+      "notes": "P2 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P2-A4",
+      "criterion": "Dependency cycles are detected deterministically with an explainable path, not recursion failure.",
+      "axis_ids": [
+        "DAX06",
+        "DAX14"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "tests/test_builders.py",
+        "plan/evidence/P2/cycle_diagnostic.txt"
+      ],
+      "notes": "P2 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P2-A5",
+      "criterion": "A synthetic unrelated domain (e.g. product+tax) uses the same runtime without research/document-specific core changes.",
+      "axis_ids": [
+        "DAX17"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "examples/product_tax_project/",
+        "tests/test_p2_extensions.py",
+        "plan/evidence/P2/product_tax_build.json"
+      ],
+      "notes": "P2 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P2-A6",
+      "criterion": "Repeated deterministic build with unchanged inputs produces equivalent output/provenance.",
+      "axis_ids": [
+        "DAX10",
+        "DAX19"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_builders.py"
+      ],
+      "notes": "P2 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P2-A7",
+      "criterion": "Project-specific builder code is loaded only from the configured confined project package outside documentation root, and materialized derived targets require documentation-owned derived descriptors.",
+      "axis_ids": [
+        "DAX02",
+        "DAX03",
+        "DAX04",
+        "DAX17"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p2_extensions.py",
+        "examples/sample_project/docs/_structured/architecture/system_summary.json",
+        "docs/PROJECT_CONFIG.md"
+      ],
+      "notes": "P2 scope verified; global DAX closure remains deferred to P8."
+    },
+    {
+      "id": "P2-A8",
+      "criterion": "Derived-object/provenance envelope, documentation, active wheel and transferable package agree with the implemented P2 runtime contract.",
+      "axis_ids": [
+        "DAX03",
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "spec/schemas/DERIVED_OBJECT.schema.json",
+        "tests/test_p2_extensions.py",
+        "plan/P2_PACKAGE_AUDIT.md",
+        "plan/evidence/P2/reaudit_final/wheel_sha256.txt"
+      ],
+      "notes": "P2 final re-audit corrected identity/boundary/extension and whole-resource-version defects; active dev5 wheel/package is the accepted handoff. Global DAX closure remains deferred to P8."
+    }
+  ],
+  "pre_execution_questions": [
+    {
+      "id": "Q2.1",
+      "question": "Как project-specific code подключается в v0.1?",
+      "why_it_matters": "Нужен простой способ передать архив другому AI без глобальной plugin infrastructure.",
+      "blocking": true,
+      "recommended_default": "Importable local `docengine_project` package configured in `docengine.toml`; Python entry-point plugins may be added later.",
+      "status": "answered",
+      "answer": "Importable local `docengine_project` package configured in `docengine.toml`; Python entry-point plugins may be added later.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q2.2",
+      "question": "Как регистрировать builders: decorators, explicit registry или оба?",
+      "why_it_matters": "Это влияет на readability project code и testability.",
+      "blocking": true,
+      "recommended_default": "Explicit registry as canonical mechanism with decorator convenience that writes into it.",
+      "status": "answered",
+      "answer": "Explicit registry as canonical mechanism with decorator convenience that writes into it.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q2.3",
+      "question": "Разрешать ли builder читать filesystem/JSON напрямую в обход context?",
+      "why_it_matters": "Обход context ломает dependency capture.",
+      "blocking": true,
+      "recommended_default": "No for tracked inputs: project builder may call pure helpers, but dependency-bearing reads must go through context/resolver; escape hatch must be explicit and unaudited.",
+      "status": "answered",
+      "answer": "No for tracked inputs: project builder may call pure helpers, but dependency-bearing reads must go through context/resolver; escape hatch must be explicit and unaudited.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q2.4",
+      "question": "Что делать с dependency cycles?",
+      "why_it_matters": "Автоматический recursive build не имеет однозначного результата при цикле.",
+      "blocking": true,
+      "recommended_default": "Treat as configuration/build error in v0.1; report exact cycle path.",
+      "status": "answered",
+      "answer": "Treat as configuration/build error in v0.1; report exact cycle path.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    }
+  ],
+  "emergent_questions": [
+    {
+      "id": "Q2.E1",
+      "owner": "implementer",
+      "question": "P2 introduces executable project code; where may the configured project package live?",
+      "why_it_matters": "Keeping project semantics separate from documentation-owned data prevents code/data ownership ambiguity and path escapes.",
+      "blocking": true,
+      "recommended_default": "Require the configured package below project root, outside documentation root, with no symlinked entries.",
+      "status": "answered",
+      "answer": "Project package is confined to project root, must live outside docs, and all package-tree symlinks are rejected before import.",
+      "decision": "Project package is confined to project root, must live outside docs, and all package-tree symlinks are rejected before import.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p2_extensions.py",
+        "docs/PROJECT_CONFIG.md"
+      ],
+      "acceptance_impact": "Required for DAX02/DAX04/DAX17."
+    },
+    {
+      "id": "Q2.E2",
+      "owner": "implementer",
+      "question": "What exact runtime value is persisted/returned by a builder before P3 exists?",
+      "why_it_matters": "P2 needs provenance/determinism without prematurely implementing P3 receipts/baselines/state.",
+      "blocking": true,
+      "recommended_default": "Return a new immutable DerivedObject with deterministic in-memory BuildProvenance; do not persist dependency state yet.",
+      "status": "answered",
+      "answer": "Implemented immutable DerivedObject + direct tracked-read provenance and version/digests; persistent receipts remain P3.",
+      "decision": "Implemented immutable DerivedObject + direct tracked-read provenance and version/digests; persistent receipts remain P3.",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "spec/schemas/DERIVED_OBJECT.schema.json",
+        "tests/test_builders.py",
+        "docs/BUILD_RUNTIME.md"
+      ],
+      "acceptance_impact": "Required for DAX03/DAX05/DAX06/DAX10."
+    },
+    {
+      "id": "Q2.E3",
+      "owner": "implementer",
+      "question": "Should arbitrary Python builder outputs be accepted and coerced?",
+      "why_it_matters": "Silent coercion can make provenance hashes unstable or lose data semantics.",
+      "blocking": true,
+      "recommended_default": "Accept only JSON-compatible object/array output with string keys and finite numbers; copy/freeze it into the derived object.",
+      "status": "answered",
+      "answer": "Non-JSON values, non-string keys and NaN/Infinity are rejected; mutable returned containers cannot mutate the derived result afterward.",
+      "decision": "Non-JSON values, non-string keys and NaN/Infinity are rejected; mutable returned containers cannot mutate the derived result afterward.",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "tests/test_builders.py"
+      ],
+      "acceptance_impact": "Required for DAX03/DAX05/DAX10."
+    },
+    {
+      "id": "Q2.E4",
+      "owner": "implementer",
+      "question": "Does implementing project-package loading and a new derived envelope add acceptance risks not present in the original P2 axis list?",
+      "why_it_matters": "Phase-local axis coverage must include risks actually introduced, not only the initial plan mapping.",
+      "blocking": true,
+      "recommended_default": "Expand P2 mapping with DAX02, DAX03, DAX04 and DAX20.",
+      "status": "answered",
+      "answer": "P2 acceptance axes expanded to include documentation/code ownership, new contract/version/path risks and release/handoff integrity.",
+      "decision": "P2 acceptance axes expanded to include documentation/code ownership, new contract/version/path risks and release/handoff integrity.",
+      "evidence_refs": [
+        "plan/phase_records/P2_EXECUTION_RECORD.json",
+        "plan/IMPLEMENTATION_PLAN.md"
+      ],
+      "acceptance_impact": "Prevents false phase acceptance from incomplete axis mapping."
+    },
+    {
+      "id": "Q2.E5",
+      "owner": "implementer",
+      "question": "Should `docengine rebuild` be wired in P2 merely because BuildEngine now exists?",
+      "why_it_matters": "The CLI contract says rebuild mutates derived/runtime state, while P2 intentionally has no persisted receipts/baselines/materialization state.",
+      "blocking": true,
+      "recommended_default": "Keep `rebuild` CLI explicitly not_implemented through P2; expose BuildEngine as the P2 programmatic runtime and wire CLI only when persistence/orchestration semantics exist.",
+      "status": "answered",
+      "answer": "`rebuild` remains an honest stub; docs explicitly distinguish the implemented P2 API from later CLI orchestration.",
+      "decision": "`rebuild` remains an honest stub; docs explicitly distinguish the implemented P2 API from later CLI orchestration.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "docs/BUILD_RUNTIME.md",
+        "docs/AI_USAGE_PROTOCOL.md"
+      ],
+      "acceptance_impact": "Preserves DAX10/DAX20 boundaries and prevents premature P3/P5 behavior."
+    },
+    {
+      "id": "Q2.E6",
+      "owner": "implementer",
+      "question": "Must every builder target have a documentation-owned derived descriptor?",
+      "why_it_matters": "Internal derived objects should not force JSON merely because they participate in computation, while materialized outputs still need documentation-owned output paths.",
+      "blocking": true,
+      "recommended_default": "No. Internal-only derived targets may have no descriptor; materialized/documentation-owned derived targets use derived_descriptor, and every existing derived_descriptor must have a builder.",
+      "status": "answered",
+      "answer": "Implemented asymmetric rule: internal targets may be code-only; existing derived descriptors are never treated as raw fallback and must resolve to builders.",
+      "decision": "Allow internal code-only derived targets; require builder for every derived_descriptor and derived_descriptor kind for any builder target that also exists as a managed resource.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p2_extensions.py",
+        "docs/RESOURCE_MODEL.md"
+      ],
+      "acceptance_impact": "Corrects DAX02/DAX05 ownership and raw/derived separation."
+    },
+    {
+      "id": "Q2.E7",
+      "owner": "implementer",
+      "question": "May file:// tracked reads address _structured, _dependency, or generated managed views?",
+      "why_it_matters": "Allowing storage-file reads bypasses canonical resource identity, schema and field-level tracking.",
+      "blocking": true,
+      "recommended_default": "No. In v0.1 file:// resolves only plain canonical Markdown; managed/derived content uses resource://.",
+      "status": "answered",
+      "answer": "ResourceCatalog now rejects file:// reads/versions unless the path is inventoried as plain canonical Markdown.",
+      "decision": "Restrict file:// to plain canonical Markdown in v0.1.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "tests/test_p1_resources.py",
+        "docs/RESOURCE_MODEL.md"
+      ],
+      "acceptance_impact": "Corrects DAX02/DAX03/DAX06 boundary."
+    },
+    {
+      "id": "Q2.E8",
+      "owner": "implementer",
+      "question": "Can callers bypass ref validation by constructing ResourceRef directly instead of parsing a string?",
+      "why_it_matters": "A public identity object must remain canonical regardless of construction path.",
+      "blocking": true,
+      "recommended_default": "No. Validate dataclass construction and reject non-canonical textual encodings rather than silently normalize them.",
+      "status": "answered",
+      "answer": "ResourceRef now validates direct construction and ResourceRef.parse requires exact canonical round-trip.",
+      "decision": "Canonical identity is enforced for both object construction and string parsing.",
+      "evidence_refs": [
+        "src/docengine/refs.py",
+        "tests/test_refs.py"
+      ],
+      "acceptance_impact": "Corrects DAX03."
+    },
+    {
+      "id": "Q2.E9",
+      "owner": "implementer",
+      "question": "If project_package is documented as dotted, must nested packages retain normal parent-relative import semantics?",
+      "why_it_matters": "Accepting company.builders but breaking from ..common makes the configuration contract false.",
+      "blocking": true,
+      "recommended_default": "Yes. Load the dotted package hierarchy under an isolated private prefix while preserving normal relative imports.",
+      "status": "answered",
+      "answer": "Loader now executes package segments under a private prefix and supports parent-relative imports without adding project root as a public global package.",
+      "decision": "Support dotted packages as documented rather than narrowing the config contract.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p2_extensions.py",
+        "docs/PROJECT_CONFIG.md"
+      ],
+      "acceptance_impact": "Corrects DAX03/DAX17."
+    },
+    {
+      "id": "Q2.E10",
+      "owner": "implementer",
+      "question": "How is builder-code change represented in provenance before P3 invalidation exists?",
+      "why_it_matters": "Data dependencies can stay unchanged while formula/helper code changes; P3 needs a stable signal to mark derived targets build_required.",
+      "blocking": true,
+      "recommended_default": "Content-address the project Python source bundle and include that revision in BuildProvenance; P3 compares stored/current revision.",
+      "status": "answered",
+      "answer": "Project extensions now compute a sha256 source revision over project-owned Python source and every derived provenance records builder_revision.",
+      "decision": "Builder source revision is part of deterministic provenance and will become a P3 invalidation input.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "src/docengine/builders.py",
+        "spec/schemas/DERIVED_OBJECT.schema.json",
+        "tests/test_p2_extensions.py"
+      ],
+      "acceptance_impact": "Closes a pre-P3 DAX05/DAX10 provenance gap."
+    },
+    {
+      "id": "Q2.E11",
+      "owner": "implementer",
+      "question": "Is comparator selection builder-wide or dependency-specific?",
+      "why_it_matters": "A single builder can depend on scalar, set/list and text inputs that require different P3 diff semantics.",
+      "blocking": true,
+      "recommended_default": "Builder registration provides the default comparator; each ctx.read/get may override comparator for that dependency.",
+      "status": "answered",
+      "answer": "DependencyRead now records its own comparator; BuildContext read/get accept per-read override with builder comparator as default.",
+      "decision": "Comparator semantics are per dependency, with a builder-level default only.",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "spec/schemas/DERIVED_OBJECT.schema.json",
+        "tests/test_builders.py"
+      ],
+      "acceptance_impact": "Aligns P2 evidence with P3 receipt schema and DAX06/DAX07."
+    },
+    {
+      "id": "Q2.E12",
+      "owner": "implementer",
+      "question": "Can audit_complete be interpreted as proof that arbitrary Python performed no hidden I/O?",
+      "why_it_matters": "Python project code is not sandboxed, so context tracking cannot observe code that intentionally bypasses it.",
+      "blocking": false,
+      "recommended_default": "No. Keep cooperative project-code contract and expose machine-readable tracking_assurance=cooperative; audit_complete means no known gaps under that contract.",
+      "status": "answered",
+      "answer": "BuildProvenance now exposes tracking_assurance=cooperative and docs explicitly prohibit treating audit_complete as sandbox proof.",
+      "decision": "v0.1 uses cooperative trusted project code; stronger isolation may be evaluated later without overstating current assurance.",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "spec/schemas/DERIVED_OBJECT.schema.json",
+        "docs/BUILD_RUNTIME.md",
+        "tests/test_builders.py"
+      ],
+      "acceptance_impact": "Clarifies DAX06 assurance without pretending Python sandboxing exists."
+    },
+    {
+      "id": "Q2.E13",
+      "question": "Can ResourceCatalog expose a derived_descriptor as raw domain data before/without BuildEngine resolution?",
+      "why_it_matters": "A descriptor owns output identity/metadata and must never masquerade as the derived result itself.",
+      "blocking": true,
+      "recommended_default": "No. Inventory may expose the descriptor metadata, but get/version on its resource ref must require registered builder resolution.",
+      "status": "answered",
+      "answer": "ResourceCatalog now rejects raw get/version for derived_descriptor; BuildEngine resolves registered derived targets before consulting the raw store.",
+      "decision": "Descriptor data is metadata-only and never raw fallback truth.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "tests/test_p1_resources.py",
+        "docs/RESOURCE_MODEL.md"
+      ],
+      "acceptance_impact": "Closes the remaining raw-fallback hole in Q2.E6 and DAX05.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q2.E14",
+      "question": "If a parent __init__.py imports the configured dotted child package, may the loader execute that child again?",
+      "why_it_matters": "Double execution breaks normal Python package semantics and can duplicate registration/import side effects.",
+      "blocking": true,
+      "recommended_default": "No. Reuse the already-loaded expected child module after verifying its source path.",
+      "status": "answered",
+      "answer": "The loader reuses an already-loaded child under the private synthetic root and verifies that its __file__ matches the expected package __init__.py.",
+      "decision": "Dotted project packages preserve single-execution relative-import semantics.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p2_extensions.py"
+      ],
+      "acceptance_impact": "Required for DAX10/DAX17 correctness of the documented dotted package contract.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q2.E15",
+      "question": "Should a whole structured-resource dependency version change when only JSON formatting or $docengine materialization metadata changes?",
+      "why_it_matters": "Builders consume domain data; metadata-only changes must not create false computational invalidation.",
+      "blocking": true,
+      "recommended_default": "No. Version the canonical domain data value; keep physical source hash separate for source/inventory provenance.",
+      "status": "answered",
+      "answer": "ResourceCatalog.version(resource://whole) now hashes canonical domain data, while source_hash remains the physical file hash.",
+      "decision": "Whole structured-resource dependency identity is domain-data based in v0.1.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "tests/test_p1_resources.py",
+        "docs/RESOURCE_MODEL.md",
+        "docs/BUILD_RUNTIME.md"
+      ],
+      "acceptance_impact": "Prevents metadata/reformat-only false invalidation under DAX06/DAX10 and aligns P3 whole-resource baselines.",
+      "owner": "implementer"
+    }
+  ],
+  "implementation_log": [
+    {
+      "entry": "implemented: Added domain-neutral BuilderRegistry, BuildContext, BuildEngine, immutable DerivedObject and deterministic BuildProvenance.",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "tests/test_builders.py"
+      ]
+    },
+    {
+      "entry": "implemented: Added confined project-local package loading with register_builders(registry) and derived-descriptor ownership validation.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p2_extensions.py"
+      ]
+    },
+    {
+      "entry": "implemented: Added sample builder and unrelated product+tax fixture using the same runtime.",
+      "evidence_refs": [
+        "examples/sample_project/docengine_project/",
+        "examples/product_tax_project/"
+      ]
+    },
+    {
+      "entry": "contract: Added DERIVED_OBJECT schema and P2 build-runtime documentation; project_package is now explicit config.",
+      "evidence_refs": [
+        "spec/schemas/DERIVED_OBJECT.schema.json",
+        "docs/BUILD_RUNTIME.md",
+        "docs/PROJECT_CONFIG.md"
+      ]
+    },
+    {
+      "entry": "re-audit: corrected canonical ResourceRef construction/encoding and plain-Markdown-only file ref boundary.",
+      "evidence_refs": [
+        "src/docengine/refs.py",
+        "src/docengine/resources.py",
+        "tests/test_refs.py",
+        "tests/test_p1_resources.py"
+      ]
+    },
+    {
+      "entry": "re-audit: corrected internal-derived/descriptor symmetry and dotted package loading; added project source revision.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p2_extensions.py"
+      ]
+    },
+    {
+      "entry": "re-audit: provenance now exposes builder revision, cooperative tracking assurance and per-dependency comparators.",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "spec/schemas/DERIVED_OBJECT.schema.json",
+        "tests/test_builders.py"
+      ]
+    },
+    {
+      "entry": "re-audit: ResourceCatalog now treats derived_descriptor as metadata-only and rejects raw get/version fallback.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "src/docengine/extensions.py",
+        "tests/test_p1_resources.py",
+        "tests/test_p2_extensions.py"
+      ]
+    },
+    {
+      "entry": "re-audit: dotted project loader reuses a child imported by its parent instead of executing the child package twice.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "src/docengine/extensions.py",
+        "tests/test_p1_resources.py",
+        "tests/test_p2_extensions.py"
+      ]
+    },
+    {
+      "entry": "re-audit: separated physical source_hash from canonical whole-resource dependency version so metadata/formatting-only edits do not invalidate domain computations.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "tests/test_p1_resources.py",
+        "docs/BUILD_RUNTIME.md"
+      ]
+    },
+    {
+      "entry": "re-audit: whole structured-resource versions now hash canonical domain data rather than physical JSON/envelope bytes.",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "tests/test_p1_resources.py",
+        "docs/BUILD_RUNTIME.md"
+      ]
+    }
+  ],
+  "axis_reviews": [
+    {
+      "axis_id": "DAX02",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "examples/sample_project/docs/_structured/architecture/system_summary.json",
+        "tests/test_p2_extensions.py"
+      ],
+      "findings": [
+        "Materialized derived ownership remains in _structured; internal-only derived targets do not force JSON; existing derived descriptors require builders."
+      ]
+    },
+    {
+      "axis_id": "DAX03",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "src/docengine/config.py",
+        "spec/schemas/DERIVED_OBJECT.schema.json",
+        "tests/test_p2_extensions.py"
+      ],
+      "findings": [
+        "ResourceRef construction and text are canonical; derived/provenance envelope includes builder revision; runtime build identity advanced to dev5."
+      ]
+    },
+    {
+      "axis_id": "DAX04",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p2_extensions.py"
+      ],
+      "findings": [
+        "Project package remains confined/symlink-safe; file:// cannot read reserved structured/dependency storage or generated managed views; P2 persists no runtime state."
+      ]
+    },
+    {
+      "axis_id": "DAX05",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "tests/test_builders.py"
+      ],
+      "findings": [
+        "Raw inputs remain immutable; derived values are new/frozen; derived descriptors cannot silently fall back to raw data; builder source revision is traceable.",
+        "ResourceCatalog itself now rejects derived_descriptor raw get/version, closing descriptor-as-fake-truth fallback outside BuildEngine."
+      ]
+    },
+    {
+      "axis_id": "DAX06",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "tests/test_builders.py",
+        "plan/evidence/P2/product_tax_build.json"
+      ],
+      "findings": [
+        "Exact tracked refs and per-dependency comparators are captured; file refs are plain-Markdown-only; cooperative tracking assurance is explicit and direct hidden Python I/O is outside the contract.",
+        "Whole-resource raw dependencies are versioned from canonical domain data rather than physical JSON/envelope bytes.",
+        "Whole-resource raw dependency versions ignore JSON formatting/$docengine metadata and track canonical domain data only."
+      ]
+    },
+    {
+      "axis_id": "DAX10",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "tests/test_builders.py"
+      ],
+      "findings": [
+        "Stable dependency ordering/digests plus builder source revision make unchanged code+inputs reproducible and make code changes observable for P3.",
+        "Dotted package child imported by parent executes once; loader reuses verified module instead of replaying import side effects.",
+        "Storage formatting/materialization-metadata-only edits no longer perturb whole-resource computational dependency versions.",
+        "Whole-resource raw dependency versions ignore JSON formatting/$docengine metadata and track canonical domain data only."
+      ]
+    },
+    {
+      "axis_id": "DAX14",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/builders.py",
+        "plan/evidence/P2/cycle_diagnostic.txt"
+      ],
+      "findings": [
+        "Cycles and builder failures are explainable; persistent repair/history is later."
+      ]
+    },
+    {
+      "axis_id": "DAX17",
+      "status": "pass",
+      "evidence_refs": [
+        "examples/product_tax_project/",
+        "tests/test_p2_extensions.py"
+      ],
+      "findings": [
+        "Unrelated product/tax fixture uses same runtime; dotted project packages preserve relative-import semantics under isolated private prefix.",
+        "Dotted package support now covers parent-imports-child relative-import behavior without double execution."
+      ]
+    },
+    {
+      "axis_id": "DAX19",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_builders.py",
+        "tests/test_p2_extensions.py",
+        "plan/P2_PACKAGE_AUDIT.md"
+      ],
+      "findings": [
+        "Regression tests cover canonical refs, storage-boundary bypass, descriptor/builder symmetry, nested package imports, source revision and mixed comparators in addition to original P2 tests."
+      ]
+    },
+    {
+      "axis_id": "DAX20",
+      "status": "pass",
+      "evidence_refs": [
+        "README.md",
+        "START_HERE_AGENT.md",
+        "plan/P2_PACKAGE_AUDIT.md",
+        "tools/audit_spec.py"
+      ],
+      "findings": [
+        "P2 re-audit corrected stale AI protocol/docs; active dev5 wheel/manifest/package are rebuilt after fixes."
+      ]
+    }
+  ],
+  "acceptance_summary": {
+    "decision": "accepted",
+    "unresolved_blocking_questions": [],
+    "failed_criteria": [],
+    "notes": "P2 remains accepted after independent re-audit and final correction of whole-resource version semantics. Confirmed defects were corrected; cooperative Python tracking is explicitly bounded rather than presented as sandbox proof. P3 must consume builder_revision and canonical dependency slices for invalidation."
+  }
+}

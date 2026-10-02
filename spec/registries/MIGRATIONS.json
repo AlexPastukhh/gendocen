@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "runtime_layout_version": "1.0.0",
+  "migrations": [
+    {
+      "migration_id": "p6-unmarked-to-runtime-layout-1",
+      "from_version": "legacy-p6-unmarked",
+      "to_version": "1.0.0",
+      "preserves_released_evidence": true,
+      "transformation": "validate released P6 evidence byte-for-byte and add runtime layout marker + migration audit event"
+    }
+  ]
+}

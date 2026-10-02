@@ -1,0 +1,746 @@
+{
+  "phase_id": "P4",
+  "name": "Semantic dependencies and review workflow",
+  "status": "accepted",
+  "scope": [
+    "Implement explicit semantic dependency rule registration.",
+    "Expose review context: target, old baseline, current dependency slices, typed diff and history.",
+    "Implement `validate still-valid|updated` mutation with reason/evidence.",
+    "Advance baselines only after explicit review outcome.",
+    "Preserve old receipts/events for audit."
+  ],
+  "out_of_scope": [
+    "Automated LLM semantic judgment inside engine.",
+    "Fine-grained Markdown section targeting unless explicitly chosen."
+  ],
+  "deliverables": [
+    "semantic dependency registry",
+    "ValidationContext/review payload",
+    "validate command core",
+    "review event types",
+    "baseline advancement rules"
+  ],
+  "use_cases": [
+    "DOC03",
+    "DOC12",
+    "DOC13",
+    "DOC14"
+  ],
+  "acceptance_axes": [
+    "DAX01",
+    "DAX02",
+    "DAX03",
+    "DAX04",
+    "DAX05",
+    "DAX06",
+    "DAX07",
+    "DAX08",
+    "DAX09",
+    "DAX10",
+    "DAX12",
+    "DAX13",
+    "DAX14",
+    "DAX16",
+    "DAX17",
+    "DAX19",
+    "DAX20"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "P4-A1",
+      "criterion": "Changing semantic dependency makes target review_required without engine claiming target content is wrong.",
+      "axis_ids": [
+        "DAX08",
+        "DAX09"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/still_valid_flow.json",
+        "tests/test_p4_semantic.py"
+      ],
+      "notes": "P4 acceptance evidence passes. Global DAX closure remains P8."
+    },
+    {
+      "id": "P4-A2",
+      "criterion": "AI/human review receives old/current dependency slices, diff, target identity and prior validation context.",
+      "axis_ids": [
+        "DAX09",
+        "DAX13"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/initial_review_packet.json",
+        "plan/evidence/P4/updated_flow.json",
+        "spec/schemas/REVIEW_PACKET.schema.json"
+      ],
+      "notes": "P4 acceptance evidence passes. Global DAX closure remains P8."
+    },
+    {
+      "id": "P4-A3",
+      "criterion": "`still-valid` advances baseline without altering target content; `updated` requires current target state and records decision/reason.",
+      "axis_ids": [
+        "DAX09",
+        "DAX10"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/still_valid_flow.json",
+        "plan/evidence/P4/updated_flow.json",
+        "tests/test_p4_semantic.py"
+      ],
+      "notes": "P4 acceptance evidence passes. Global DAX closure remains P8."
+    },
+    {
+      "id": "P4-A4",
+      "criterion": "Direct edit of dependency_state cannot serve as normal acceptance path; official validation mutation records history.",
+      "axis_ids": [
+        "DAX09",
+        "DAX14"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/manual_state_edit_integrity.json",
+        "plan/evidence/P4/initial_history.json",
+        "tests/test_p4_semantic.py"
+      ],
+      "notes": "P4 acceptance evidence passes. Global DAX closure remains P8."
+    },
+    {
+      "id": "P4-A5",
+      "criterion": "Old validation events/receipts remain inspectable after baseline advancement.",
+      "axis_ids": [
+        "DAX14"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/still_valid_flow.json",
+        "plan/evidence/P4/updated_flow.json",
+        "plan/evidence/P4/initial_history.json"
+      ],
+      "notes": "P4 acceptance evidence passes. Global DAX closure remains P8."
+    },
+    {
+      "id": "P4-A6",
+      "criterion": "Validation is idempotent for the same target/current dependency state/decision or explicitly detects duplicate intent.",
+      "axis_ids": [
+        "DAX10",
+        "DAX19"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/idempotent_retry.json",
+        "tests/test_p4_semantic.py"
+      ],
+      "notes": "P4 acceptance evidence passes. Global DAX closure remains P8."
+    },
+    {
+      "id": "P4-A7",
+      "criterion": "Semantic rules are registered in project code, inspectable through graph/explain, versioned independently, and exact whole-target builder/semantic ownership overlap is rejected until multi-receipt state exists.",
+      "axis_ids": [
+        "DAX02",
+        "DAX06",
+        "DAX17"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "examples/sample_project/docengine_project/semantic_rules.py",
+        "tests/test_p4_semantic.py"
+      ],
+      "notes": "P4 acceptance evidence passes. Global DAX closure remains P8."
+    },
+    {
+      "id": "P4-A8",
+      "criterion": "Validation requires the reviewed context token and rejects known stale target/dependency/rule context; P4 persisted additions remain backward-readable with legacy P3 receipts/events/state.",
+      "axis_ids": [
+        "DAX03",
+        "DAX10",
+        "DAX14",
+        "DAX16"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/stale_context_rejection.json",
+        "tests/test_p4_semantic.py",
+        "tests/test_p3_dependencies.py",
+        "plan/P4_PREVIOUS_PHASE_REGRESSION.md"
+      ],
+      "notes": "P4 acceptance evidence passes. Global DAX closure remains P8."
+    },
+    {
+      "id": "P4-A9",
+      "criterion": "CLI/JSON validate surfaces invalid inputs as machine-readable errors and records reason/actor/evidence without requiring personal identity; handoff docs/schemas/package describe the P4 boundary consistently.",
+      "axis_ids": [
+        "DAX12",
+        "DAX13",
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p4_semantic.py",
+        "docs/SEMANTIC_REVIEW.md",
+        "plan/P4_PACKAGE_AUDIT.md",
+        "plan/evidence/P4/final_handoff/wheel_source_parity.txt",
+        "plan/evidence/P4/final_handoff/clean_venv_pip_check.txt",
+        "plan/evidence/P4/final_handoff/installed_validate.json"
+      ],
+      "notes": "P4 acceptance evidence passes. Global DAX closure remains P8."
+    }
+  ],
+  "pre_execution_questions": [
+    {
+      "id": "Q4.1",
+      "question": "Делаем ли `--reason` обязательным для semantic validation?",
+      "why_it_matters": "Без причины AI/human decision хуже аудируется и переносится между чатами.",
+      "blocking": true,
+      "recommended_default": "Yes, non-empty reason required for `still-valid` and `updated`.",
+      "status": "answered",
+      "answer": "Yes. Non-empty `--reason` is required for explicit semantic `still-valid` and `updated` decisions.",
+      "decision": "Require a review reason so semantic acceptance remains portable and auditable.",
+      "evidence_refs": [
+        "conversation-design-decision"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.2",
+      "question": "Нужен ли ручной `force-valid` обход review в v0.1?",
+      "why_it_matters": "Такой обход легко разрушает audit semantics.",
+      "blocking": true,
+      "recommended_default": "No normal force-valid path in v0.1; recovery/admin repair must be a separate explicit future capability.",
+      "status": "answered",
+      "answer": "No normal force-valid path in v0.1; recovery/admin repair must be a separate explicit future capability.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.3",
+      "question": "Поддерживаем ли dependency target на конкретную Markdown section в v0.1?",
+      "why_it_matters": "Section-level review уменьшает шум, но требует stable section addressing/parser semantics.",
+      "blocking": false,
+      "recommended_default": "No: v0.1 semantic target granularity is whole file/resource; field-level structured targets are supported. Section addressing deferred.",
+      "status": "answered",
+      "answer": "No. v0.1 does not support dependencies targeting a Markdown section. If a dependency must target only part of a document, that part must be represented as structured JSON and addressed there.",
+      "decision": "Do not implement Markdown section-level dependency addressing in v0.1. Use whole-file Markdown dependencies; for partial-document dependency granularity, promote the relevant content to structured JSON.",
+      "evidence_refs": [
+        "conversation-user-decision-2026-10-02"
+      ],
+      "acceptance_impact": "Resolved. P4 implementation must not add Markdown section addressing; structured JSON is the required path for partial-document dependencies.",
+      "owner": "user"
+    },
+    {
+      "id": "Q4.4",
+      "question": "Нужно ли хранить actor metadata для review?",
+      "why_it_matters": "Для handoff полезно различать human/AI/CI, но нельзя требовать персональные идентификаторы.",
+      "blocking": true,
+      "recommended_default": "Store `actor_kind` = human|ai|ci|unknown and optional free-form non-sensitive actor label; no identity required.",
+      "status": "answered",
+      "answer": "Store `actor_kind` = human|ai|ci|unknown and optional free-form non-sensitive actor label; no identity required.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    }
+  ],
+  "emergent_questions": [
+    {
+      "id": "Q4.E1",
+      "question": "Must `validate` carry an explicit review-context token from the reviewed packet?",
+      "why_it_matters": "Without a token, the engine cannot know whether target/dependency/rule state changed after the human/AI reviewed it.",
+      "blocking": true,
+      "recommended_default": "Require deterministic `review_context_id` from `explain`; reject validation when current context no longer matches.",
+      "status": "answered",
+      "answer": "Require deterministic `review_context_id` from `explain`; reject validation when current context no longer matches.",
+      "decision": "P4 `validate` requires `--review-context`; the token fingerprints target revision, rule revision, active prior receipt and exact current dependency versions.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "src/docengine/cli.py",
+        "tests/test_p4_semantic.py::P4ValidationTests::test_stale_review_context_is_rejected_without_advancing_state"
+      ],
+      "acceptance_impact": "Resolved within P4 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.E2",
+      "question": "Should semantic-rule import fail when a currently declared target/source file is missing?",
+      "why_it_matters": "P3 guarantees diagnostics remain available when a previously valid source/target is deleted; eager availability checks would make the whole extension unloadable.",
+      "blocking": true,
+      "recommended_default": "Validate rule syntax/comparators/cycles at registration, but treat current target/source availability as runtime review/check evidence.",
+      "status": "answered",
+      "answer": "Validate rule syntax/comparators/cycles at registration, but treat current target/source availability as runtime review/check evidence.",
+      "decision": "Semantic rule registration no longer resolves current content during extension import; missing runtime inputs surface through review/check instead.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p3_dependencies.py::P3MarkdownDependencyTests::test_missing_explicit_validation_target_is_invalid",
+        "tests/test_p4_semantic.py::P4RegistryAndReviewPacketTests::test_semantic_rule_unknown_source_is_rejected"
+      ],
+      "acceptance_impact": "Resolved within P4 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.E3",
+      "question": "How should a newly registered semantic rule with no validated receipt appear in `check` without fabricating evidence?",
+      "why_it_matters": "A rule should be discoverable as needing review, but creating a receipt/baseline would falsely imply prior validation.",
+      "blocking": false,
+      "recommended_default": "Report an ephemeral `review_required`/initial-validation item with review context; persist nothing until explicit validate succeeds.",
+      "status": "answered",
+      "answer": "Report an ephemeral `review_required`/initial-validation item with review context; persist nothing until explicit validate succeeds.",
+      "decision": "P4 `check_all` surfaces registered-unvalidated rules without writing dependency state or fake receipts.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "tests/test_p4_semantic.py::P4RegistryAndReviewPacketTests::test_check_surfaces_unvalidated_registered_rule_as_review_required"
+      ],
+      "acceptance_impact": "Resolved within P4 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.E4",
+      "question": "What does `updated` mean during initial validation or when target content did not change?",
+      "why_it_matters": "Allowing `updated` without an actual prior validated target/edit would weaken the audit meaning of the decision.",
+      "blocking": false,
+      "recommended_default": "Initial validation uses `still-valid`; `updated` requires a prior validated target and a changed current target revision.",
+      "status": "answered",
+      "answer": "Initial validation uses `still-valid`; `updated` requires a prior validated target and a changed current target revision.",
+      "decision": "`updated` is rejected for initial validation and for unchanged target content; `still-valid` rejects edited target content.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "tests/test_p4_semantic.py::P4ValidationTests::test_updated_without_target_change_is_rejected",
+        "tests/test_p4_semantic.py::P4ValidationTests::test_updated_requires_target_edit_and_still_valid_rejects_edited_target"
+      ],
+      "acceptance_impact": "Resolved within P4 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.E5",
+      "question": "Can one exact target simultaneously own a deterministic builder receipt and a semantic-review receipt in v0.1?",
+      "why_it_matters": "Current dependency state selects one active receipt per exact target; allowing both would silently replace one dependency mode with the other.",
+      "blocking": false,
+      "recommended_default": "Reject exact whole-target overlap in v0.1; a field-level semantic ref remains a distinct target ref. Revisit only with explicit multi-receipt state semantics.",
+      "status": "answered",
+      "answer": "Reject exact whole-target overlap in v0.1; a field-level semantic ref remains a distinct target ref. Revisit only with explicit multi-receipt state semantics.",
+      "decision": "Project extension validation rejects exact builder/semantic target overlap.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "tests/test_p4_semantic.py::P4RegistryAndReviewPacketTests::test_semantic_rule_cannot_replace_same_exact_builder_target_receipt"
+      ],
+      "acceptance_impact": "Resolved within P4 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.E6",
+      "question": "How should review history explain a rule change that removes a previously validated dependency?",
+      "why_it_matters": "The validation event may legitimately mention a removed old source that is absent from the new receipt, so new-receipt-only integrity would falsely label valid history corrupt.",
+      "blocking": false,
+      "recommended_default": "For semantic validation events, validate reviewed changed dependencies against the union of current receipt sources and the referenced prior receipt sources.",
+      "status": "answered",
+      "answer": "For semantic validation events, validate reviewed changed dependencies against the union of current receipt sources and the referenced prior receipt sources.",
+      "decision": "Integrity follows `review.prior_receipt_id` and permits removed prior dependencies while still rejecting unexplained sources.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p4_semantic.py::P4ValidationTests::test_rule_dependency_replacement_preserves_review_integrity"
+      ],
+      "acceptance_impact": "Resolved within P4 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.E7",
+      "question": "Do P4 persisted schema additions require a state-schema version bump?",
+      "why_it_matters": "P4 adds optional semantic receipt fields and optional review event metadata, while legacy P3 persisted records must remain readable.",
+      "blocking": false,
+      "recommended_default": "Keep persisted schema version 1.0.0 because additions are optional/backward-compatible; strict readers accept legacy P3 evidence and validate new fields when present.",
+      "status": "answered",
+      "answer": "Keep persisted schema version 1.0.0 because additions are optional/backward-compatible; strict readers accept legacy P3 evidence and validate new fields when present.",
+      "decision": "P4 adds optional receipt/event fields without changing required legacy fields; full P0–P3 regression remains part of acceptance.",
+      "evidence_refs": [
+        "spec/schemas/DEPENDENCY_RECEIPT.schema.json",
+        "spec/schemas/DEPENDENCY_EVENT.schema.json",
+        "tests/test_p3_dependencies.py"
+      ],
+      "acceptance_impact": "Resolved within P4 acceptance; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.E8",
+      "question": "How should semantic review-context identity behave when content-stable receipt/dependency state recurs in A → B → A → B cycles?",
+      "why_it_matters": "A content-only context token can repeat and make an old consumed review look like an exact retry of a new required review, leaving state review_required while validate reports duplicate success.",
+      "blocking": true,
+      "recommended_default": "Bind review context to the target state-transition occurrence as well as target/rule/dependency content; deduplicate only while the consumed review event is still the active occurrence for that target.",
+      "status": "answered",
+      "answer": "Review context now includes the latest target occurrence revision; consumed-context retry is accepted only when its semantic event remains the active target event/state.",
+      "decision": "Semantic retries are occurrence-aware: exact retry stays idempotent, while recurrent A/B states create new review contexts and new state-transition events.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "tests/test_p4_semantic.py::P4ValidationTests::test_repeated_semantic_a_b_a_b_occurrences_are_new_transitions_not_old_retries",
+        "tests/test_p4_semantic.py::P4ValidationTests::test_consumed_old_context_after_later_target_transition_is_stale_not_duplicate_success",
+        "plan/evidence/P4/post_axis_audit/semantic_recurrence.json"
+      ],
+      "acceptance_impact": "Corrects DAX03/DAX10/DAX14 occurrence identity and review history.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.E9",
+      "question": "Which status should `check` use when a semantic rule is initially unvalidated, lacks legacy rule metadata, or changes dependency type?",
+      "why_it_matters": "Hardcoding review_required contradicts the canonical dependency-type mapping for `validity` (`stale`) and can create a spurious old-type event when the current rule type changed.",
+      "blocking": true,
+      "recommended_default": "Use the current registered rule dependency type for semantic classification; semantic_review/compatibility map to review_required and validity maps to stale.",
+      "status": "answered",
+      "answer": "Semantic check classification now uses the current rule type consistently for initial, legacy-metadata and rule-type-change paths.",
+      "decision": "Semantic targets are checked once with the current rule type; rule-type changes do not first persist an event classified by the previous receipt type.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "src/docengine/dependencies.py",
+        "tests/test_p4_semantic.py",
+        "plan/evidence/P4/post_axis_audit/initial_validity_status.json",
+        "plan/evidence/P4/post_axis_audit/rule_type_transition.json"
+      ],
+      "acceptance_impact": "Corrects DAX08 state semantics and DAX14 history explainability.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q4.E10",
+      "question": "Where must semantic CLI input validation occur so `--json` remains a reliable machine protocol?",
+      "why_it_matters": "argparse choices and uncaught RefError can terminate before the versioned JSON envelope is emitted.",
+      "blocking": true,
+      "recommended_default": "Parse semantic option values generically, validate them inside the runtime command boundary, and catch canonical-ref errors in the same JSON error envelope.",
+      "status": "answered",
+      "answer": "actor_kind validation now happens in SemanticReviewRuntime; dependency/semantic CLI boundaries catch RefError.",
+      "decision": "Invalid actor kinds and malformed target refs return exit 2 with the normal versioned JSON error envelope.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_p4_semantic.py::P4CliTests",
+        "plan/evidence/P4/post_axis_audit/cli_error_envelopes.json"
+      ],
+      "acceptance_impact": "Corrects DAX12/DAX13 machine-protocol consistency.",
+      "owner": "implementer"
+    }
+  ],
+  "implementation_log": [
+    {
+      "entry": "Implemented code-owned `SemanticDependencyRegistry` with deterministic rule revisions, comparator validation and cycle detection.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "src/docengine/extensions.py",
+        "examples/sample_project/docengine_project/semantic_rules.py"
+      ]
+    },
+    {
+      "entry": "Implemented `ValidationContext`/review packet with target content/revision, prior receipt, old/current dependency slices, typed diffs, history and `semantic_judgment=null`.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "spec/schemas/REVIEW_PACKET.schema.json",
+        "tests/test_p4_semantic.py"
+      ]
+    },
+    {
+      "entry": "Implemented context-token protected semantic `validate` with required reason, `still-valid|updated`, actor/evidence metadata and exact retry idempotency.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "src/docengine/cli.py",
+        "tests/test_p4_semantic.py"
+      ]
+    },
+    {
+      "entry": "Extended semantic receipts/events with rule identity and review metadata while preserving legacy P3 persisted records.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "spec/schemas/DEPENDENCY_RECEIPT.schema.json",
+        "spec/schemas/DEPENDENCY_EVENT.schema.json"
+      ]
+    },
+    {
+      "entry": "Strengthened integrity so valid semantic state requires matching semantic validation history; review events can explain rule-removed dependencies through prior receipt linkage.",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p4_semantic.py"
+      ]
+    },
+    {
+      "entry": "post-axis correction: semantic review contexts now distinguish recurrent state occurrences while preserving exact retry idempotency.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "tests/test_p4_semantic.py",
+        "plan/evidence/P4/post_axis_audit/semantic_recurrence.json"
+      ]
+    },
+    {
+      "entry": "post-axis correction: semantic check status follows the current rule dependency type for initial/legacy/type-transition paths without spurious intermediate events.",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "src/docengine/dependencies.py",
+        "tests/test_p4_semantic.py",
+        "plan/evidence/P4/post_axis_audit/rule_type_transition.json"
+      ]
+    },
+    {
+      "entry": "post-axis correction: semantic CLI invalid actor/ref inputs remain in the versioned JSON error protocol.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_p4_semantic.py",
+        "plan/evidence/P4/post_axis_audit/cli_error_envelopes.json"
+      ]
+    }
+  ],
+  "axis_reviews": [
+    {
+      "axis_id": "DAX01",
+      "status": "pass",
+      "evidence_refs": [
+        "docs/SEMANTIC_REVIEW.md",
+        "tests/test_p4_semantic.py"
+      ],
+      "findings": [
+        "Whole Markdown semantic targets remain first-class; no section-level Markdown dependency was introduced."
+      ]
+    },
+    {
+      "axis_id": "DAX02",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "examples/sample_project/docengine_project/semantic_rules.py",
+        "docs/SEMANTIC_REVIEW.md"
+      ],
+      "findings": [
+        "Semantic rule semantics are project code; review receipts/state/events remain documentation-owned."
+      ]
+    },
+    {
+      "axis_id": "DAX03",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "src/docengine/dependencies.py",
+        "spec/schemas/DEPENDENCY_RECEIPT.schema.json",
+        "spec/schemas/DEPENDENCY_EVENT.schema.json",
+        "spec/schemas/REVIEW_PACKET.schema.json",
+        "plan/evidence/P4/post_axis_audit/semantic_recurrence.json"
+      ],
+      "findings": [
+        "Review contexts/rule revisions and additive persisted fields are explicit, typed and schema-declared.",
+        "Post-axis: review-context identity now includes target occurrence semantics so recurrent content-stable states cannot reuse a consumed review incorrectly."
+      ]
+    },
+    {
+      "axis_id": "DAX04",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/dependencies.py",
+        "tests/test_p4_semantic.py"
+      ],
+      "findings": [
+        "P4 reuses confined P3 persistence and introduces no new unconstrained storage root."
+      ]
+    },
+    {
+      "axis_id": "DAX05",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "tests/test_p4_semantic.py"
+      ],
+      "findings": [
+        "Validation records evidence/state rather than mutating source objects implicitly."
+      ]
+    },
+    {
+      "axis_id": "DAX06",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "tests/test_p4_semantic.py",
+        "docs/SEMANTIC_REVIEW.md"
+      ],
+      "findings": [
+        "Rules use canonical exact refs/comparators; exact builder/semantic target overlap is rejected under single-active-receipt state."
+      ]
+    },
+    {
+      "axis_id": "DAX07",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "plan/evidence/P4/still_valid_flow.json",
+        "plan/evidence/P4/updated_flow.json"
+      ],
+      "findings": [
+        "Review packets compare prior validated slices to current values and baseline advancement occurs only after explicit validation."
+      ]
+    },
+    {
+      "axis_id": "DAX08",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/still_valid_flow.json",
+        "plan/evidence/P4/rule_revision_invalidation.json",
+        "src/docengine/semantic.py",
+        "plan/evidence/P4/post_axis_audit/initial_validity_status.json",
+        "plan/evidence/P4/post_axis_audit/rule_type_transition.json"
+      ],
+      "findings": [
+        "Structural changes produce review-required/invalid states without semantic truth claims.",
+        "Post-axis: semantic status classification follows the current rule dependency type consistently (`validity` → stale) without old-receipt-type intermediate state."
+      ]
+    },
+    {
+      "axis_id": "DAX09",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/initial_review_packet.json",
+        "plan/evidence/P4/initial_validation.json",
+        "docs/SEMANTIC_REVIEW.md"
+      ],
+      "findings": [
+        "Semantic verdict remains explicit human/AI input; review packets contain no automatic judgment."
+      ]
+    },
+    {
+      "axis_id": "DAX10",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/idempotent_retry.json",
+        "plan/evidence/P4/stale_context_rejection.json",
+        "tests/test_p4_semantic.py",
+        "plan/evidence/P4/post_axis_audit/semantic_recurrence.json"
+      ],
+      "findings": [
+        "Fresh review_context_id is required; exact retry is idempotent and stale/conflicting reuse is rejected.",
+        "Post-axis: A→B→A→B semantic recurrence creates distinct review occurrences while exact retry of the active occurrence remains idempotent."
+      ]
+    },
+    {
+      "axis_id": "DAX12",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_p4_semantic.py",
+        "plan/evidence/P4/post_axis_audit/cli_error_envelopes.json"
+      ],
+      "findings": [
+        "Validate is explicit mutation; invalid/missing inputs remain inside versioned JSON error protocol.",
+        "Post-axis: invalid actor kinds and malformed target refs stay inside JSON command envelopes."
+      ]
+    },
+    {
+      "axis_id": "DAX13",
+      "status": "pass",
+      "evidence_refs": [
+        "spec/schemas/REVIEW_PACKET.schema.json",
+        "tests/test_p4_semantic.py",
+        "docs/AI_USAGE_PROTOCOL.md",
+        "plan/evidence/P4/post_axis_audit/cli_error_envelopes.json"
+      ],
+      "findings": [
+        "Machine-readable review/validation surfaces carry actor/reason/evidence without requiring personal identity.",
+        "Post-axis: semantic CLI error behavior remains machine-readable for invalid option/ref inputs."
+      ]
+    },
+    {
+      "axis_id": "DAX14",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P4/initial_history.json",
+        "plan/evidence/P4/manual_state_edit_integrity.json",
+        "src/docengine/dependencies.py",
+        "plan/evidence/P4/post_axis_audit/semantic_recurrence.json",
+        "plan/evidence/P4/post_axis_audit/rule_type_transition.json"
+      ],
+      "findings": [
+        "Semantic validation history links rule/context/decision/reason/actor/evidence/prior receipt; manual state acceptance fails integrity.",
+        "Post-axis: semantic history preserves recurrent occurrence transitions and avoids spurious old-type status events."
+      ]
+    },
+    {
+      "axis_id": "DAX16",
+      "status": "pass",
+      "evidence_refs": [
+        "spec/schemas/DEPENDENCY_RECEIPT.schema.json",
+        "spec/schemas/DEPENDENCY_EVENT.schema.json",
+        "tests/test_p3_dependencies.py",
+        "tests/test_p4_semantic.py"
+      ],
+      "findings": [
+        "P4 persisted additions are optional/backward-readable with P3 evidence; global migration framework remains P7."
+      ]
+    },
+    {
+      "axis_id": "DAX17",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/semantic.py",
+        "examples/sample_project/docengine_project/semantic_rules.py"
+      ],
+      "findings": [
+        "Core semantic runtime is domain-neutral; sample semantics live only in project rule code."
+      ]
+    },
+    {
+      "axis_id": "DAX19",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p4_semantic.py",
+        "plan/P4_PREVIOUS_PHASE_REGRESSION.md",
+        "plan/evidence/P4/final_handoff/wheel_source_parity.txt",
+        "plan/evidence/P4/final_handoff/clean_venv_pip_check.txt",
+        "plan/evidence/P4/final_handoff/installed_validate.json",
+        "plan/P4_PACKAGE_AUDIT.md",
+        "plan/evidence/P4/post_axis_audit/semantic_recurrence.json",
+        "plan/evidence/P4/post_axis_audit/initial_validity_status.json",
+        "plan/evidence/P4/post_axis_audit/cli_error_envelopes.json",
+        "plan/evidence/P4/post_axis_final/full_test_summary.txt",
+        "plan/evidence/P4/post_axis_final/spec_audit_after_tests.txt",
+        "plan/evidence/P4/post_axis_final/spec_audit_after_compile.txt",
+        "plan/evidence/P4/post_axis_final/clean_venv_pip_check.txt",
+        "plan/evidence/P4/post_axis_final/clean_venv_version.txt",
+        "plan/evidence/P4/post_axis_final/installed_validate_still_valid.json",
+        "plan/evidence/P4/post_axis_final/invalid_actor_envelope.json",
+        "plan/evidence/P4/post_axis_final/invalid_target_envelope.json",
+        "plan/evidence/P4/post_axis_final/wheel_source_parity.txt"
+      ],
+      "findings": [
+        "P4 and full cross-phase functional tests cover positive, negative, stale, retry, rule-revision and integrity behavior.",
+        "Post-axis coverage now includes recurrence cycles, all semantic dependency-type status paths and malformed semantic CLI inputs."
+      ]
+    },
+    {
+      "axis_id": "DAX20",
+      "status": "pass",
+      "evidence_refs": [
+        "README.md",
+        "START_HERE_AGENT.md",
+        "docs/SEMANTIC_REVIEW.md",
+        "plan/P4_PACKAGE_AUDIT.md",
+        "plan/evidence/P4/final_handoff/wheel_source_parity.txt",
+        "plan/evidence/P4/final_handoff/clean_venv_pip_check.txt",
+        "plan/evidence/P4/final_handoff/installed_validate.json",
+        "plan/P4_POST_ACCEPTANCE_AXIS_REVIEW.md",
+        "plan/evidence/P4/post_axis_final/full_test_summary.txt",
+        "plan/evidence/P4/post_axis_final/spec_audit_after_tests.txt",
+        "plan/evidence/P4/post_axis_final/spec_audit_after_compile.txt",
+        "plan/evidence/P4/post_axis_final/clean_venv_pip_check.txt",
+        "plan/evidence/P4/post_axis_final/clean_venv_version.txt",
+        "plan/evidence/P4/post_axis_final/installed_validate_still_valid.json",
+        "plan/evidence/P4/post_axis_final/invalid_actor_envelope.json",
+        "plan/evidence/P4/post_axis_final/invalid_target_envelope.json",
+        "plan/evidence/P4/post_axis_final/wheel_source_parity.txt"
+      ],
+      "findings": [
+        "P4 docs/schemas/phase records, active dev9 wheel, clean-installed semantic workflow and manifest-only portable-copy/ZIP probe are synchronized and pass.",
+        "Post-axis package identity advanced to dev9/v0.17 after reproduced defects were corrected and re-audited.",
+        "Final dev9 clean-install, wheel/source parity and manifest-only portable probe pass; accepted archive is built from the final manifest file set."
+      ]
+    }
+  ],
+  "acceptance_summary": {
+    "decision": "accepted",
+    "unresolved_blocking_questions": [],
+    "failed_criteria": [],
+    "notes": "P4 accepted after independent post-axis audit and final dev9 package gate. Reproduced semantic occurrence/state/CLI defects are corrected and regression-tested. No unresolved blocking/user-owned question remains before P5; Q5.E1 is a non-blocking mixed-graph sync question to resolve before P5 acceptance."
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "baseline_sources": [
+    "resource://catalog/product#/price",
+    "resource://catalog/tax_policy#/rate"
+  ],
+  "receipt_id": "receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d",
+  "referenced_field_check": {
+    "diff": {
+      "changed": true,
+      "changed_dependencies": [
+        "resource://catalog/product#/price"
+      ],
+      "dependencies": [
+        {
+          "baseline_hash": "sha256:d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd",
+          "changed": true,
+          "comparator": "exact",
+          "current_source_kind": "raw",
+          "current_version": "0f8ef3377b30fc47f96b48247f463a726a802f62f3faa03d56403751d2f66c67",
+          "details": {
+            "new": 125,
+            "old": 100
+          },
+          "granularity": "field",
+          "snapshot_ref": "baseline://sha256/d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd",
+          "source": "resource://catalog/product#/price",
+          "source_kind": "raw",
+          "validated_version": "ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306"
+        },
+        {
+          "baseline_hash": "sha256:c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6",
+          "changed": false,
+          "comparator": "exact",
+          "current_source_kind": "raw",
+          "current_version": "44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d",
+          "details": {},
+          "granularity": "field",
+          "snapshot_ref": "baseline://sha256/c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6",
+          "source": "resource://catalog/tax_policy#/rate",
+          "source_kind": "raw",
+          "validated_version": "44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d"
+        }
+      ],
+      "dependency_type": "compute",
+      "reason_codes": [
+        "dependency_changed"
+      ],
+      "receipt_id": "receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d",
+      "target": "resource://catalog/price_with_tax",
+      "target_revision": null
+    },
+    "state_changed": true,
+    "status": "build_required",
+    "target": "resource://catalog/price_with_tax"
+  },
+  "referenced_field_diff": {
+    "changed": true,
+    "changed_dependencies": [
+      "resource://catalog/product#/price"
+    ],
+    "dependencies": [
+      {
+        "baseline_hash": "sha256:d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd",
+        "changed": true,
+        "comparator": "exact",
+        "current_source_kind": "raw",
+        "current_version": "0f8ef3377b30fc47f96b48247f463a726a802f62f3faa03d56403751d2f66c67",
+        "details": {
+          "new": 125,
+          "old": 100
+        },
+        "granularity": "field",
+        "snapshot_ref": "baseline://sha256/d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd",
+        "source": "resource://catalog/product#/price",
+        "source_kind": "raw",
+        "validated_version": "ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306"
+      },
+      {
+        "baseline_hash": "sha256:c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6",
+        "changed": false,
+        "comparator": "exact",
+        "current_source_kind": "raw",
+        "current_version": "44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d",
+        "details": {},
+        "granularity": "field",
+        "snapshot_ref": "baseline://sha256/c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6",
+        "source": "resource://catalog/tax_policy#/rate",
+        "source_kind": "raw",
+        "validated_version": "44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d"
+      }
+    ],
+    "dependency_type": "compute",
+    "reason_codes": [
+      "dependency_changed"
+    ],
+    "receipt_id": "receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d",
+    "target": "resource://catalog/price_with_tax",
+    "target_revision": null
+  },
+  "unrelated_field_check": {
+    "diff": {
+      "changed": false,
+      "changed_dependencies": [],
+      "dependencies": [
+        {
+          "baseline_hash": "sha256:d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd",
+          "changed": false,
+          "comparator": "exact",
+          "current_source_kind": "raw",
+          "current_version": "ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "details": {},
+          "granularity": "field",
+          "snapshot_ref": "baseline://sha256/d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd",
+          "source": "resource://catalog/product#/price",
+          "source_kind": "raw",
+          "validated_version": "ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306"
+        },
+        {
+          "baseline_hash": "sha256:c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6",
+          "changed": false,
+          "comparator": "exact",
+          "current_source_kind": "raw",
+          "current_version": "44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d",
+          "details": {},
+          "granularity": "field",
+          "snapshot_ref": "baseline://sha256/c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6",
+          "source": "resource://catalog/tax_policy#/rate",
+          "source_kind": "raw",
+          "validated_version": "44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d"
+        }
+      ],
+      "dependency_type": "compute",
+      "reason_codes": [],
+      "receipt_id": "receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d",
+      "target": "resource://catalog/price_with_tax",
+      "target_revision": null
+    },
+    "state_changed": false,
+    "status": "valid",
+    "target": "resource://catalog/price_with_tax"
+  }
+}

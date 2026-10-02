@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Docengine CLI Output Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "command",
+    "ok",
+    "attention_required",
+    "data",
+    "warnings",
+    "errors",
+    "meta"
+  ],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "command": {"type": "string", "minLength": 1},
+    "ok": {"type": "boolean"},
+    "attention_required": {"type": "boolean"},
+    "data": {"type": "object"},
+    "warnings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/issue"}
+    },
+    "errors": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/issue"}
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine_version", "status", "exit_code"],
+      "properties": {
+        "engine_version": {"type": "string", "minLength": 1},
+        "status": {"type": "string", "minLength": 1},
+        "exit_code": {"enum": [0, 2, 3, 4, 5]}
+      }
+    }
+  },
+  "$defs": {
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "severity", "details"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1},
+        "severity": {"enum": ["error", "warning", "info"]},
+        "details": {"type": ["object", "null"]}
+      }
+    }
+  }
+}

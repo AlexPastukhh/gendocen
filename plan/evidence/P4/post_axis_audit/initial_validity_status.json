@@ -1,0 +1,8 @@
+{
+  "check_status": "stale",
+  "packet_status": "stale",
+  "reasons": [
+    "initial_dependency",
+    "initial_validation_required"
+  ]
+}

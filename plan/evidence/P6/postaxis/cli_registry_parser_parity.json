@@ -1,0 +1,168 @@
+{
+  "commands_match": true,
+  "rows": [
+    {
+      "command": "init",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [],
+      "registry_options": [],
+      "target_contract": "none"
+    },
+    {
+      "command": "status",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [],
+      "registry_options": [],
+      "target_contract": "none"
+    },
+    {
+      "command": "check",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [],
+      "registry_options": [],
+      "target_contract": "none"
+    },
+    {
+      "command": "diff",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [
+        [
+          "target",
+          "?"
+        ]
+      ],
+      "registry_options": [],
+      "target_contract": "required"
+    },
+    {
+      "command": "explain",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [
+        [
+          "target",
+          "?"
+        ]
+      ],
+      "registry_options": [],
+      "target_contract": "required"
+    },
+    {
+      "command": "sync",
+      "options_match": true,
+      "parser_options": [
+        "--all"
+      ],
+      "positionals": [],
+      "registry_options": [
+        "--all"
+      ],
+      "target_contract": "none"
+    },
+    {
+      "command": "rebuild",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [
+        [
+          "target",
+          "?"
+        ]
+      ],
+      "registry_options": [],
+      "target_contract": "required"
+    },
+    {
+      "command": "validate",
+      "options_match": true,
+      "parser_options": [
+        "--actor-kind",
+        "--actor-label",
+        "--evidence",
+        "--reason",
+        "--result",
+        "--review-context"
+      ],
+      "positionals": [
+        [
+          "target",
+          "?"
+        ]
+      ],
+      "registry_options": [
+        "--actor-kind",
+        "--actor-label",
+        "--evidence",
+        "--reason",
+        "--result",
+        "--review-context"
+      ],
+      "target_contract": "required"
+    },
+    {
+      "command": "materialize",
+      "options_match": true,
+      "parser_options": [
+        "--ack-orphan",
+        "--all"
+      ],
+      "positionals": [
+        [
+          "target",
+          "?"
+        ]
+      ],
+      "registry_options": [
+        "--ack-orphan",
+        "--all"
+      ],
+      "target_contract": "optional"
+    },
+    {
+      "command": "verify",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [],
+      "registry_options": [],
+      "target_contract": "none"
+    },
+    {
+      "command": "history",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [
+        [
+          "target",
+          "?"
+        ]
+      ],
+      "registry_options": [],
+      "target_contract": "required"
+    },
+    {
+      "command": "graph",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [
+        [
+          "target",
+          "?"
+        ]
+      ],
+      "registry_options": [],
+      "target_contract": "optional"
+    },
+    {
+      "command": "resources",
+      "options_match": true,
+      "parser_options": [],
+      "positionals": [],
+      "registry_options": [],
+      "target_contract": "none"
+    }
+  ]
+}

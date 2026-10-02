@@ -1,0 +1,17 @@
+test_every_command_emits_same_json_envelope (test_cli.CliContractTests.test_every_command_emits_same_json_envelope) ... ok
+test_core_package_has_no_first_consumer_domain_terms (test_domain_neutrality.DomainNeutralityTests.test_core_package_has_no_first_consumer_domain_terms) ... ok
+test_envelope_is_versioned_and_stable (test_output.OutputEnvelopeTests.test_envelope_is_versioned_and_stable) ... ok
+test_confined_path_rejects_escape (test_project.ProjectDiscoveryTests.test_confined_path_rejects_escape) ... ok
+test_discovery_is_read_only (test_project.ProjectDiscoveryTests.test_discovery_is_read_only) ... ok
+test_explicit_docs_root_must_be_inside_explicit_project_root (test_project.ProjectDiscoveryTests.test_explicit_docs_root_must_be_inside_explicit_project_root) ... ok
+test_upward_search_finds_docengine_marker (test_project.ProjectDiscoveryTests.test_upward_search_finds_docengine_marker) ... ok
+test_sample_project_fixture_exists (test_sample_fixture.SampleFixtureTests.test_sample_project_fixture_exists) ... ok
+test_malformed_json_fails (test_spec_contracts.SpecContractTests.test_malformed_json_fails) ... ok
+test_malformed_use_case_registry_fails (test_spec_contracts.SpecContractTests.test_malformed_use_case_registry_fails) ... ok
+test_registries_and_schemas_parse (test_spec_contracts.SpecContractTests.test_registries_and_schemas_parse) ... ok
+test_use_case_registry_validates_against_schema (test_spec_contracts.SpecContractTests.test_use_case_registry_validates_against_schema) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.749s
+
+OK

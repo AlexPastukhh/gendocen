@@ -1,0 +1,4 @@
+invalid_root_exit=4
+dependency_symlink_exit=3
+systemexit_check_exit=3
+human_invalid_status_exit=3

@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Docengine Transaction Journal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "journal_schema_version",
+    "transaction_id",
+    "operation",
+    "phase",
+    "started_at",
+    "updated_at",
+    "operations"
+  ],
+  "properties": {
+    "journal_schema_version": {
+      "const": "1.0.0"
+    },
+    "transaction_id": {
+      "type": "string",
+      "pattern": "^txn-[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "operation": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase": {
+      "enum": [
+        "open",
+        "committed"
+      ]
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "existed",
+          "backup",
+          "before_hash",
+          "planned_after_hashes"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*\\\\).+$"
+          },
+          "existed": {
+            "type": "boolean"
+          },
+          "backup": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^backup-[0-9]{5}\\.bin$"
+          },
+          "before_hash": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "after_hash": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "planned_after_hashes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "uniqueItems": true
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "existed": {
+                "const": true
+              },
+              "backup": {
+                "type": "string",
+                "pattern": "^backup-[0-9]{5}\\.bin$"
+              },
+              "before_hash": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "existed",
+              "backup",
+              "before_hash"
+            ]
+          },
+          {
+            "properties": {
+              "existed": {
+                "const": false
+              },
+              "backup": {
+                "type": "null"
+              },
+              "before_hash": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "existed",
+              "backup",
+              "before_hash"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "generic-documentation-engine"
+version = "0.1.0.dev19"
+description = "Generic Markdown-first documentation engine with structured resources and dependency-aware workflows"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Proprietary specification prototype"}
+authors = [{name = "Documentation Engine project"}]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9", "jsonschema>=4.21,<5"]
+
+[project.scripts]
+docengine = "docengine.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

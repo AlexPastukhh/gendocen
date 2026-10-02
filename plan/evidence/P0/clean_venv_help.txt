@@ -1,0 +1,24 @@
+usage: docengine [-h] [--version]
+                 {init,status,check,diff,explain,sync,rebuild,validate,materialize,verify,history,graph,resources} ...
+
+Generic Documentation Engine
+
+positional arguments:
+  {init,status,check,diff,explain,sync,rebuild,validate,materialize,verify,history,graph,resources}
+    init                init command
+    status              status command
+    check               check command
+    diff                diff command
+    explain             explain command
+    sync                sync command
+    rebuild             rebuild command
+    validate            validate command
+    materialize         materialize command
+    verify              verify command
+    history             history command
+    graph               graph command
+    resources           resources command
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit

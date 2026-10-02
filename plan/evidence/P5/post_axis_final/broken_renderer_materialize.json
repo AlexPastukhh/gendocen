@@ -1,0 +1,1 @@
+{"command": "materialize", "data": {}, "engine_version": "0.1.0.dev11", "issues": [{"code": "materialize_failed", "details": null, "message": "current project builder/semantic/renderer registry is unavailable: renderer already registered: markdown", "severity": "error"}], "machine_output_schema_version": "1.0.0", "ok": false, "status": "materialize_failed"}

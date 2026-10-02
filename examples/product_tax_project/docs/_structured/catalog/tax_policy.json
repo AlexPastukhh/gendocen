@@ -1,0 +1,7 @@
+{
+  "$docengine": {
+    "resource_id": "catalog.tax_policy",
+    "materialize": [{"renderer": "markdown", "path": "catalog/tax_policy.md", "path_base": "documentation_root"}]
+  },
+  "data": {"rate": 0.2, "jurisdiction": "synthetic"}
+}

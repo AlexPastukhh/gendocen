@@ -1,0 +1,7 @@
+{
+  "$docengine": {
+    "resource_id": "catalog.product",
+    "materialize": [{"renderer": "markdown", "path": "catalog/product.md", "path_base": "documentation_root"}]
+  },
+  "data": {"name": "Example", "price": 100, "unused_note": "not read by builder"}
+}

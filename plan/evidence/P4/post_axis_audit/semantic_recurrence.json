@@ -1,0 +1,19 @@
+{
+  "b_context_reused": false,
+  "contexts": [
+    "reviewctx-a31cb1d0a074e9331dd5408354bc829480dc131f9e2828f7dee6783bda01250f",
+    "reviewctx-d6564f8a8563db859e5d693f819609cf756143bcb8ddd76591cbc09d33198be6",
+    "reviewctx-62e90774f4d8a755e18d81ce400fcc7d231236e9d865eabf32793084ce420929",
+    "reviewctx-6649ad82aaa8436502047c0ec41eef31c80a792dcf64c9c769036b66070bf747"
+  ],
+  "final_state": {
+    "changed_dependencies": [],
+    "last_receipt_id": "receipt-f711203140c15e1afb0abbe008be1c69dd195aa45e422e0d8db90481315b2782",
+    "reason_codes": [],
+    "status": "valid"
+  },
+  "second_b_duplicate": false,
+  "semantic_event_count": 4,
+  "state_revision_after_second_b": 7,
+  "state_revision_before_second_b": 6
+}

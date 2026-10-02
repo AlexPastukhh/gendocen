@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MaterializationState",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state_schema_version",
+    "state_revision",
+    "generated_at",
+    "outputs"
+  ],
+  "properties": {
+    "state_schema_version": {
+      "const": "1.0.0"
+    },
+    "state_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "generated_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "owner_ref",
+          "renderer",
+          "renderer_revision",
+          "input_revision",
+          "output_digest",
+          "resource_kind"
+        ],
+        "properties": {
+          "owner_ref": {
+            "type": "string",
+            "pattern": "^resource://"
+          },
+          "renderer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "renderer_revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "input_revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "output_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "resource_kind": {
+            "enum": [
+              "managed",
+              "derived"
+            ]
+          },
+          "orphan_acknowledged": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

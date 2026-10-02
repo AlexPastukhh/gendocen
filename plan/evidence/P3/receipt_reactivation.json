@@ -1,0 +1,66 @@
+{
+  "scenario": "content-stable receipt reactivation A -> B -> A",
+  "receipt_a_reused": true,
+  "receipt_a": "receipt-5cb42e30bc1f9a1fd5d0cfb9377e9c8ddfba83e32e50db15050b8cdf6fbad116",
+  "receipt_b": "receipt-742d6bf4fe41a4b71e6c094538692e947735775ae9091fa67b88369ab8226674",
+  "state": {
+    "generated_at": "2026-10-02T01:23:42.232421Z",
+    "state_revision": 3,
+    "state_schema_version": "1.0.0",
+    "targets": {
+      "file://architecture/rationale.md": {
+        "changed_dependencies": [],
+        "last_receipt_id": "receipt-5cb42e30bc1f9a1fd5d0cfb9377e9c8ddfba83e32e50db15050b8cdf6fbad116",
+        "reason_codes": [],
+        "status": "valid"
+      }
+    }
+  },
+  "events": [
+    {
+      "changed_dependencies": [],
+      "event_id": "event-9083659ba7c05bd93c942071e2896d94bf9aa24fa298e6cc1fb985b02c8812b6",
+      "event_type": "validation_recorded",
+      "reason_codes": [],
+      "receipt_id": "receipt-5cb42e30bc1f9a1fd5d0cfb9377e9c8ddfba83e32e50db15050b8cdf6fbad116",
+      "recorded_at": "2026-10-02T01:23:42.230535Z",
+      "state_revision": 1,
+      "status": "valid",
+      "target": "file://architecture/rationale.md"
+    },
+    {
+      "changed_dependencies": [],
+      "event_id": "event-1d9606bad361ade3d28e695881bd6cc2f66b174d4eafdfcafb69b84151ab3d0e",
+      "event_type": "validation_recorded",
+      "reason_codes": [],
+      "receipt_id": "receipt-742d6bf4fe41a4b71e6c094538692e947735775ae9091fa67b88369ab8226674",
+      "recorded_at": "2026-10-02T01:23:42.231636Z",
+      "state_revision": 2,
+      "status": "valid",
+      "target": "file://architecture/rationale.md"
+    },
+    {
+      "changed_dependencies": [],
+      "event_id": "event-e4b48c253f58b36a9283d0d924cef3c6a3e717cf100c98858fc687270afa59a1",
+      "event_type": "validation_recorded",
+      "reason_codes": [],
+      "receipt_id": "receipt-5cb42e30bc1f9a1fd5d0cfb9377e9c8ddfba83e32e50db15050b8cdf6fbad116",
+      "recorded_at": "2026-10-02T01:23:42.232660Z",
+      "state_revision": 3,
+      "status": "valid",
+      "target": "file://architecture/rationale.md"
+    }
+  ],
+  "graph": {
+    "target": "file://architecture/rationale.md",
+    "upstream": [
+      "file://policies/source_a.md"
+    ],
+    "downstream": []
+  },
+  "integrity": {
+    "ok": true,
+    "issues": [],
+    "receipt_count": 2
+  }
+}

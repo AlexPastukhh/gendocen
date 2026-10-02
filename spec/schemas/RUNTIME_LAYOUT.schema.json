@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Docengine Runtime Layout Marker",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "runtime_layout_version"
+  ],
+  "properties": {
+    "runtime_layout_version": {
+      "const": "1.0.0"
+    },
+    "initialized_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "initialized_from_empty": {
+      "const": true
+    },
+    "migrated_from": {
+      "type": "string",
+      "minLength": 1
+    },
+    "migrated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "preserved_evidence_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "preserved_file_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "migration_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "initialized_from_empty",
+        "initialized_at"
+      ]
+    },
+    {
+      "required": [
+        "migrated_from",
+        "migrated_at",
+        "preserved_evidence_digest",
+        "preserved_file_count",
+        "migration_id"
+      ]
+    }
+  ]
+}

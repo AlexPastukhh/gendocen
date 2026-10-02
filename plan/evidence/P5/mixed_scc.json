@@ -1,0 +1,378 @@
+{
+  "events_after_second": 2,
+  "events_before_second": 2,
+  "first": {
+    "attention_targets": [
+      "file://architecture/rationale.md"
+    ],
+    "final_check": {
+      "checked": 3,
+      "counts": {
+        "review_required": 1,
+        "valid": 2
+      },
+      "results": [
+        {
+          "diff": {
+            "changed": true,
+            "changed_dependencies": [
+              "resource://derived/mixed#/text"
+            ],
+            "reason_codes": [
+              "initial_dependency",
+              "initial_validation_required"
+            ],
+            "target": "file://architecture/rationale.md"
+          },
+          "registered_rule_unvalidated": true,
+          "review_context_id": "reviewctx-2374d9cf332b5e329f623545d7a79b115c0304d026f1d7bb11ccd1e8074b41a9",
+          "state_changed": false,
+          "status": "review_required",
+          "target": "file://architecture/rationale.md"
+        },
+        {
+          "diff": {
+            "changed": false,
+            "changed_dependencies": [],
+            "dependencies": [
+              {
+                "baseline_hash": "sha256:269384f9843b5f39573e5e65daf0aa0c1ffdf2a09051cbe84cb59567d80e51e8",
+                "changed": false,
+                "comparator": "exact",
+                "current_source_kind": "raw",
+                "current_version": "a4584dcc35db9b04ac02acc3a2655e6d7390d20b05de7083529bae2562cd9c70",
+                "details": {},
+                "granularity": "field",
+                "snapshot_ref": "baseline://sha256/269384f9843b5f39573e5e65daf0aa0c1ffdf2a09051cbe84cb59567d80e51e8",
+                "source": "resource://architecture/overview#/title",
+                "source_kind": "raw",
+                "validated_version": "a4584dcc35db9b04ac02acc3a2655e6d7390d20b05de7083529bae2562cd9c70"
+              }
+            ],
+            "dependency_type": "compute",
+            "reason_codes": [],
+            "receipt_id": "receipt-c4a7cd9d1b8eca6ef9b18d478909996c00b54ada6332251d6befb128f4c6a417",
+            "target": "resource://architecture/system_summary",
+            "target_revision": null
+          },
+          "state_changed": false,
+          "status": "valid",
+          "target": "resource://architecture/system_summary"
+        },
+        {
+          "diff": {
+            "changed": false,
+            "changed_dependencies": [],
+            "dependencies": [
+              {
+                "baseline_hash": "sha256:878370d5bd00969b8d13fae4cd846e0137a1afb4940fa2da4fdd7513e443f64e",
+                "changed": false,
+                "comparator": "text_unified",
+                "current_source_kind": "file",
+                "current_version": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36",
+                "details": {},
+                "granularity": "whole_file",
+                "snapshot_ref": "baseline://sha256/878370d5bd00969b8d13fae4cd846e0137a1afb4940fa2da4fdd7513e443f64e",
+                "source": "file://architecture/rationale.md",
+                "source_kind": "file",
+                "validated_version": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36"
+              }
+            ],
+            "dependency_type": "compute",
+            "reason_codes": [],
+            "receipt_id": "receipt-250df483b4fe5abbc47e7148e40f2dd442482dd557de72c30539b3203c6d3a9e",
+            "target": "resource://derived/mixed",
+            "target_revision": null
+          },
+          "state_changed": false,
+          "status": "valid",
+          "target": "resource://derived/mixed"
+        }
+      ]
+    },
+    "initial_check": {
+      "checked": 1,
+      "counts": {
+        "review_required": 1
+      },
+      "results": [
+        {
+          "diff": {
+            "changed": true,
+            "changed_dependencies": [
+              "resource://derived/mixed#/text"
+            ],
+            "reason_codes": [
+              "initial_dependency",
+              "initial_validation_required"
+            ],
+            "target": "file://architecture/rationale.md"
+          },
+          "registered_rule_unvalidated": true,
+          "review_context_id": "reviewctx-2374d9cf332b5e329f623545d7a79b115c0304d026f1d7bb11ccd1e8074b41a9",
+          "state_changed": false,
+          "status": "review_required",
+          "target": "file://architecture/rationale.md"
+        }
+      ]
+    },
+    "invalid_targets": [],
+    "materialization": {
+      "results": [
+        {
+          "input_revision": "546c5cbbaf757bf950378556e65d5a4f5ae9f84072abd3363d5eb78a2f504218",
+          "output_digest": "sha256:123a8ecc1aceb2fc298c5e7a456ecc0605aaeb9c5af94eccaa1b9892224e9d25",
+          "owner_ref": "resource://architecture/overview",
+          "path": "architecture/overview.md",
+          "renderer": "markdown",
+          "state_record_changed": true,
+          "written": false
+        },
+        {
+          "input_revision": "b586b4656493747a47740f748b3ce3624edee9e929e1ce3538d1e91968a87550",
+          "output_digest": "sha256:1437e617f61110041ac2a8f51e2a4f00c8d9cc5aa86e51335b112e507d018d7e",
+          "owner_ref": "resource://architecture/system_summary",
+          "path": "architecture/system_summary.md",
+          "renderer": "markdown",
+          "state_record_changed": true,
+          "written": true
+        },
+        {
+          "input_revision": "c3f9b20056347ac2a11cde64cc95fa259704424019fa44f2433fa65f979663ab",
+          "output_digest": "sha256:002576ad11def446ef7123a0d1ccf61df8440707eef9e45432a6b99a8bad524e",
+          "owner_ref": "resource://policies/method_policy",
+          "path": "policies/method_policy.md",
+          "renderer": "markdown",
+          "state_record_changed": true,
+          "written": false
+        }
+      ],
+      "state_changed": true,
+      "state_revision": 1,
+      "written": 1
+    },
+    "mixed_sccs": [
+      {
+        "builder_members": [
+          "resource://derived/mixed"
+        ],
+        "kind": "mixed",
+        "members": [
+          "file://architecture/rationale.md",
+          "resource://derived/mixed"
+        ],
+        "semantic_members": [
+          "file://architecture/rationale.md"
+        ]
+      }
+    ],
+    "ok": true,
+    "orphaned_materializations": [],
+    "rebuilt": [
+      {
+        "audit_complete": true,
+        "output_digest": "b586b4656493747a47740f748b3ce3624edee9e929e1ce3538d1e91968a87550",
+        "receipt_id": "receipt-c4a7cd9d1b8eca6ef9b18d478909996c00b54ada6332251d6befb128f4c6a417",
+        "status": "valid",
+        "target": "resource://architecture/system_summary"
+      },
+      {
+        "audit_complete": true,
+        "output_digest": "5f013f5806f6f849b5cb39624a7b598e7974edf2c066735edbff11aa0f2fcb4a",
+        "receipt_id": "receipt-250df483b4fe5abbc47e7148e40f2dd442482dd557de72c30539b3203c6d3a9e",
+        "status": "valid",
+        "target": "resource://derived/mixed"
+      }
+    ],
+    "status": "attention_required",
+    "unresolved_builds": []
+  },
+  "second": {
+    "attention_targets": [
+      "file://architecture/rationale.md"
+    ],
+    "final_check": {
+      "checked": 3,
+      "counts": {
+        "review_required": 1,
+        "valid": 2
+      },
+      "results": [
+        {
+          "diff": {
+            "changed": true,
+            "changed_dependencies": [
+              "resource://derived/mixed#/text"
+            ],
+            "reason_codes": [
+              "initial_dependency",
+              "initial_validation_required"
+            ],
+            "target": "file://architecture/rationale.md"
+          },
+          "registered_rule_unvalidated": true,
+          "review_context_id": "reviewctx-2374d9cf332b5e329f623545d7a79b115c0304d026f1d7bb11ccd1e8074b41a9",
+          "state_changed": false,
+          "status": "review_required",
+          "target": "file://architecture/rationale.md"
+        },
+        {
+          "diff": {
+            "changed": false,
+            "changed_dependencies": [],
+            "dependencies": [
+              {
+                "baseline_hash": "sha256:269384f9843b5f39573e5e65daf0aa0c1ffdf2a09051cbe84cb59567d80e51e8",
+                "changed": false,
+                "comparator": "exact",
+                "current_source_kind": "raw",
+                "current_version": "a4584dcc35db9b04ac02acc3a2655e6d7390d20b05de7083529bae2562cd9c70",
+                "details": {},
+                "granularity": "field",
+                "snapshot_ref": "baseline://sha256/269384f9843b5f39573e5e65daf0aa0c1ffdf2a09051cbe84cb59567d80e51e8",
+                "source": "resource://architecture/overview#/title",
+                "source_kind": "raw",
+                "validated_version": "a4584dcc35db9b04ac02acc3a2655e6d7390d20b05de7083529bae2562cd9c70"
+              }
+            ],
+            "dependency_type": "compute",
+            "reason_codes": [],
+            "receipt_id": "receipt-c4a7cd9d1b8eca6ef9b18d478909996c00b54ada6332251d6befb128f4c6a417",
+            "target": "resource://architecture/system_summary",
+            "target_revision": null
+          },
+          "state_changed": false,
+          "status": "valid",
+          "target": "resource://architecture/system_summary"
+        },
+        {
+          "diff": {
+            "changed": false,
+            "changed_dependencies": [],
+            "dependencies": [
+              {
+                "baseline_hash": "sha256:878370d5bd00969b8d13fae4cd846e0137a1afb4940fa2da4fdd7513e443f64e",
+                "changed": false,
+                "comparator": "text_unified",
+                "current_source_kind": "file",
+                "current_version": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36",
+                "details": {},
+                "granularity": "whole_file",
+                "snapshot_ref": "baseline://sha256/878370d5bd00969b8d13fae4cd846e0137a1afb4940fa2da4fdd7513e443f64e",
+                "source": "file://architecture/rationale.md",
+                "source_kind": "file",
+                "validated_version": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36"
+              }
+            ],
+            "dependency_type": "compute",
+            "reason_codes": [],
+            "receipt_id": "receipt-250df483b4fe5abbc47e7148e40f2dd442482dd557de72c30539b3203c6d3a9e",
+            "target": "resource://derived/mixed",
+            "target_revision": null
+          },
+          "state_changed": false,
+          "status": "valid",
+          "target": "resource://derived/mixed"
+        }
+      ]
+    },
+    "initial_check": {
+      "checked": 3,
+      "counts": {
+        "review_required": 1,
+        "valid": 2
+      },
+      "results": [
+        {
+          "diff": {
+            "changed": true,
+            "changed_dependencies": [
+              "resource://derived/mixed#/text"
+            ],
+            "reason_codes": [
+              "initial_dependency",
+              "initial_validation_required"
+            ],
+            "target": "file://architecture/rationale.md"
+          },
+          "registered_rule_unvalidated": true,
+          "review_context_id": "reviewctx-2374d9cf332b5e329f623545d7a79b115c0304d026f1d7bb11ccd1e8074b41a9",
+          "state_changed": false,
+          "status": "review_required",
+          "target": "file://architecture/rationale.md"
+        },
+        {
+          "diff": {
+            "changed": false,
+            "changed_dependencies": [],
+            "dependencies": [
+              {
+                "baseline_hash": "sha256:269384f9843b5f39573e5e65daf0aa0c1ffdf2a09051cbe84cb59567d80e51e8",
+                "changed": false,
+                "comparator": "exact",
+                "current_source_kind": "raw",
+                "current_version": "a4584dcc35db9b04ac02acc3a2655e6d7390d20b05de7083529bae2562cd9c70",
+                "details": {},
+                "granularity": "field",
+                "snapshot_ref": "baseline://sha256/269384f9843b5f39573e5e65daf0aa0c1ffdf2a09051cbe84cb59567d80e51e8",
+                "source": "resource://architecture/overview#/title",
+                "source_kind": "raw",
+                "validated_version": "a4584dcc35db9b04ac02acc3a2655e6d7390d20b05de7083529bae2562cd9c70"
+              }
+            ],
+            "dependency_type": "compute",
+            "reason_codes": [],
+            "receipt_id": "receipt-c4a7cd9d1b8eca6ef9b18d478909996c00b54ada6332251d6befb128f4c6a417",
+            "target": "resource://architecture/system_summary",
+            "target_revision": null
+          },
+          "state_changed": false,
+          "status": "valid",
+          "target": "resource://architecture/system_summary"
+        },
+        {
+          "diff": {
+            "changed": false,
+            "changed_dependencies": [],
+            "dependencies": [
+              {
+                "baseline_hash": "sha256:878370d5bd00969b8d13fae4cd846e0137a1afb4940fa2da4fdd7513e443f64e",
+                "changed": false,
+                "comparator": "text_unified",
+                "current_source_kind": "file",
+                "current_version": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36",
+                "details": {},
+                "granularity": "whole_file",
+                "snapshot_ref": "baseline://sha256/878370d5bd00969b8d13fae4cd846e0137a1afb4940fa2da4fdd7513e443f64e",
+                "source": "file://architecture/rationale.md",
+                "source_kind": "file",
+                "validated_version": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36"
+              }
+            ],
+            "dependency_type": "compute",
+            "reason_codes": [],
+            "receipt_id": "receipt-250df483b4fe5abbc47e7148e40f2dd442482dd557de72c30539b3203c6d3a9e",
+            "target": "resource://derived/mixed",
+            "target_revision": null
+          },
+          "state_changed": false,
+          "status": "valid",
+          "target": "resource://derived/mixed"
+        }
+      ]
+    },
+    "invalid_targets": [],
+    "materialization": {
+      "results": [],
+      "state_changed": false,
+      "state_revision": 1,
+      "written": 0
+    },
+    "mixed_sccs": [],
+    "ok": true,
+    "orphaned_materializations": [],
+    "rebuilt": [],
+    "status": "attention_required",
+    "unresolved_builds": []
+  }
+}

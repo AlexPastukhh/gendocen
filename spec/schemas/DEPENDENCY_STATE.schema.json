@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DependencyState",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state_schema_version",
+    "generated_at",
+    "targets"
+  ],
+  "properties": {
+    "state_schema_version": {
+      "const": "1.0.0"
+    },
+    "generated_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "targets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "changed_dependencies",
+          "last_receipt_id",
+          "reason_codes"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "valid",
+              "stale",
+              "review_required",
+              "build_required",
+              "invalid"
+            ]
+          },
+          "changed_dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "last_receipt_id": {
+            "type": "string",
+            "pattern": "^receipt-[0-9a-f]{64}$"
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "state_revision": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"command": "materialize", "data": {}, "engine_version": "0.1.0.dev11", "issues": [{"code": "materialize_failed", "details": null, "message": "derived materialization requires rebuild/check before rendering changed target: resource://catalog/price_with_tax", "severity": "error"}], "machine_output_schema_version": "1.0.0", "ok": false, "status": "materialize_failed"}

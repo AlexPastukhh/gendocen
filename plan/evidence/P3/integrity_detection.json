@@ -1,0 +1,10 @@
+{
+  "issues": [
+    {
+      "code": "state_changed_dependency_unknown",
+      "message": "resource://catalog/price_with_tax: ['resource://bogus/item#/value']"
+    }
+  ],
+  "ok": false,
+  "receipt_count": 1
+}

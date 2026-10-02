@@ -1,0 +1,10 @@
+{
+  "check_status": "stale",
+  "new_event_statuses": [
+    "stale"
+  ],
+  "packet_status": "stale",
+  "reasons": [
+    "semantic_rule_revision_changed"
+  ]
+}

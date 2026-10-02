@@ -1,0 +1,590 @@
+{
+  "phase_id": "P5",
+  "name": "Renderers, materialization, drift detection and sync",
+  "status": "accepted",
+  "scope": [
+    "Implement renderer registry and Markdown renderer contract.",
+    "Resolve materialization targets from `$docengine.materialize[]`.",
+    "Implement affected-only materialization and full clean regeneration.",
+    "Detect generated-view drift.",
+    "Implement `sync` orchestration: check, deterministic rebuild, materialize, leave semantic review unresolved."
+  ],
+  "out_of_scope": [
+    "Release packaging/verify policy beyond primitives.",
+    "Background daemon/watch as canonical workflow."
+  ],
+  "deliverables": [
+    "renderer registry",
+    "materialization planner/runner",
+    "generated-output provenance/digest",
+    "drift detector",
+    "sync orchestration"
+  ],
+  "use_cases": [
+    "DOC06",
+    "DOC11",
+    "DOC15",
+    "DOC22"
+  ],
+  "acceptance_axes": [
+    "DAX02",
+    "DAX03",
+    "DAX04",
+    "DAX06",
+    "DAX08",
+    "DAX09",
+    "DAX10",
+    "DAX11",
+    "DAX12",
+    "DAX13",
+    "DAX14",
+    "DAX17",
+    "DAX19",
+    "DAX20"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "P5-A1",
+      "criterion": "Managed Markdown can be deleted and deterministically recreated from canonical structured/derived state.",
+      "axis_ids": [
+        "DAX11"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py::P5MaterializationTests::test_deleted_managed_markdown_is_deterministically_recreated",
+        "tests/test_p5_materialization.py::P5MaterializationTests::test_derived_markdown_is_recreated_from_builder_output",
+        "plan/evidence/P5/example_product_materialize.json"
+      ],
+      "notes": "P5 runtime/phase scope verified; global release closure remains P8."
+    },
+    {
+      "id": "P5-A2",
+      "criterion": "Materialization never escapes documentation root and never overwrites plain/canonical files not owned by a materialization target.",
+      "axis_ids": [
+        "DAX02",
+        "DAX04"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py::P5MaterializationTests::test_unregistered_plain_file_is_never_a_materialization_target",
+        "tests/test_p5_materialization.py::P5MaterializationTests::test_materialization_refuses_symlink_replacement_after_catalog_scan",
+        "tests/test_p5_materialization.py::P5OrphanMaterializationTests::test_removed_materialization_target_is_preserved_and_reported_as_orphan"
+      ],
+      "notes": "P5 runtime/phase scope verified; global release closure remains P8."
+    },
+    {
+      "id": "P5-A3",
+      "criterion": "Affected-only sync rebuilds/materializes only deterministic targets reachable from changed dependencies.",
+      "axis_ids": [
+        "DAX06",
+        "DAX10",
+        "DAX11"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py::P5SyncTests::test_affected_only_sync_rebuilds_and_materializes_only_changed_chain",
+        "plan/evidence/P5/affected_sync.json"
+      ],
+      "notes": "P5 runtime/phase scope verified; global release closure remains P8."
+    },
+    {
+      "id": "P5-A4",
+      "criterion": "Semantic targets remain review_required; sync does not fabricate semantic acceptance.",
+      "axis_ids": [
+        "DAX09",
+        "DAX12"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py::P5SyncTests::test_semantic_target_remains_attention_required_and_content_is_not_accepted",
+        "plan/evidence/P5/semantic_attention.json",
+        "plan/evidence/P5/mixed_scc.json"
+      ],
+      "notes": "P5 runtime/phase scope verified; global release closure remains P8."
+    },
+    {
+      "id": "P5-A5",
+      "criterion": "Manual drift in generated Markdown is detected; clean full regeneration restores canonical view.",
+      "axis_ids": [
+        "DAX11"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py::P5MaterializationTests::test_manual_generated_drift_is_detected_and_clean_regeneration_repairs_it",
+        "plan/evidence/P5/drift_repair.json"
+      ],
+      "notes": "P5 runtime/phase scope verified; global release closure remains P8."
+    },
+    {
+      "id": "P5-A6",
+      "criterion": "Repeated sync with no changes is idempotent and produces no spurious events/output churn.",
+      "axis_ids": [
+        "DAX10",
+        "DAX19"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py::P5SyncTests::test_repeated_sync_without_changes_has_no_output_or_event_churn",
+        "plan/evidence/P5/affected_sync.json"
+      ],
+      "notes": "P5 runtime/phase scope verified; global release closure remains P8."
+    },
+    {
+      "id": "P5-A7",
+      "criterion": "Materialization state is schema-versioned, digest/provenance-linked and inspectable without visible markers in generated content.",
+      "axis_ids": [
+        "DAX03",
+        "DAX14"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "spec/schemas/MATERIALIZATION_STATE.schema.json",
+        "examples/product_tax_project/docs/_dependency/state/materialization_state.json",
+        "examples/sample_project/docs/_dependency/state/materialization_state.json",
+        "src/docengine/materialization.py"
+      ],
+      "notes": "P5 runtime/phase scope verified; global release closure remains P8."
+    },
+    {
+      "id": "P5-A8",
+      "criterion": "Machine-readable rebuild/materialize/sync outputs preserve the common JSON envelope; attention_required is an operational success rather than semantic auto-acceptance.",
+      "axis_ids": [
+        "DAX12",
+        "DAX13"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py::P5CliTests",
+        "src/docengine/cli.py",
+        "docs/MATERIALIZATION_RUNTIME.md"
+      ],
+      "notes": "P5 runtime/phase scope verified; global release closure remains P8."
+    },
+    {
+      "id": "P5-A9",
+      "criterion": "The same renderer/materialization/sync core works for the unrelated product/tax fixture and project-defined renderers without domain changes.",
+      "axis_ids": [
+        "DAX17"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "examples/product_tax_project/",
+        "tests/test_p5_materialization.py::P5AdditionalMaterializationTests::test_project_renderer_registry_can_materialize_custom_target"
+      ],
+      "notes": "P5 runtime/phase scope verified; global release closure remains P8."
+    },
+    {
+      "id": "P5-A10",
+      "criterion": "P5 handoff docs, schemas, wheel/source parity and transferable package identity agree with the accepted runtime.",
+      "axis_ids": [
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/P5_PACKAGE_AUDIT.md",
+        "plan/evidence/P5/clean_venv/pip_check.txt",
+        "plan/evidence/P5/clean_venv/wheel_source_parity.txt",
+        "plan/P5_POST_ACCEPTANCE_AXIS_REVIEW.md",
+        "plan/evidence/P5/post_axis_final/wheel_sha256.txt"
+      ],
+      "notes": "Final dev11 post-axis wheel/source, clean-venv corrected workflow, manifest-only portable-copy and ZIP gate passed."
+    }
+  ],
+  "pre_execution_questions": [
+    {
+      "id": "Q5.1",
+      "question": "Как определять ownership/drift generated Markdown: marker в файле или digest в runtime state?",
+      "why_it_matters": "Нужно отличать generated view от plain Markdown и ловить ручные edits.",
+      "blocking": true,
+      "recommended_default": "Use explicit materialization registration + stored output digest/provenance; do not require visible marker in document content by default.",
+      "status": "answered",
+      "answer": "Use explicit materialization registration + stored output digest/provenance; do not require visible marker in document content by default.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q5.2",
+      "question": "Какой режим `sync` default: affected-only или full materialize?",
+      "why_it_matters": "Для AI нужен быстрый normal loop, но release должен уметь full rebuild.",
+      "blocking": true,
+      "recommended_default": "Affected-only by default; `--all`/clean mode for explicit full regeneration.",
+      "status": "answered",
+      "answer": "Affected-only by default; `--all`/clean mode for explicit full regeneration.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q5.3",
+      "question": "Что возвращает `sync`, если deterministic work успешен, но остались semantic `review_required`?",
+      "why_it_matters": "AI/CI должны отличать operational failure от required human/AI work.",
+      "blocking": true,
+      "recommended_default": "Command completes successfully as an operation but machine result reports `attention_required`; reserve a documented distinct exit code for unresolved review when desired by automation.",
+      "status": "answered",
+      "answer": "Command completes successfully as an operation but machine result reports `attention_required`; reserve a documented distinct exit code for unresolved review when desired by automation.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q5.4",
+      "question": "Нужен ли filesystem watch/daemon в первой рабочей версии?",
+      "why_it_matters": "Background state усложняет reproducibility и AI operation.",
+      "blocking": true,
+      "recommended_default": "No. Explicit `sync` is canonical; watch mode deferred to hardening/optional UX.",
+      "status": "answered",
+      "answer": "Основная модель — обычная запускаемая программа с командами; background watch не должен быть обязательным механизмом.",
+      "decision": "Explicit CLI/sync canonical; watch optional/deferred.",
+      "evidence_refs": [
+        "conversation-design-decision"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "user"
+    }
+  ],
+  "emergent_questions": [
+    {
+      "id": "Q5.E1",
+      "question": "How should P5 sync treat a mixed dependency cycle where a semantic target depends on a derived builder target that in turn reads the semantic target?",
+      "why_it_matters": "P4 independently rejects pure semantic cycles and P2 rejects recursive builder cycles, but the persisted mixed graph can still contain A(semantic) → B(derived field) → A. P5 affected traversal/sync must have explicit termination semantics.",
+      "blocking": false,
+      "recommended_default": "Do not auto-accept semantic edges. Detect mixed strongly-connected components during sync planning; deterministic work may run at most once per current state occurrence, then sync stops with attention_required on the semantic member. Treat all-deterministic executable cycles as errors.",
+      "status": "answered",
+      "answer": "Permit mixed semantic↔deterministic SCCs only with bounded sync: deterministic members run at most once per sync occurrence; semantic members are never auto-accepted and affected mixed SCCs return attention_required. Pure deterministic executable cycles remain errors.",
+      "decision": "Permit mixed semantic↔deterministic SCCs only with bounded sync: deterministic members run at most once per sync occurrence; semantic members are never auto-accepted and affected mixed SCCs return attention_required. Pure deterministic executable cycles remain errors.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "tests/test_p5_materialization.py::P5SyncTests::test_mixed_semantic_builder_scc_is_bounded_and_reports_attention"
+      ],
+      "acceptance_impact": "Resolved before P5 acceptance; prevents non-terminating sync without weakening semantic agency.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q5.E2",
+      "question": "What should sync do when a previously registered materialization target is removed or renamed and its old generated file now looks like ordinary Markdown?",
+      "why_it_matters": "Automatically deleting the old file could destroy content that is no longer explicitly engine-owned after metadata changed.",
+      "blocking": false,
+      "recommended_default": "Never auto-delete the old file in v0.1. Preserve it, retain orphaned materialization provenance for diagnosis, and return attention_required until a human/project change resolves ownership.",
+      "status": "answered",
+      "answer": "Preserve and report orphaned materialization state; do not perform destructive cleanup automatically. Provide an explicit acknowledgement path that preserves both the file and prior ownership/provenance while marking the orphan resolved for future sync.",
+      "decision": "Removed/renamed materialization targets are non-destructive attention items. Full regeneration writes only currently registered targets and never deletes former targets. Intentional ownership transitions are resolved with explicit orphan acknowledgement (`materialize file://PATH --ack-orphan`), which preserves file bytes and historical provenance and sets `orphan_acknowledged=true`.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "tests/test_p5_materialization.py::P5OrphanMaterializationTests::test_removed_materialization_target_is_preserved_and_reported_as_orphan",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_orphan_can_be_acknowledged_without_deleting_plain_file",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_orphan_ack_cli_is_machine_readable_and_preserves_file"
+      ],
+      "acceptance_impact": "Post-axis correction closes DAX13/DAX14 repairability without destructive cleanup or provenance loss.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q5.E3",
+      "question": "How should a user/agent resolve an intentionally orphaned materialization record after ownership is removed, without deleting a file that may now be canonical Markdown?",
+      "why_it_matters": "Reporting orphan attention forever without an official mutation would make a safe ownership transition impossible to complete through the supported protocol.",
+      "blocking": false,
+      "recommended_default": "Provide an explicit acknowledgement mutation that preserves both file bytes and the old materialization record, adding an acknowledgement flag so sync no longer treats it as unresolved attention.",
+      "status": "answered",
+      "answer": "Use `materialize file://PATH --ack-orphan`. The file is preserved, prior owner/renderer/input/output provenance remains in materialization state, and `orphan_acknowledged=true` makes later sync treat the orphan as acknowledged.",
+      "decision": "Orphan repair is explicit, non-destructive and provenance-preserving; no automatic deletion or silent state pruning.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "src/docengine/cli.py",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_orphan_can_be_acknowledged_without_deleting_plain_file",
+        "plan/evidence/P5/post_axis_audit/regression_tests.txt"
+      ],
+      "acceptance_impact": "Resolved post-acceptance DAX13/DAX14 repairability defect; no user-owned decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q5.E4",
+      "question": "Should P3/P4 dependency and semantic diagnostics require successful registration of P5 project renderers?",
+      "why_it_matters": "A broken `register_renderers` must not make persisted dependency/semantic diagnostics unavailable; those commands do not need renderers.",
+      "blocking": false,
+      "recommended_default": "Load project renderers only for P5 materialization/sync commands. Older dependency/semantic diagnostics should load builders/rules without invoking renderer registration.",
+      "status": "answered",
+      "answer": "No. Renderer registration is component-scoped and is loaded only when a P5 command needs it; dependency/semantic diagnostics remain available independently.",
+      "decision": "Project extension loading separates renderer registration from dependency/semantic diagnostic paths. Renderer failures remain JSON-envelope errors for P5 commands only.",
+      "evidence_refs": [
+        "src/docengine/extensions.py",
+        "src/docengine/cli.py",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_broken_renderer_does_not_block_dependency_diagnostics"
+      ],
+      "acceptance_impact": "Resolved post-acceptance DAX12/DAX13 cross-phase diagnostic regression; no user-owned decision required.",
+      "owner": "implementer"
+    }
+  ],
+  "implementation_log": [
+    {
+      "entry": "Implemented renderer registry with deterministic built-in Markdown renderer and optional project `register_renderers(registry)` extension.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "src/docengine/extensions.py",
+        "tests/test_p5_materialization.py"
+      ]
+    },
+    {
+      "entry": "Implemented documentation-owned materialization digest/provenance state and drift inspection under `_dependency/state/materialization_state.json`.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "spec/schemas/MATERIALIZATION_STATE.schema.json"
+      ]
+    },
+    {
+      "entry": "Implemented safe atomic materialization for raw/derived resources, clean full regeneration and non-destructive orphan handling.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "tests/test_p5_materialization.py"
+      ]
+    },
+    {
+      "entry": "Implemented deterministic `rebuild`, affected-only/full `sync`, semantic attention preservation and bounded mixed-SCC planning.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "src/docengine/cli.py",
+        "tests/test_p5_materialization.py"
+      ]
+    },
+    {
+      "entry": "acceptance correction: invalid project renderer registration is contained in the common JSON command error boundary instead of escaping as a traceback.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_p5_materialization.py::P5ProtocolAndStateIntegrityTests::test_invalid_renderer_registration_stays_in_json_error_envelope"
+      ]
+    },
+    {
+      "entry": "post-axis correction: derived materialization now requires current valid/auditable dependency evidence and refuses stale/changed derived targets until rebuild/check re-establishes a matching receipt.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_direct_materialize_refuses_changed_derived_target_without_rebuild"
+      ]
+    },
+    {
+      "entry": "post-axis correction: sync computes invalid/build-required outcome before materialization so audit-incomplete/invalid derived targets cannot write generated views during sync_failed.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_sync_failure_does_not_materialize_audit_incomplete_derived_target"
+      ]
+    },
+    {
+      "entry": "post-axis correction: orphan attention has an official provenance-preserving acknowledgement mutation instead of a permanent unresolved loop.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "src/docengine/cli.py",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_orphan_can_be_acknowledged_without_deleting_plain_file"
+      ]
+    },
+    {
+      "entry": "post-axis correction: materialization-state loading strictly validates resource_kind/canonical paths and refuses symlinked machine-state directories.",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_materialization_state_rejects_invalid_resource_kind",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_materialization_state_rejects_symlinked_state_directory_inside_docs"
+      ]
+    },
+    {
+      "entry": "post-axis correction: builder/renderer registration failures remain inside machine-readable CLI boundaries and renderer registration no longer blocks older dependency diagnostics.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "src/docengine/extensions.py",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_builder_registration_error_stays_in_json_envelope",
+        "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_broken_renderer_does_not_block_dependency_diagnostics"
+      ]
+    },
+    {
+      "entry": "post-axis documentation correction: `--ack-orphan` help/docs now state that acknowledgement preserves provenance rather than forgetting it.",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "docs/MATERIALIZATION_RUNTIME.md",
+        "docs/CLI_CONTRACT.md"
+      ]
+    }
+  ],
+  "axis_reviews": [
+    {
+      "axis_id": "DAX02",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/resources.py",
+        "src/docengine/materialization.py",
+        "tests/test_p5_materialization.py::P5OrphanMaterializationTests"
+      ],
+      "findings": [
+        "Generated ownership is explicit in materialization metadata; removed targets are preserved/reported rather than destructively deleted."
+      ]
+    },
+    {
+      "axis_id": "DAX03",
+      "status": "pass",
+      "evidence_refs": [
+        "spec/schemas/MATERIALIZATION_STATE.schema.json",
+        "src/docengine/materialization.py",
+        "examples/product_tax_project/docs/_dependency/state/materialization_state.json"
+      ],
+      "findings": [
+        "Materialization state is schema-versioned with owner/renderer/input/output digest identity and strict path parsing.",
+        "Post-axis: materialization-state parser strictly enforces schema-critical resource_kind, canonical owner/path identity and rejects malformed persisted evidence."
+      ]
+    },
+    {
+      "axis_id": "DAX04",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "tests/test_p5_materialization.py::P5MaterializationTests::test_materialization_refuses_symlink_replacement_after_catalog_scan"
+      ],
+      "findings": [
+        "All writes are documentation-root confined and refuse registered-target symlink/path escapes or unowned files.",
+        "Post-axis: materialization machine-state path rejects symlinked dependency/state directories, including redirects that remain inside docs."
+      ]
+    },
+    {
+      "axis_id": "DAX06",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "plan/evidence/P5/affected_sync.json"
+      ],
+      "findings": [
+        "Affected-only sync rebuilds only missing/build_required deterministic targets and materializes only outdated/drifted/untracked outputs."
+      ]
+    },
+    {
+      "axis_id": "DAX08",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "plan/evidence/P5/mixed_scc.json"
+      ],
+      "findings": [
+        "Sync preserves canonical dependency statuses; mixed semantic/deterministic SCCs are bounded and cannot cause automatic semantic convergence loops.",
+        "Post-axis: derived views cannot materialize from stale/invalid dependency evidence; sync_failed performs no generated-view writes."
+      ]
+    },
+    {
+      "axis_id": "DAX09",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P5/semantic_attention.json",
+        "tests/test_p5_materialization.py::P5SyncTests::test_semantic_target_remains_attention_required_and_content_is_not_accepted"
+      ],
+      "findings": [
+        "Semantic targets remain review_required/stale and sync returns attention_required without editing/accepting the semantic target."
+      ]
+    },
+    {
+      "axis_id": "DAX10",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P5/affected_sync.json",
+        "tests/test_p5_materialization.py::P5SyncTests::test_repeated_sync_without_changes_has_no_output_or_event_churn"
+      ],
+      "findings": [
+        "Repeat sync with unchanged inputs creates no rebuild, dependency event, output rewrite or materialization-state revision."
+      ]
+    },
+    {
+      "axis_id": "DAX11",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P5/drift_repair.json",
+        "tests/test_p5_materialization.py::P5MaterializationTests"
+      ],
+      "findings": [
+        "Managed views can be deleted/recreated; manual byte drift is detected by stored digest and repaired by clean regeneration.",
+        "Post-axis: direct materialization of derived views is receipt/state/diff-gated so output parity cannot advance ahead of validated build evidence."
+      ]
+    },
+    {
+      "axis_id": "DAX12",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "tests/test_p5_materialization.py::P5CliTests"
+      ],
+      "findings": [
+        "rebuild/materialize/sync mutation boundaries are explicit; attention_required is successful operation, failures remain envelope errors.",
+        "Post-axis: builder/renderer registration errors stay in JSON command envelopes; orphan acknowledgement has an explicit CLI mutation."
+      ]
+    },
+    {
+      "axis_id": "DAX13",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py::P5CliTests",
+        "docs/AI_USAGE_PROTOCOL.md"
+      ],
+      "findings": [
+        "P5 operational commands expose the common machine-readable JSON envelope; P6 will freeze the final envelope/exit-code policy.",
+        "Post-axis: dependency diagnostics remain usable with broken renderer registration and orphan attention has a supported machine-readable resolution path."
+      ]
+    },
+    {
+      "axis_id": "DAX14",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/materialization.py",
+        "spec/schemas/MATERIALIZATION_STATE.schema.json",
+        "plan/evidence/P5/orphan_materialization.json"
+      ],
+      "findings": [
+        "Generated-output provenance/digests are persisted and orphan ownership is diagnostically preserved.",
+        "Post-axis: orphan acknowledgement preserves old materialization provenance with `orphan_acknowledged=true` instead of deleting state; state parsing is strict."
+      ]
+    },
+    {
+      "axis_id": "DAX17",
+      "status": "pass",
+      "evidence_refs": [
+        "examples/product_tax_project/",
+        "tests/test_p5_materialization.py::P5AdditionalMaterializationTests"
+      ],
+      "findings": [
+        "Unrelated product/tax domain and project-defined renderer use the same core without domain-specific changes."
+      ]
+    },
+    {
+      "axis_id": "DAX19",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p5_materialization.py",
+        "plan/evidence/P5/"
+      ],
+      "findings": [
+        "Positive/negative/drift/idempotency/SCC/path/renderer/CLI regression coverage exercises the P5 risk slice.",
+        "Post-axis regressions cover stale-derived materialization, audit-incomplete sync, orphan acknowledgement, persisted-state corruption/symlink safety and CLI/component isolation."
+      ]
+    },
+    {
+      "axis_id": "DAX20",
+      "status": "pass",
+      "evidence_refs": [
+        "README.md",
+        "START_HERE_AGENT.md",
+        "plan/P5_PACKAGE_AUDIT.md",
+        "plan/evidence/P5/clean_venv/wheel_source_parity.txt",
+        "plan/P5_POST_ACCEPTANCE_AXIS_REVIEW.md",
+        "plan/evidence/P5/post_axis_final/"
+      ],
+      "findings": [
+        "Runtime/docs/schemas/examples are synchronized; dev10 wheel/source parity and clean-venv workflow pass; final manifest-only portable-copy/ZIP gate is part of the frozen handoff procedure.",
+        "Post-axis package identity advances to dev11/v0.19 after reproduced P5 defects and CLI-help mismatch are corrected and re-audited."
+      ]
+    }
+  ],
+  "acceptance_summary": {
+    "decision": "accepted",
+    "unresolved_blocking_questions": [],
+    "failed_criteria": [],
+    "notes": "P5 accepted after independent post-axis audit and final dev11 package gate. Reproduced stale/invalid-derived materialization, sync no-write, orphan repairability, persisted-state strictness/symlink, component-loading and CLI/help defects are corrected and regression-tested. Q5.E3/E4 are resolved implementer decisions; no unresolved blocking/user-owned question remains before P6."
+  }
+}

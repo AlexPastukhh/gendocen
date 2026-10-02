@@ -1,0 +1,7 @@
+{
+  "human_exit": 3,
+  "human_output": "docengine status: domain_failure\ncounts: invalid=1\nINVALID         resource://catalog/price_with_tax\n",
+  "json_exit": 3,
+  "json_status": "invalid",
+  "target": "resource://catalog/price_with_tax"
+}

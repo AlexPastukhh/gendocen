@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BaselineSnapshotBlob",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state_schema_version",
+    "format",
+    "value"
+  ],
+  "properties": {
+    "state_schema_version": {
+      "const": "1.0.0"
+    },
+    "format": {
+      "enum": [
+        "canonical_json",
+        "text_utf8_lf"
+      ]
+    },
+    "value": {}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "format": {
+            "const": "text_utf8_lf"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

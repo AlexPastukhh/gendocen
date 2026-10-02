@@ -1,0 +1,2 @@
+git_status_porcelain_bytes=0
+git_clean=PASS

@@ -1,0 +1,3 @@
+Processing /mnt/data/generic_documentation_engine_v0_7_p1_work/generic_documentation_engine_v0_6_p0_axis_audited/dist/generic_documentation_engine-0.1.0.dev1-py3-none-any.whl
+Installing collected packages: generic-documentation-engine
+Successfully installed generic-documentation-engine-0.1.0.dev1

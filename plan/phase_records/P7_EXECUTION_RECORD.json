@@ -1,0 +1,665 @@
+{
+  "phase_id": "P7",
+  "name": "Hardening, recovery, migrations and scalability",
+  "status": "accepted",
+  "scope": [
+    "Add single-writer locking/transactional multi-file updates.",
+    "Implement crash recovery/reconciliation for state/receipt/baseline/event operations.",
+    "Implement migration framework for persisted schemas.",
+    "Benchmark and optimize dependency graph/diff/materialization on synthetic large projects.",
+    "Evaluate optional watch mode only after explicit-command semantics are stable."
+  ],
+  "out_of_scope": [
+    "Distributed multi-writer database service.",
+    "LLM semantic reviewer embedded into engine core.",
+    "Final release packaging/handoff (P8)."
+  ],
+  "deliverables": [
+    "lock/transaction layer",
+    "recovery/reconcile command or startup repair",
+    "migration registry/fixtures",
+    "benchmark suite/performance budget",
+    "optional watch-mode decision"
+  ],
+  "use_cases": [
+    "DOC15",
+    "DOC16",
+    "DOC17",
+    "DOC20"
+  ],
+  "acceptance_axes": [
+    "DAX14",
+    "DAX15",
+    "DAX16",
+    "DAX18",
+    "DAX19",
+    "DAX20"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "P7-A1",
+      "criterion": "Crash-injection tests do not leave contradictory state/receipt/baseline/event combinations.",
+      "axis_ids": [
+        "DAX15",
+        "DAX19"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p7_hardening.py::P7CrashRecoveryTests::test_hard_crash_mid_rebuild_rolls_back_and_records_recovery",
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_semantically_impossible_new_file_journal_cannot_delete_existing_file",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_failed_synchronous_rollback_preserves_recovery_evidence",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_external_deletion_after_crash_requires_force"
+      ],
+      "notes": "Post-axis dev15 corrections strengthen corrupt-journal preflight and preserve recovery evidence after rollback failure."
+    },
+    {
+      "id": "P7-A2",
+      "criterion": "Concurrent writers are serialized or rejected clearly; readers do not observe partially committed state.",
+      "axis_ids": [
+        "DAX15"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p7_hardening.py::P7LockingTests",
+        "src/docengine/hardening.py"
+      ],
+      "notes": "P7 hardening scope verified; global release consolidation remains P8."
+    },
+    {
+      "id": "P7-A3",
+      "criterion": "Migration fixtures preserve or explicitly transform receipts/baselines/history with version checks.",
+      "axis_ids": [
+        "DAX16"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p7_hardening.py::P7MigrationTests",
+        "spec/registries/MIGRATIONS.json",
+        "docs/MIGRATIONS.md",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_migration_rejects_symlinked_or_corrupt_released_evidence",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_runtime_layout_schema_and_migration_provenance_are_strict",
+        "plan/P7_POST_ACCEPTANCE_AXIS_REVIEW.md"
+      ],
+      "notes": "Post-axis dev15 migration validates released evidence and registry/event provenance before marking current layout."
+    },
+    {
+      "id": "P7-A4",
+      "criterion": "Recovery can diagnose and reconcile interrupted operations with an auditable event.",
+      "axis_ids": [
+        "DAX14",
+        "DAX15"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p7_hardening.py::P7CrashRecoveryTests",
+        "spec/schemas/HARDENING_RECOVERY_EVENT.schema.json",
+        "docs/HARDENING_RUNTIME.md",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_verify_detects_corrupt_hardening_audit_logs",
+        "plan/P7_POST_ACCEPTANCE_AXIS_REVIEW.md"
+      ],
+      "notes": "Hardening audit logs are strict verification evidence; corrupt history blocks verification."
+    },
+    {
+      "id": "P7-A5",
+      "criterion": "Declared synthetic scale benchmark meets the recorded performance budget or phase remains partial.",
+      "axis_ids": [
+        "DAX18"
+      ],
+      "status": "partial",
+      "evidence_refs": [
+        "tools/benchmark_p7.py",
+        "plan/evidence/P7/benchmark_10k_50k.json"
+      ],
+      "notes": "P7-A5 is deliberately partial under answered Q7.3; environment-normalized budget becomes blocking before P8 acceptance."
+    },
+    {
+      "id": "P7-A6",
+      "criterion": "Hardening changes do not alter user-visible semantics from accepted earlier phases without corresponding contract/migration updates.",
+      "axis_ids": [
+        "DAX16",
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/P7_PACKAGE_AUDIT.md",
+        "plan/evidence/P7/final_clean_venv/wheel_source_parity.txt",
+        "plan/evidence/P7/final_package/portable_probe_tests.txt",
+        "plan/evidence/P7/final_package/portable_probe_audit.txt",
+        "plan/evidence/P7/final_package/source_tests.txt"
+      ],
+      "notes": "Post-axis dev15 package audit, wheel/source parity and manifest-only portable-copy regression confirm no unintended user-visible semantic regression; DAX18 remains separately partial by design."
+    }
+  ],
+  "pre_execution_questions": [
+    {
+      "id": "Q7.1",
+      "question": "Какую concurrency model фиксируем для первого hardened release?",
+      "why_it_matters": "Runtime state is file-based; uncontrolled multi-writer access risks corruption.",
+      "blocking": true,
+      "recommended_default": "Single writer per documentation root via lock; concurrent read-only commands allowed when safe.",
+      "status": "answered",
+      "answer": "Single writer per documentation root via lock; concurrent read-only commands allowed when safe.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.2",
+      "question": "Когда обязательна migration, а когда допустим reset runtime state?",
+      "why_it_matters": "Baselines/receipts may be valuable audit evidence and should not disappear silently.",
+      "blocking": true,
+      "recommended_default": "Canonical/document data never reset. Persisted dependency state formats require migrations once released; reset allowed only for explicitly disposable caches, not receipts/history/baselines.",
+      "status": "answered",
+      "answer": "Canonical/document data never reset. Persisted dependency state formats require migrations once released; reset allowed only for explicitly disposable caches, not receipts/history/baselines.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.3",
+      "question": "Какой synthetic scale и performance budget принять?",
+      "why_it_matters": "Без target “performance” нельзя объективно принять.",
+      "blocking": false,
+      "recommended_default": "Start benchmark fixture at 10k resources / 50k dependency edges; establish measured baseline in P8, then record an environment-normalized budget before acceptance.",
+      "status": "answered",
+      "answer": "Start benchmark fixture at 10k resources / 50k dependency edges; establish measured baseline in P8, then record an environment-normalized budget before acceptance.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Non-blocking until benchmark baseline is measured; becomes blocking before P8 acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.4",
+      "question": "Нужен ли watch mode вообще в v0.x?",
+      "why_it_matters": "It adds background behavior that is less transparent for AI and CI.",
+      "blocking": false,
+      "recommended_default": "Keep optional and out of acceptance unless explicit-command workflow proves insufficient.",
+      "status": "answered",
+      "answer": "Keep optional and out of acceptance unless explicit-command workflow proves insufficient.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Does not block P8 unless user promotes watch mode into scope.",
+      "owner": "implementer"
+    }
+  ],
+  "emergent_questions": [
+    {
+      "id": "Q7.E1",
+      "question": "Should recognized P6 runtime evidence require a separate manual migration before every P7 mutation?",
+      "why_it_matters": "Blocking all accepted P6 workflows on a manual step would change behavior unnecessarily when the migration is byte-preserving and deterministic.",
+      "blocking": false,
+      "recommended_default": "No. Keep explicit `migrate`, but allow recognized P6 layout to migrate automatically inside the same exclusive transaction before a normal mutation.",
+      "status": "answered",
+      "answer": "No. Keep explicit `migrate`, but allow recognized P6 layout to migrate automatically inside the same exclusive transaction before a normal mutation.",
+      "decision": "Recognized legacy P6 layout auto-migrates transactionally; unknown/future versions still fail and are never reset.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "src/docengine/cli.py",
+        "tests/test_p7_hardening.py::P7MigrationTests"
+      ],
+      "acceptance_impact": "DAX16 compatibility without silent reset.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E2",
+      "question": "Where should the per-documentation-root lock live if read-only commands must not mutate the project?",
+      "why_it_matters": "A project-local lock file would violate the accepted read-only file-tree guarantee merely by observing the project.",
+      "blocking": true,
+      "recommended_default": "Use an OS-temporary lock path keyed by the resolved documentation root.",
+      "status": "answered",
+      "answer": "Use an OS-temporary lock path keyed by the resolved documentation root.",
+      "decision": "P7 uses an external OS lock; project-owned transaction/recovery evidence is created only by mutations.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7LockingTests::test_external_lock_does_not_mutate_project_for_read_only_command"
+      ],
+      "acceptance_impact": "DAX15/DAX12 compatibility with P6 read-only contract.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E3",
+      "question": "What should automatic recovery do if a transaction target changed outside the interrupted transaction after the crash?",
+      "why_it_matters": "Blind rollback could destroy a legitimate post-crash edit, while silently accepting the edit could leave a partially committed transaction.",
+      "blocking": false,
+      "recommended_default": "Refuse automatic overwrite. Allow explicit `recover --force` to choose pre-crash rollback, and audit the forced conflict paths.",
+      "status": "answered",
+      "answer": "Refuse automatic overwrite. Allow explicit `recover --force` to choose pre-crash rollback, and audit the forced conflict paths.",
+      "decision": "Default recovery preserves unknown bytes and remains pending; `--force` is an explicit destructive operator decision recorded in recovery history.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "src/docengine/cli.py",
+        "tests/test_p7_hardening.py::P7CrashRecoveryTests::test_recovery_refuses_to_overwrite_unknown_post_crash_edit"
+      ],
+      "acceptance_impact": "DAX14/DAX15 repairability and safety.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E4",
+      "question": "How can a transaction preserve read-your-writes while still recovering from a process crash?",
+      "why_it_matters": "Pure staging would require every store read to virtualize staged files; immediate writes without journaling would expose unrecoverable partial state after a crash.",
+      "blocking": false,
+      "recommended_default": "Use an exclusive lock plus durable pre-images/planned hashes before each immediate atomic file write. Readers cannot enter during the writer; recovery rolls back open journals.",
+      "status": "answered",
+      "answer": "Use an exclusive lock plus durable pre-images/planned hashes before each immediate atomic file write. Readers cannot enter during the writer; recovery rolls back open journals.",
+      "decision": "P7 uses write-ahead pre-images with immediate atomic writes under the exclusive lock; journal commit defines command durability.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7CrashRecoveryTests"
+      ],
+      "acceptance_impact": "DAX15 transactional integrity.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E5",
+      "question": "Should a P6 runtime containing only materialization provenance be treated as empty when no dependency receipts/state exist?",
+      "why_it_matters": "Materialization provenance is released persisted evidence and must be included in migration detection/preservation.",
+      "blocking": false,
+      "recommended_default": "No. `materialization_state.json` alone makes the unmarked runtime a legacy P6 layout that requires the registered migration.",
+      "status": "answered",
+      "answer": "No. `materialization_state.json` alone makes the unmarked runtime a legacy P6 layout that requires the registered migration.",
+      "decision": "Migration detection includes materialization state and the migration preservation digest covers it.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7MigrationTests::test_materialization_only_p6_runtime_is_migrated_not_treated_as_empty"
+      ],
+      "acceptance_impact": "DAX16 migration completeness.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E6",
+      "question": "Does a leftover journal with durable `phase=committed` represent a recovery blocker?",
+      "why_it_matters": "The commit marker defines durability; treating cleanup-only residue as partial state would incorrectly block safe readers.",
+      "blocking": false,
+      "recommended_default": "No. Committed residue is a non-blocking cleanup warning; readers may proceed and `recover`/the next writer removes it.",
+      "status": "answered",
+      "answer": "No. Committed residue is a non-blocking cleanup warning; readers may proceed and `recover`/the next writer removes it.",
+      "decision": "Read guard blocks only uncommitted journals; verify reports `transaction_cleanup_required` warning for committed residue.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "src/docengine/cli.py",
+        "tests/test_p7_hardening.py::P7CrashRecoveryTests::test_committed_leftover_is_readable_cleanup_warning_not_recovery_blocker"
+      ],
+      "acceptance_impact": "DAX14/DAX15 commit semantics.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E7",
+      "question": "How strict must the runtime-layout marker parser be relative to its JSON Schema?",
+      "why_it_matters": "A weak parser could silently accept corrupted migration provenance and recreate the schema/runtime mismatch class found in earlier phases.",
+      "blocking": false,
+      "recommended_default": "Enforce schema-critical keys/types/provenance/digests/timestamps and reject unknown keys/future versions.",
+      "status": "answered",
+      "answer": "Enforce schema-critical keys/types/provenance/digests/timestamps and reject unknown keys/future versions.",
+      "decision": "Runtime layout loading now validates the same audit-critical constraints as the schema before treating the layout as current.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "spec/schemas/RUNTIME_LAYOUT.schema.json",
+        "tests/test_p7_hardening.py::P7MigrationTests::test_runtime_layout_parser_rejects_schema_invalid_marker"
+      ],
+      "acceptance_impact": "DAX16 persisted migration integrity.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E8",
+      "question": "How can P7 complete when P7-A5 says the phase remains partial without a performance budget, Q7.3 defers that budget to P8, P8 says it starts only after P7 acceptance, and the phase schema has no partial status?",
+      "why_it_matters": "Without an explicit handoff rule the phase graph deadlocks or silently loses the DAX18 release obligation.",
+      "blocking": true,
+      "recommended_default": "Accept the completed P7 hardening scope with DAX18 explicitly partial, carry DAX18 as a blocking P8 release-gate axis, and require an environment-normalized budget plus passing benchmark before P8 acceptance.",
+      "status": "answered",
+      "answer": "Accept P7 hardening with DAX18 explicitly partial and promote DAX18 into P8 as a blocking release-gate item.",
+      "decision": "P7 may be phase-accepted with P7-A5/DAX18 partial because Q7.3 intentionally defers the threshold. P8 acceptance axes now include DAX18 and P8-A8 requires a recorded normalized budget and passing benchmark before final release acceptance.",
+      "evidence_refs": [
+        "plan/IMPLEMENTATION_PLAN.md",
+        "plan/phase_records/P8_EXECUTION_RECORD.json",
+        "plan/P7_AXIS_AUDIT.md",
+        "plan/evidence/P7/benchmark_10k_50k.json"
+      ],
+      "acceptance_impact": "Resolves the P7→P8 process deadlock without pretending DAX18 passed. P8 cannot be accepted until DAX18 is closed.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E9",
+      "question": "May recovery execute a transaction journal that is syntactically/schema-valid but semantically inconsistent with its directory, pre-images, or current filesystem state?",
+      "why_it_matters": "Recovery instructions are destructive authority. A semantically impossible journal must not be allowed to select files for deletion/restoration merely because its JSON shape validates.",
+      "blocking": true,
+      "recommended_default": "No. Recovery must fail closed: validate transaction-directory identity, journal invariants, pre-image existence/hash relationships and current/planned hashes before the first rollback mutation. Preserve corrupt evidence for diagnosis.",
+      "status": "answered",
+      "answer": "No. Corrupt or semantically impossible journals are never executable recovery instructions.",
+      "decision": "Recovery fully validates the journal and all operations before changing files; transaction-id/path mismatches, impossible existed/backup/hash relationships and rogue transaction entries remain `recovery_required` without mutation.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_semantically_impossible_new_file_journal_cannot_delete_existing_file",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_transaction_id_mismatch_is_corruption_not_path_selection",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_rogue_transaction_entries_are_corruption_not_silently_ignored"
+      ],
+      "acceptance_impact": "Resolved post-acceptance DAX14/DAX15 destructive-recovery defect; no user decision required.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E10",
+      "question": "Can a runtime-layout marker self-assert migration provenance, or must migrated_from/migration_id correspond to the registered migration and validated released evidence?",
+      "why_it_matters": "A self-asserted marker could make corrupt or unknown legacy evidence appear migrated/current and bypass DAX16 compatibility guarantees.",
+      "blocking": true,
+      "recommended_default": "Migration provenance is registry-bound. A migrated marker is valid only when its from/to/id tuple matches a registered migration and released evidence passes the migration validator; unknown provenance is invalid.",
+      "status": "answered",
+      "answer": "Migration provenance is registry-bound, not self-authenticating.",
+      "decision": "Runtime-layout loading validates migrated provenance against `MIGRATIONS.json`/runtime registry; migration refuses symlinked or structurally/integrity-corrupt released evidence and never writes a current marker on failure.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "spec/registries/MIGRATIONS.json",
+        "spec/schemas/RUNTIME_LAYOUT.schema.json",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_runtime_layout_schema_and_registry_provenance_match_runtime",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_migration_rejects_symlinked_or_corrupt_released_evidence"
+      ],
+      "acceptance_impact": "Resolved post-acceptance DAX16 migration-provenance defect.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q7.E11",
+      "question": "Are P7 migration/recovery audit logs themselves verification evidence, or may corrupt logs be ignored once the runtime files look usable?",
+      "why_it_matters": "P7 promises auditable recovery/migration. Ignoring corrupt audit logs would make that history unverifiable and allow `verify` to report a clean runtime with damaged provenance.",
+      "blocking": false,
+      "recommended_default": "Treat hardening audit logs as verification evidence. Malformed/schema-invalid records are blocking verification findings; verify must still return a complete report rather than crash.",
+      "status": "answered",
+      "answer": "Hardening audit logs are verification evidence and corruption is blocking.",
+      "decision": "`verify` validates migration/recovery JSONL records and reports corruption through the complete-report envelope; corrupt dependency receipts similarly remain report findings rather than exit-5 internal errors.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_verify_detects_corrupt_hardening_audit_logs",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_verify_corrupt_receipt_remains_complete_report"
+      ],
+      "acceptance_impact": "Resolved DAX14 diagnostics/auditability and P6 complete-report regression.",
+      "owner": "implementer"
+    }
+  ],
+  "implementation_log": [
+    {
+      "entry": "Implemented external shared-reader/exclusive-writer lock keyed by documentation root; lock files live outside the project tree.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7LockingTests"
+      ]
+    },
+    {
+      "entry": "Implemented write-ahead rollback transactions with durable pre-images/planned hashes for dependency and materialization writes.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "src/docengine/dependencies.py",
+        "src/docengine/materialization.py",
+        "tests/test_p7_hardening.py::P7CrashRecoveryTests"
+      ]
+    },
+    {
+      "entry": "Implemented crash recovery with auditable recovery events, default conflict refusal and explicit `recover --force`.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "src/docengine/cli.py",
+        "spec/schemas/HARDENING_RECOVERY_EVENT.schema.json",
+        "tests/test_p7_hardening.py"
+      ]
+    },
+    {
+      "entry": "Implemented runtime-layout migration registry, P6 byte-preserving migration, explicit `migrate`, and transactional auto-migration of recognized legacy layout before mutation.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "spec/registries/MIGRATIONS.json",
+        "spec/schemas/RUNTIME_LAYOUT.schema.json",
+        "tests/test_p7_hardening.py::P7MigrationTests"
+      ]
+    },
+    {
+      "entry": "Added 10k-target/50k-edge scalability baseline plus 10k structured diffs and 10k deterministic Markdown renders.",
+      "evidence_refs": [
+        "tools/benchmark_p7.py",
+        "plan/evidence/P7/benchmark_10k_50k.json"
+      ]
+    },
+    {
+      "entry": "Kept filesystem watch/daemon mode out of P7 acceptance per Q7.4; explicit CLI remains canonical.",
+      "evidence_refs": [
+        "plan/phase_records/P7_EXECUTION_RECORD.json",
+        "docs/HARDENING_RUNTIME.md"
+      ]
+    },
+    {
+      "entry": "acceptance correction: first P7 mutation initializes runtime-layout provenance in the same transaction so a fresh runtime does not become false legacy on the next command.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "src/docengine/cli.py",
+        "tests/test_p7_hardening.py::P7MigrationTests::test_first_p7_mutation_initializes_layout_in_same_transaction"
+      ]
+    },
+    {
+      "entry": "axis correction: materialization-only P6 runtime is detected as legacy evidence and migrated/preserved, not treated as empty.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7MigrationTests::test_materialization_only_p6_runtime_is_migrated_not_treated_as_empty"
+      ]
+    },
+    {
+      "entry": "axis correction: committed-but-not-cleaned transaction journals are safe cleanup warnings rather than recovery blockers.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "src/docengine/cli.py",
+        "tests/test_p7_hardening.py::P7CrashRecoveryTests::test_committed_leftover_is_readable_cleanup_warning_not_recovery_blocker"
+      ]
+    },
+    {
+      "entry": "axis correction: runtime layout parser enforces schema-critical migration provenance instead of checking version alone.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7MigrationTests::test_runtime_layout_parser_rejects_schema_invalid_marker"
+      ]
+    },
+    {
+      "entry": "acceptance correction: resolved P7/P8 performance-gate deadlock by carrying partial DAX18 explicitly into P8 and making normalized-budget benchmark closure mandatory before P8 acceptance.",
+      "evidence_refs": [
+        "plan/IMPLEMENTATION_PLAN.md",
+        "plan/phase_records/P8_EXECUTION_RECORD.json",
+        "plan/evidence/P7/benchmark_10k_50k.json"
+      ]
+    },
+    {
+      "entry": "post-axis correction: recovery now strictly validates transaction journals/roots and preflights all operations before target mutation; semantically impossible journals cannot delete existing files.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests"
+      ]
+    },
+    {
+      "entry": "post-axis correction: failed synchronous rollback preserves journal/pre-images instead of deleting the only recovery evidence.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests"
+      ]
+    },
+    {
+      "entry": "post-axis correction: migration rejects symlinked/corrupt released evidence and cross-validates current migration provenance against registry and audit history.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "docs/MIGRATIONS.md",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests"
+      ]
+    },
+    {
+      "entry": "post-axis correction: verify includes strict hardening recovery/migration audit history and contains corrupt receipt evidence inside verification findings instead of exit-5 internal failure.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "src/docengine/cli.py",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests"
+      ]
+    },
+    {
+      "entry": "post-axis correction: active P7 runtime/materialization documentation and self-audit are synchronized with the accepted hardening boundary.",
+      "evidence_refs": [
+        "docs/HARDENING_RUNTIME.md",
+        "docs/MATERIALIZATION_RUNTIME.md",
+        "src/docengine/README.md",
+        "tools/audit_spec.py"
+      ]
+    },
+    {
+      "entry": "post-axis correction: recovery validates complete journal semantics before any mutation; corrupt/rogue/id-mismatched journals fail closed and are preserved for diagnosis.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests"
+      ]
+    },
+    {
+      "entry": "post-axis correction: external deletion after crash is treated as an unknown post-crash change and requires explicit audited `recover --force`.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_external_deletion_after_crash_requires_force"
+      ]
+    },
+    {
+      "entry": "post-axis correction: runtime-layout schema/runtime/registry provenance agree; migration rejects symlinked or integrity-corrupt released evidence.",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "spec/schemas/RUNTIME_LAYOUT.schema.json",
+        "spec/registries/MIGRATIONS.json",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests"
+      ]
+    },
+    {
+      "entry": "post-axis correction: verify contains corrupt receipt/hardening audit-log failures inside the complete verification report instead of internal-error or silent omission.",
+      "evidence_refs": [
+        "src/docengine/verification.py",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_verify_corrupt_receipt_remains_complete_report",
+        "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_verify_detects_corrupt_hardening_audit_logs"
+      ]
+    },
+    {
+      "entry": "post-axis handoff correction: active P7 docs/source README/CLI fallback are synchronized to P7 and self-audit guards against regression.",
+      "evidence_refs": [
+        "README.md",
+        "START_HERE_AGENT.md",
+        "docs/MATERIALIZATION_RUNTIME.md",
+        "src/docengine/README.md",
+        "tools/audit_spec.py"
+      ]
+    }
+  ],
+  "axis_reviews": [
+    {
+      "axis_id": "DAX14",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "spec/schemas/HARDENING_RECOVERY_EVENT.schema.json",
+        "tests/test_p7_hardening.py::P7CrashRecoveryTests"
+      ],
+      "findings": [
+        "Recovery and migration produce auditable events; unresolved crash journals are diagnosable via verify/recover.",
+        "Committed cleanup-only journals are non-blocking warnings; forced conflict rollback is explicit and auditable.",
+        "Post-axis dev15: recovery/migration audit histories are strictly parsed, failed rollback preserves evidence, and corrupt receipts remain inside complete verification reports.",
+        "Post-axis: corrupt journals/audit logs/receipts now fail closed and remain diagnosable through complete-report verify; failed rollback preserves recovery evidence."
+      ]
+    },
+    {
+      "axis_id": "DAX15",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py::P7CrashRecoveryTests",
+        "tests/test_p7_hardening.py::P7LockingTests"
+      ],
+      "findings": [
+        "Official CLI readers/writers are coordinated by shared/exclusive OS locks; open write-ahead journals rollback interrupted multi-file writes.",
+        "Crash injection after baseline/receipt/state/event writes rolls all four layers back; unexpected post-crash bytes are never overwritten without --force.",
+        "Post-axis dev15: recovery fully validates/preflights journals; rogue entries and unexpected post-crash deletions block nondestructive recovery unless force is explicit.",
+        "Post-axis: recovery validates full journal semantics before mutation, treats external deletion as conflict, and ignores no rogue transaction entries."
+      ]
+    },
+    {
+      "axis_id": "DAX16",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/hardening.py",
+        "spec/registries/MIGRATIONS.json",
+        "tests/test_p7_hardening.py::P7MigrationTests"
+      ],
+      "findings": [
+        "Recognized P6 evidence migrates byte-preserving through a versioned registry; unknown versions are never reset.",
+        "Migration detection covers dependency and materialization-only P6 evidence; runtime marker parser matches schema-critical provenance constraints.",
+        "Post-axis dev15: migration rejects symlinked/corrupt released evidence; runtime-layout provenance cross-links registry + audit event; schema/runtime contracts agree.",
+        "Post-axis: runtime-layout migration provenance is registry-bound; migration rejects symlinked/tampered released evidence and schema/runtime marker constraints match."
+      ]
+    },
+    {
+      "axis_id": "DAX18",
+      "status": "partial",
+      "evidence_refs": [
+        "tools/benchmark_p7.py",
+        "plan/evidence/P7/benchmark_10k_50k.json"
+      ],
+      "findings": [
+        "10k/50k graph plus 10k diff/render baseline measured; absolute normalized budget intentionally deferred to P8 per Q7.3.",
+        "Q7.E8 carries this explicit partial into P8; P8-A8 is blocking before final release acceptance."
+      ]
+    },
+    {
+      "axis_id": "DAX19",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_p7_hardening.py"
+      ],
+      "findings": [
+        "Crash subprocess, concurrency, migration, symlink and conflict-recovery regressions exercise failure semantics.",
+        "P7 targeted suite covers materialization-only migration, committed cleanup residue, strict marker parsing and external-edit conflict recovery.",
+        "Post-axis dev15 regression tests cover corrupt journals, rollback failure, rogue entries, external deletion, migration corruption/provenance and hardening audit-log corruption."
+      ]
+    },
+    {
+      "axis_id": "DAX20",
+      "status": "pass",
+      "evidence_refs": [
+        "README.md",
+        "START_HERE_AGENT.md",
+        "plan/P7_PACKAGE_AUDIT.md",
+        "plan/evidence/P7/final_clean_venv/wheel_source_parity.txt",
+        "plan/evidence/P7/final_package/portable_probe_audit.txt",
+        "plan/P7_POST_ACCEPTANCE_AXIS_REVIEW.md",
+        "plan/evidence/P7/post_axis_final/wheel_source_parity.txt"
+      ],
+      "findings": [
+        "dev14 accepted docs/wheel/source parity, clean-venv P7 protocol, manifest-only portable tests/audit/hash/file-set gate passed.",
+        "Post-axis dev15 corrected active docs/self-audit and clean-venv corruption/recovery/migration/verify scenarios.",
+        "Final v0.23/dev15 distribution and manifest-only portable package gate passed."
+      ]
+    }
+  ],
+  "acceptance_summary": {
+    "decision": "accepted",
+    "unresolved_blocking_questions": [],
+    "failed_criteria": [],
+    "notes": "P7 hardening accepted after independent post-axis correction and dev15 distribution gate. DAX18 remained historically partial at P7 acceptance under Q7.3/Q7.E8 and is represented by carried release gate P7-CG1; P8-A8 subsequently resolved that gate before final release. No unresolved blocking/user-owned question remains."
+  },
+  "carried_release_gates": [
+    {
+      "id": "P7-CG1",
+      "source_criterion_id": "P7-A5",
+      "axis_id": "DAX18",
+      "target_phase_id": "P8",
+      "target_criterion_id": "P8-A8",
+      "status": "resolved",
+      "evidence_refs": [
+        "spec/release/PERFORMANCE_BUDGET.json",
+        "plan/evidence/P8/performance_gate.json",
+        "plan/phase_records/P8_EXECUTION_RECORD.json"
+      ],
+      "notes": "DAX18 remained partial at P7 phase acceptance by Q7.3/Q7.E8 and was subsequently resolved by P8-A8 before final release."
+    }
+  ]
+}

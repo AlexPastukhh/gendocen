@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Docengine Migration Event",
+  "type": "object",
+  "required": [
+    "event_schema_version",
+    "event_id",
+    "recorded_at",
+    "from_version",
+    "to_version",
+    "preserved_file_count"
+  ],
+  "properties": {
+    "event_schema_version": {
+      "const": "1.0.0"
+    },
+    "event_id": {
+      "type": "string",
+      "pattern": "^migration-[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "from_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "to_version": {
+      "const": "1.0.0"
+    },
+    "action": {
+      "type": "string"
+    },
+    "preserved_evidence_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "preserved_file_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "migration_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "properties": {
+        "from_version": {
+          "type": "null"
+        },
+        "action": {
+          "const": "initialized_runtime_layout"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "migration_id"
+            ]
+          },
+          {
+            "required": [
+              "preserved_evidence_digest"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "properties": {
+        "from_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "migration_id",
+        "preserved_evidence_digest"
+      ],
+      "not": {
+        "required": [
+          "action"
+        ]
+      }
+    }
+  ]
+}

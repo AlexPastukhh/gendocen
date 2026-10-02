@@ -1,0 +1,144 @@
+{
+  "exit_code": 3,
+  "payload": {
+    "attention_required": true,
+    "command": "verify",
+    "data": {
+      "report": {
+        "findings": [
+          {
+            "code": "materialization_not_current",
+            "details": {
+              "current_digest": "sha256:dfbd90996de1b9ce88b0bd77e961446bc91392220517ac0e3a9d98d28f6e1a5c",
+              "drift": true,
+              "expected_digest": "sha256:4f44713ab1cdbc579dcf8ee20e931ca08d891ffe5cd2843941f220ef2c819666",
+              "input_revision": "f92be2969f01873ac708493f1856aefa622ca1f73fe64f0200bd1cfcc29ea6f5",
+              "needs_materialization": true,
+              "outdated": false,
+              "owner_ref": "resource://catalog/product",
+              "registered": true,
+              "renderer": "markdown",
+              "renderer_revision": "builtin:markdown:v1",
+              "state": "drifted"
+            },
+            "message": "generated view state is drifted",
+            "severity": "blocking",
+            "target": "file://catalog/product.md"
+          }
+        ],
+        "ok": false,
+        "sections": {
+          "current_checks": [
+            {
+              "changed_dependencies": [],
+              "kind": "dependency",
+              "reason_codes": [],
+              "status": "valid",
+              "target": "resource://catalog/price_with_tax"
+            }
+          ],
+          "dependency_integrity": {
+            "issues": [],
+            "ok": true,
+            "receipt_count": 1
+          },
+          "dependency_state": {
+            "counts": {
+              "valid": 1
+            },
+            "generated_at": "2026-10-02T00:39:16.257209Z",
+            "targets": {
+              "resource://catalog/price_with_tax": {
+                "changed_dependencies": [],
+                "last_receipt_id": "receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d",
+                "reason_codes": [],
+                "status": "valid"
+              }
+            }
+          },
+          "materialization": {
+            "drifted": 1,
+            "errors": 0,
+            "needs_materialization": 1,
+            "orphans": [],
+            "outdated": 0,
+            "outputs": [
+              {
+                "current_digest": "sha256:d40a4fd5cb358b69419dc562c7d634ecb3d8e185a89845ae80b9afb788048b04",
+                "drift": false,
+                "expected_digest": "sha256:d40a4fd5cb358b69419dc562c7d634ecb3d8e185a89845ae80b9afb788048b04",
+                "input_revision": "aad015b1b1a5a30b84861d6fec384a28fcb038f496b37ac975ecffde5fe731f3",
+                "needs_materialization": false,
+                "outdated": false,
+                "owner_ref": "resource://catalog/price_with_tax",
+                "path": "catalog/price_with_tax.md",
+                "registered": true,
+                "renderer": "markdown",
+                "renderer_revision": "builtin:markdown:v1",
+                "state": "current"
+              },
+              {
+                "current_digest": "sha256:dfbd90996de1b9ce88b0bd77e961446bc91392220517ac0e3a9d98d28f6e1a5c",
+                "drift": true,
+                "expected_digest": "sha256:4f44713ab1cdbc579dcf8ee20e931ca08d891ffe5cd2843941f220ef2c819666",
+                "input_revision": "f92be2969f01873ac708493f1856aefa622ca1f73fe64f0200bd1cfcc29ea6f5",
+                "needs_materialization": true,
+                "outdated": false,
+                "owner_ref": "resource://catalog/product",
+                "path": "catalog/product.md",
+                "registered": true,
+                "renderer": "markdown",
+                "renderer_revision": "builtin:markdown:v1",
+                "state": "drifted"
+              },
+              {
+                "current_digest": "sha256:2fa48f19b9252e2b9be879f26e0850ffed7dc5f2ff4c18fc1551178d552c4977",
+                "drift": false,
+                "expected_digest": "sha256:2fa48f19b9252e2b9be879f26e0850ffed7dc5f2ff4c18fc1551178d552c4977",
+                "input_revision": "b77cb44212d83ff513e80b28b75131fa2b7534f237efb066cdadbe8a99b60878",
+                "needs_materialization": false,
+                "outdated": false,
+                "owner_ref": "resource://catalog/tax_policy",
+                "path": "catalog/tax_policy.md",
+                "registered": true,
+                "renderer": "markdown",
+                "renderer_revision": "builtin:markdown:v1",
+                "state": "current"
+              }
+            ],
+            "unresolved_orphans": 0
+          },
+          "required_builders": [
+            {
+              "audit_complete": true,
+              "output_digest": "aad015b1b1a5a30b84861d6fec384a28fcb038f496b37ac975ecffde5fe731f3",
+              "recorded_receipt_id": "receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d",
+              "status": "valid",
+              "target": "resource://catalog/price_with_tax"
+            }
+          ],
+          "semantic_rules": []
+        },
+        "summary": {
+          "blocking_findings": 1,
+          "total_findings": 1,
+          "warnings": 0
+        }
+      },
+      "roots": {
+        "documentation_root": "/tmp/tmp0oz3m9ng/product/docs",
+        "project_root": "/tmp/tmp0oz3m9ng/product",
+        "source": "explicit"
+      }
+    },
+    "errors": [],
+    "meta": {
+      "engine_version": "0.1.0.dev12",
+      "exit_code": 3,
+      "status": "verification_failed"
+    },
+    "ok": false,
+    "schema_version": "2.0.0",
+    "warnings": []
+  }
+}

@@ -1,0 +1,10 @@
+docengine resources: ok
+documentation_root: /mnt/data/generic_documentation_engine_v0_7_p1_work/generic_documentation_engine_v0_6_p0_axis_audited/examples/sample_project/docs
+DERIVED   resource://architecture/system_summary
+GENERATED file://architecture/overview.md owner=resource://architecture/overview
+GENERATED file://architecture/system_summary.md owner=resource://architecture/system_summary
+GENERATED file://policies/method_policy.md owner=resource://policies/method_policy
+MANAGED   resource://architecture/overview
+MANAGED   resource://policies/method_policy
+PLAIN     file://architecture/rationale.md
+counts: derived=1, generated=3, managed=2, plain=1

@@ -1,0 +1,55 @@
+name: Release gate
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'engine-v*'
+      - 'handoff-v*'
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[test]'
+      - name: Full tests
+        run: python -m pytest -q
+      - name: Release lifecycle
+        run: python tools/release_check.py --json
+      - name: Performance gate
+        run: python tools/benchmark_release.py --json
+      - name: Global axis closure
+        run: python tools/audit_axes.py --json
+      - name: Specification audit
+        run: python tools/audit_spec.py
+      - name: Manifest validation
+        run: python tools/release_manifest.py validate --json
+      - name: Git worktree stays clean
+        run: python -c "import subprocess,sys; s=subprocess.check_output(['git','status','--porcelain'], text=True); print(s,end=''); raise SystemExit(1 if s else 0)"
+
+  windows-portability:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Install
+        run: python -m pip install -e '.[test]'
+      - name: Windows regression suite
+        run: python -m pytest -q
+      - name: Specification audit
+        run: python tools/audit_spec.py
+      - name: Axis audit
+        run: python tools/audit_axes.py --json
+      - name: Manifest validation
+        run: python tools/release_manifest.py validate --json
+      - name: Bundled lifecycle check
+        run: python tools/release_check.py --json
+      - name: Git worktree stays clean
+        run: python -c "import subprocess,sys; s=subprocess.check_output(['git','status','--porcelain'], text=True); print(s,end=''); raise SystemExit(1 if s else 0)"

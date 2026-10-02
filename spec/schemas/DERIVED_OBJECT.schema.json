@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DocengineDerivedObjectEnvelope",
+  "type": "object",
+  "required": [
+    "$docengine",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$docengine": {
+      "type": "object",
+      "required": [
+        "resource_id",
+        "resource_kind",
+        "provenance"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "minLength": 3
+        },
+        "resource_kind": {
+          "const": "derived"
+        },
+        "provenance": {
+          "type": "object",
+          "required": [
+            "builder_id",
+            "builder_revision",
+            "target",
+            "dependency_type",
+            "comparator",
+            "tracking_assurance",
+            "dependencies",
+            "untracked_accesses",
+            "audit_complete",
+            "output_digest",
+            "provenance_digest"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "builder_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target": {
+              "type": "string",
+              "pattern": "^resource://"
+            },
+            "dependency_type": {
+              "enum": [
+                "copy_reference",
+                "compute",
+                "aggregate"
+              ]
+            },
+            "comparator": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dependencies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "ref",
+                  "version",
+                  "source_kind",
+                  "comparator",
+                  "source_audit_complete",
+                  "snapshot_digest"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source_kind": {
+                    "enum": [
+                      "raw",
+                      "derived",
+                      "file"
+                    ]
+                  },
+                  "source_audit_complete": {
+                    "type": "boolean"
+                  },
+                  "comparator": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "snapshot_digest": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              }
+            },
+            "untracked_accesses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "ref",
+                  "reason"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "audit_complete": {
+              "type": "boolean"
+            },
+            "output_digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "provenance_digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "builder_revision": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tracking_assurance": {
+              "enum": [
+                "cooperative"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "data": {
+      "type": [
+        "object",
+        "array"
+      ]
+    }
+  }
+}

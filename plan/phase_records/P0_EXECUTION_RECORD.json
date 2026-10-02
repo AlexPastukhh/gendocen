@@ -1,0 +1,373 @@
+{
+  "phase_id": "P0",
+  "name": "Executable foundation, contracts and test harness",
+  "status": "accepted",
+  "scope": [
+    "Freeze v0.1 runtime contracts from the specification.",
+    "Create installable Python package and `docengine` entry point.",
+    "Implement project/root discovery skeleton and stable command/JSON envelope skeleton.",
+    "Create unit/integration/E2E test harness and sample-project fixture wiring.",
+    "Introduce version constants for engine, persisted-state schema and machine-output schema."
+  ],
+  "out_of_scope": [
+    "Managed resource loading semantics beyond discovery stubs.",
+    "Dependency evaluation or materialization behavior."
+  ],
+  "deliverables": [
+    "pyproject/package metadata and console entry point",
+    "versioned machine-output envelope",
+    "project discovery/config skeleton",
+    "test harness with sample project",
+    "contract-validation tests for registries/schemas"
+  ],
+  "use_cases": [
+    "DOC01"
+  ],
+  "acceptance_axes": [
+    "DAX01",
+    "DAX03",
+    "DAX04",
+    "DAX12",
+    "DAX13",
+    "DAX17",
+    "DAX19",
+    "DAX20"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "P0-A1",
+      "criterion": "Package installs/imports and `docengine --help` executes from a clean environment.",
+      "axis_ids": [
+        "DAX12",
+        "DAX19"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P0/artifacts/generic_documentation_engine-0.1.0.dev0-py3-none-any.whl",
+        "plan/evidence/P0/clean_venv_install.txt",
+        "plan/evidence/P0/clean_venv_help.txt",
+        "plan/evidence/P0/clean_venv_pip_check.txt"
+      ],
+      "notes": "Accepted in P0 implementation review."
+    },
+    {
+      "id": "P0-A2",
+      "criterion": "Every command can use one versioned JSON result envelope even before command-specific payloads exist.",
+      "axis_ids": [
+        "DAX12",
+        "DAX13"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/output.py",
+        "src/docengine/cli.py",
+        "tests/test_cli.py",
+        "plan/evidence/P0/installed_cli_envelopes.json"
+      ],
+      "notes": "Accepted in P0 implementation review."
+    },
+    {
+      "id": "P0-A3",
+      "criterion": "Project/root discovery never writes outside configured project/documentation roots.",
+      "axis_ids": [
+        "DAX04"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "tests/test_project.py",
+        "plan/evidence/P0/unit_tests.txt"
+      ],
+      "notes": "Accepted in P0 implementation review."
+    },
+    {
+      "id": "P0-A4",
+      "criterion": "Core package imports contain no project-domain terminology or research-specific assumptions.",
+      "axis_ids": [
+        "DAX17"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_domain_neutrality.py",
+        "plan/evidence/P0/unit_tests.txt"
+      ],
+      "notes": "Accepted in P0 implementation review."
+    },
+    {
+      "id": "P0-A5",
+      "criterion": "Specification registries/schemas parse and contract tests fail on malformed fixtures.",
+      "axis_ids": [
+        "DAX03",
+        "DAX19",
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/contracts.py",
+        "tests/test_spec_contracts.py",
+        "plan/evidence/P0/unit_tests.txt"
+      ],
+      "notes": "Accepted in P0 implementation review."
+    },
+    {
+      "id": "P0-A6",
+      "criterion": "README/START_HERE accurately identify implementation status and next phase.",
+      "axis_ids": [
+        "DAX20"
+      ],
+      "status": "pass",
+      "evidence_refs": [
+        "README.md",
+        "START_HERE_AGENT.md",
+        "plan/P0_ACCEPTANCE_REVIEW.md"
+      ],
+      "notes": "Accepted in P0 implementation review."
+    }
+  ],
+  "pre_execution_questions": [
+    {
+      "id": "Q0.1",
+      "question": "Какую минимальную версию Python фиксируем для v0.1?",
+      "why_it_matters": "Определяет typing/dataclass/pathlib features, packaging and CI matrix.",
+      "blocking": true,
+      "recommended_default": "Python >= 3.11.",
+      "status": "answered",
+      "answer": "Python >= 3.11.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q0.2",
+      "question": "Разрешаем ли обязательные runtime-зависимости или делаем core stdlib-first?",
+      "why_it_matters": "Влияет на JSON Schema validation, packaging weight and portability.",
+      "blocking": true,
+      "recommended_default": "Stdlib-first core; allow small explicit dependencies only when they materially reduce correctness risk (initial candidate: jsonschema).",
+      "status": "answered",
+      "answer": "Stdlib-first core; allow small explicit dependencies only when they materially reduce correctness risk (initial candidate: jsonschema).",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    },
+    {
+      "id": "Q0.3",
+      "question": "Какой основной способ установки/запуска считаем canonical?",
+      "why_it_matters": "Нужен один воспроизводимый path для AI, CI и людей.",
+      "blocking": true,
+      "recommended_default": "pyproject package + console script `docengine`; editable install for development, wheel for distribution.",
+      "status": "answered",
+      "answer": "pyproject package + console script `docengine`; editable install for development, wheel for distribution.",
+      "decision": "Adopt this implementation default for v0.1 unless implementation evidence exposes a contradiction.",
+      "evidence_refs": [
+        "implementation-plan-default"
+      ],
+      "acceptance_impact": "Must be resolved before phase acceptance.",
+      "owner": "implementer"
+    }
+  ],
+  "emergent_questions": [
+    {
+      "id": "Q0.E1",
+      "owner": "implementer",
+      "question": "Как проверять clean-environment installation offline, если новый Python venv не содержит setuptools/build backend?",
+      "why_it_matters": "P0-A1 требует реальную clean-environment проверку, но source install через PEP 517 требует build tooling, которое не является runtime dependency.",
+      "blocking": false,
+      "recommended_default": "Build the wheel in the development/build environment and install the prebuilt wheel into a clean venv with --no-deps.",
+      "status": "answered",
+      "answer": "Clean-environment acceptance installs the prebuilt wheel; source/editable install remains a development workflow that requires build tooling.",
+      "decision": "Canonical distribution verification uses a prebuilt wheel. The runtime remains dependency-free in P0; build tooling is not made a runtime dependency.",
+      "evidence_refs": [
+        "plan/evidence/P0/wheel_build.txt",
+        "plan/evidence/P0/clean_venv_install.txt",
+        "plan/evidence/P0/clean_venv_help.txt"
+      ],
+      "acceptance_impact": "Clarifies P0-A1 without expanding runtime dependencies."
+    },
+    {
+      "id": "Q0.E2",
+      "owner": "implementer",
+      "question": "Что означает PASS по DAX-оси внутри раннего phase: глобальное закрытие оси или только проверка применимого phase risk slice?",
+      "why_it_matters": "Глобальные определения DAX03/DAX13/DAX20 шире P0; без явной семантики ранний phase мог ошибочно выглядеть как закрывший ось целиком.",
+      "blocking": false,
+      "recommended_default": "Phase-local PASS означает только закрытие применимой части риска; глобальное закрытие release-gate axis выполняется в P8.",
+      "status": "answered",
+      "answer": "Использовать phase-local PASS и отдельно считать global progress; P8 выполняет consolidated global review.",
+      "decision": "Уточнить acceptance model и human docs; P0 axis statuses остаются PASS только в phase scope.",
+      "evidence_refs": [
+        "plan/PHASE_EXECUTION_MODEL.md",
+        "plan/ACCEPTANCE_AXES.md",
+        "plan/P0_AXIS_AUDIT.md"
+      ],
+      "acceptance_impact": "Предотвращает ложное утверждение, что stub-команды уже глобально закрыли DAX13/DAX12 и другие оси."
+    },
+    {
+      "id": "Q0.E3",
+      "owner": "implementer",
+      "question": "Должен ли manifest/spec audit считать transient Python/pytest artifacts частью canonical package?",
+      "why_it_matters": "Обычный запуск тестов создаёт `.pytest_cache` и `__pycache__`; старый audit после этого ложно сообщал manifest mismatch.",
+      "blocking": false,
+      "recommended_default": "Нет; manifest сравнивает canonical files и игнорирует строго перечисленные transient test/runtime artifacts.",
+      "status": "answered",
+      "answer": "Игнорировать `.pytest_cache`, `__pycache__`, `*.pyc`, `*.pyo`, `.coverage` и `*.egg-info` при manifest file-set check.",
+      "decision": "Исправить `tools/audit_spec.py` и добавить regression test, который запускает audit при наличии transient artifacts.",
+      "evidence_refs": [
+        "tools/audit_spec.py",
+        "tests/test_audit_hygiene.py",
+        "plan/evidence/P0/post_axis_audit_spec.txt"
+      ],
+      "acceptance_impact": "DAX20 может считаться phase-scope PASS только после воспроизводимого tests→audit workflow."
+    }
+  ],
+  "implementation_log": [
+    {
+      "entry": "Implemented installable pyproject package and console entry point.",
+      "evidence_refs": [
+        "pyproject.toml",
+        "src/docengine/cli.py"
+      ]
+    },
+    {
+      "entry": "Implemented version constants and stable JSON command envelope.",
+      "evidence_refs": [
+        "src/docengine/versions.py",
+        "src/docengine/output.py",
+        "plan/evidence/P0/installed_cli_envelopes.json"
+      ]
+    },
+    {
+      "entry": "Implemented read-only root discovery and path confinement foundation.",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "tests/test_project.py"
+      ]
+    },
+    {
+      "entry": "Added unit/contract/sample-fixture test harness.",
+      "evidence_refs": [
+        "tests/",
+        "plan/evidence/P0/unit_tests.txt"
+      ]
+    },
+    {
+      "entry": "Built wheel and installed it into a clean virtual environment.",
+      "evidence_refs": [
+        "plan/evidence/P0/artifacts/generic_documentation_engine-0.1.0.dev0-py3-none-any.whl",
+        "plan/evidence/P0/clean_venv_install.txt",
+        "plan/evidence/P0/clean_venv_help.txt"
+      ]
+    },
+    {
+      "entry": "Clarified phase-local versus global DAX axis semantics after post-acceptance review.",
+      "evidence_refs": [
+        "plan/PHASE_EXECUTION_MODEL.md",
+        "plan/ACCEPTANCE_AXES.md",
+        "plan/P0_AXIS_AUDIT.md"
+      ]
+    },
+    {
+      "entry": "Fixed spec/manifest audit to ignore explicitly transient Python/pytest artifacts and added regression coverage.",
+      "evidence_refs": [
+        "tools/audit_spec.py",
+        "tests/test_audit_hygiene.py",
+        "plan/evidence/P0/post_axis_audit_spec.txt"
+      ]
+    }
+  ],
+  "axis_reviews": [
+    {
+      "axis_id": "DAX01",
+      "status": "pass",
+      "evidence_refs": [
+        "README.md",
+        "tests/test_sample_fixture.py"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX03",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/versions.py",
+        "tests/test_spec_contracts.py",
+        "plan/evidence/P0/unit_tests.txt"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX04",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/project.py",
+        "tests/test_project.py",
+        "plan/evidence/P0/unit_tests.txt"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX12",
+      "status": "pass",
+      "evidence_refs": [
+        "src/docengine/cli.py",
+        "src/docengine/output.py",
+        "plan/evidence/P0/installed_cli_envelopes.json"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX13",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/evidence/P0/installed_cli_envelopes.json",
+        "START_HERE_AGENT.md"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX17",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/test_domain_neutrality.py",
+        "src/docengine/core.py",
+        "plan/evidence/P0/unit_tests.txt"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX19",
+      "status": "pass",
+      "evidence_refs": [
+        "tests/",
+        "plan/evidence/P0/unit_tests.txt",
+        "tests/test_audit_hygiene.py",
+        "plan/evidence/P0/post_axis_audit_tests.txt"
+      ],
+      "findings": []
+    },
+    {
+      "axis_id": "DAX20",
+      "status": "pass",
+      "evidence_refs": [
+        "plan/P0_ACCEPTANCE_REVIEW.md",
+        "README.md",
+        "START_HERE_AGENT.md",
+        "tools/audit_spec.py",
+        "tests/test_audit_hygiene.py",
+        "plan/P0_AXIS_AUDIT.md",
+        "plan/evidence/P0/post_axis_audit_spec.txt"
+      ],
+      "findings": []
+    }
+  ],
+  "acceptance_summary": {
+    "decision": "accepted",
+    "unresolved_blocking_questions": [],
+    "failed_criteria": [],
+    "notes": "P0 accepted and post-acceptance axis-audited. All P0 criteria remain pass. DAX statuses are phase-scope passes, not global axis closure. A reproducibility defect in manifest audit after test-cache creation was found and fixed; regression coverage added. P1 remains next."
+  }
+}

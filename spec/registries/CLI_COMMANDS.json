@@ -1,0 +1,124 @@
+{
+  "version": "1.0.0",
+  "machine_output_schema_version": "2.0.0",
+  "common_options": [
+    "--json",
+    "--project-root",
+    "--docs-root"
+  ],
+  "exit_codes": {
+    "0": "success with no blocking attention",
+    "2": "command completed but review/attention remains",
+    "3": "verification/domain validation failure",
+    "4": "usage or project configuration error",
+    "5": "internal/runtime failure"
+  },
+  "commands": [
+    "init",
+    "status",
+    "check",
+    "diff",
+    "explain",
+    "sync",
+    "rebuild",
+    "validate",
+    "materialize",
+    "verify",
+    "history",
+    "graph",
+    "recover",
+    "migrate",
+    "resources"
+  ],
+  "command_specs": {
+    "init": {
+      "target": "none",
+      "options": [],
+      "mutation": "project initialization/config only"
+    },
+    "status": {
+      "target": "none",
+      "options": [],
+      "mutation": "read_only"
+    },
+    "check": {
+      "target": "none",
+      "options": [],
+      "mutation": "dependency state/events only"
+    },
+    "diff": {
+      "target": "required",
+      "options": [],
+      "mutation": "read_only"
+    },
+    "explain": {
+      "target": "required",
+      "options": [],
+      "mutation": "read_only"
+    },
+    "sync": {
+      "target": "none",
+      "options": [
+        "--all"
+      ],
+      "mutation": "dependency state/events + deterministic receipts + generated views/materialization state"
+    },
+    "rebuild": {
+      "target": "required",
+      "options": [],
+      "mutation": "deterministic receipt/state/events"
+    },
+    "validate": {
+      "target": "required",
+      "options": [
+        "--result",
+        "--reason",
+        "--review-context",
+        "--actor-kind",
+        "--actor-label",
+        "--evidence"
+      ],
+      "mutation": "semantic receipt/baseline/state/events"
+    },
+    "materialize": {
+      "target": "optional",
+      "options": [
+        "--all",
+        "--ack-orphan"
+      ],
+      "mutation": "generated views/materialization state"
+    },
+    "verify": {
+      "target": "none",
+      "options": [],
+      "mutation": "read_only"
+    },
+    "history": {
+      "target": "required",
+      "options": [],
+      "mutation": "read_only"
+    },
+    "graph": {
+      "target": "optional",
+      "options": [],
+      "mutation": "read_only"
+    },
+    "resources": {
+      "target": "none",
+      "options": [],
+      "mutation": "read_only"
+    },
+    "recover": {
+      "target": "none",
+      "options": [
+        "--force"
+      ],
+      "mutation": "hardening recovery journal rollback + recovery audit event"
+    },
+    "migrate": {
+      "target": "none",
+      "options": [],
+      "mutation": "runtime layout marker/migration audit; preserves released evidence unless a registered migration explicitly transforms it"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+Full source-checkout suite (final post-axis candidate):
+120 passed, 168 subtests passed

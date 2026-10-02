@@ -1,0 +1,1 @@
+{"command": "resources", "data": {"counts": {"plain": 1}, "resources": [{"kind": "plain", "ref": "file://plain.md", "source": "plain.md"}], "roots": {"documentation_root": "/tmp/tmp.Y6jwd8BMLO/docs", "project_root": "/tmp/tmp.Y6jwd8BMLO", "source": "explicit"}}, "engine_version": "0.1.0.dev1", "issues": [], "machine_output_schema_version": "1.0.0", "ok": true, "status": "ok"}

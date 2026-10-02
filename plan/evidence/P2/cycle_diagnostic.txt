@@ -1,0 +1,2 @@
+dependency cycle detected: resource://cycle/a -> resource://cycle/b -> resource://cycle/a
+cycle=resource://cycle/a | resource://cycle/b | resource://cycle/a

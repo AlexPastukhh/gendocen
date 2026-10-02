@@ -1,0 +1,14 @@
+{
+  "$docengine": {
+    "resource_id": "architecture.system_summary",
+    "resource_kind": "derived_descriptor",
+    "materialize": [
+      {
+        "renderer": "markdown",
+        "path": "architecture/system_summary.md",
+        "path_base": "documentation_root"
+      }
+    ]
+  },
+  "data": {}
+}

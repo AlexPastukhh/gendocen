@@ -1,0 +1,59 @@
+{
+  "invalid_actor": {
+    "exit_code": 2,
+    "payload": {
+      "command": "validate",
+      "data": {},
+      "engine_version": "0.1.0.dev9",
+      "issues": [
+        {
+          "code": "validation_failed",
+          "details": null,
+          "message": "actor_kind must be one of ['ai', 'ci', 'human', 'unknown']",
+          "severity": "error"
+        }
+      ],
+      "machine_output_schema_version": "1.0.0",
+      "ok": false,
+      "status": "validation_failed"
+    }
+  },
+  "invalid_target_explain": {
+    "exit_code": 2,
+    "payload": {
+      "command": "explain",
+      "data": {},
+      "engine_version": "0.1.0.dev9",
+      "issues": [
+        {
+          "code": "dependency_command_failed",
+          "details": null,
+          "message": "file ref must use non-empty canonical relative path segments",
+          "severity": "error"
+        }
+      ],
+      "machine_output_schema_version": "1.0.0",
+      "ok": false,
+      "status": "dependency_command_failed"
+    }
+  },
+  "invalid_target_validate": {
+    "exit_code": 2,
+    "payload": {
+      "command": "validate",
+      "data": {},
+      "engine_version": "0.1.0.dev9",
+      "issues": [
+        {
+          "code": "validation_failed",
+          "details": null,
+          "message": "file ref must use non-empty canonical relative path segments",
+          "severity": "error"
+        }
+      ],
+      "machine_output_schema_version": "1.0.0",
+      "ok": false,
+      "status": "validation_failed"
+    }
+  }
+}

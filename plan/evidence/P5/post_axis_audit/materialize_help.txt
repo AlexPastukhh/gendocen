@@ -1,0 +1,18 @@
+usage: docengine materialize [-h] [--json] [--project-root PROJECT_ROOT]
+                             [--docs-root DOCS_ROOT] [--all] [--ack-orphan]
+                             [target]
+
+positional arguments:
+  target                target resource
+
+options:
+  -h, --help            show this help message and exit
+  --json                emit versioned JSON envelope
+  --project-root PROJECT_ROOT
+                        explicit project root
+  --docs-root DOCS_ROOT
+                        explicit documentation root (absolute or project-
+                        relative)
+  --all                 materialize all registered views
+  --ack-orphan          acknowledge orphaned materialization state for TARGET
+                        while preserving provenance and the file

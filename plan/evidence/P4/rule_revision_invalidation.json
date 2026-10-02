@@ -1,0 +1,196 @@
+{
+  "check": {
+    "diff": {
+      "changed": true,
+      "changed_dependencies": [
+        "rule://architecture.rationale-method-policy"
+      ],
+      "dependencies": [
+        {
+          "changed": true,
+          "current_revision": "sha256:1fdf17a9564ebbd915e6f721603835cc31f04ca603524ed7a1dc3bb8bd47d3ca",
+          "current_rule_id": "architecture.rationale-method-policy",
+          "kind": "semantic_rule_revision",
+          "reason": "semantic_rule_revision_changed",
+          "source": "rule://architecture.rationale-method-policy",
+          "validated_revision": "sha256:22bdf65003620c83f65971aaa950504dd4e4daffde646204e5ddbceeb1ce58c9",
+          "validated_rule_id": "architecture.rationale-method-policy"
+        },
+        {
+          "baseline_hash": "sha256:cbbbf3a61731a5dc8a3cf740f1a5459caba4f03c44599a88a2dd2d280c0548cc",
+          "changed": false,
+          "comparator": "set",
+          "current_source_kind": "raw",
+          "current_version": "9cc97ae5dc70a3abe20ca11caf0f1e6848bd7a57811f9548b665c93fcf1ab3f5",
+          "details": {},
+          "granularity": "field",
+          "snapshot_ref": "baseline://sha256/cbbbf3a61731a5dc8a3cf740f1a5459caba4f03c44599a88a2dd2d280c0548cc",
+          "source": "resource://policies/method_policy#/allowed_methods",
+          "source_kind": "raw",
+          "validated_version": "9cc97ae5dc70a3abe20ca11caf0f1e6848bd7a57811f9548b665c93fcf1ab3f5"
+        }
+      ],
+      "dependency_type": "semantic_review",
+      "reason_codes": [
+        "semantic_rule_revision_changed"
+      ],
+      "receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+      "target": "file://architecture/rationale.md",
+      "target_revision": {
+        "changed": false,
+        "current_revision": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36",
+        "validated_revision": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36"
+      }
+    },
+    "state_changed": true,
+    "status": "review_required",
+    "target": "file://architecture/rationale.md"
+  },
+  "current_rule": {
+    "dependencies": [
+      {
+        "comparator": "sequence",
+        "source": "resource://policies/method_policy#/allowed_methods"
+      }
+    ],
+    "dependency_type": "semantic_review",
+    "revision": "sha256:1fdf17a9564ebbd915e6f721603835cc31f04ca603524ed7a1dc3bb8bd47d3ca",
+    "rule_id": "architecture.rationale-method-policy",
+    "target": "file://architecture/rationale.md"
+  },
+  "prior_receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+  "review_packet": {
+    "changed": true,
+    "changed_dependencies": [
+      "resource://policies/method_policy#/allowed_methods",
+      "rule://architecture.rationale-method-policy"
+    ],
+    "computed_status": "review_required",
+    "dependencies": [
+      {
+        "baseline": [
+          "method_a",
+          "method_b"
+        ],
+        "changed": false,
+        "comparator": "sequence",
+        "comparator_changed_from": "set",
+        "current": [
+          "method_a",
+          "method_b"
+        ],
+        "current_source_kind": "raw",
+        "current_version": "9cc97ae5dc70a3abe20ca11caf0f1e6848bd7a57811f9548b665c93fcf1ab3f5",
+        "diff": {
+          "changed": false,
+          "comparator": "sequence",
+          "details": {}
+        },
+        "source": "resource://policies/method_policy#/allowed_methods",
+        "validated_version": "9cc97ae5dc70a3abe20ca11caf0f1e6848bd7a57811f9548b665c93fcf1ab3f5"
+      }
+    ],
+    "history": [
+      {
+        "changed_dependencies": [
+          "resource://policies/method_policy#/allowed_methods"
+        ],
+        "event_id": "event-6fc492404bb4f8d49d33ad6261d5a6132dbd7a3b32f45e2fcc34fdf13c248701",
+        "event_type": "semantic_validation",
+        "reason_codes": [
+          "initial_dependency",
+          "initial_validation_required",
+          "semantic_still-valid"
+        ],
+        "receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+        "recorded_at": "2026-10-02T02:17:54.623745Z",
+        "review": {
+          "actor_kind": "unknown",
+          "context_id": "reviewctx-008f864d3adaca3950df4d93a23d6f5822b9ea1593ba71683a203101e3ad35dd",
+          "decision": "still-valid",
+          "evidence": [],
+          "prior_receipt_id": null,
+          "reason": "Initial.",
+          "rule_id": "architecture.rationale-method-policy",
+          "rule_revision": "sha256:22bdf65003620c83f65971aaa950504dd4e4daffde646204e5ddbceeb1ce58c9"
+        },
+        "state_revision": 1,
+        "status": "valid",
+        "target": "file://architecture/rationale.md"
+      },
+      {
+        "changed_dependencies": [
+          "rule://architecture.rationale-method-policy"
+        ],
+        "event_id": "event-25076dcf01add1a4ecc1ec29d3b6d98234b1040f8998a18e2df541f10ce3f08f",
+        "event_type": "dependency_state_changed",
+        "reason_codes": [
+          "semantic_rule_revision_changed"
+        ],
+        "receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+        "recorded_at": "2026-10-02T02:17:54.628806Z",
+        "state_revision": 2,
+        "status": "review_required",
+        "target": "file://architecture/rationale.md"
+      }
+    ],
+    "prior_receipt": {
+      "audit_complete": true,
+      "dependencies": [
+        {
+          "baseline_hash": "sha256:cbbbf3a61731a5dc8a3cf740f1a5459caba4f03c44599a88a2dd2d280c0548cc",
+          "comparator": "set",
+          "granularity": "field",
+          "observed_version": "9cc97ae5dc70a3abe20ca11caf0f1e6848bd7a57811f9548b665c93fcf1ab3f5",
+          "snapshot_ref": "baseline://sha256/cbbbf3a61731a5dc8a3cf740f1a5459caba4f03c44599a88a2dd2d280c0548cc",
+          "source": "resource://policies/method_policy#/allowed_methods",
+          "source_kind": "raw"
+        }
+      ],
+      "dependency_type": "semantic_review",
+      "receipt_hash": "sha256:833d2265fb4fc755211b2d0246016c85c703b9615302363f0388c6c7ce6bbd2f",
+      "receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+      "semantic_rule_id": "architecture.rationale-method-policy",
+      "semantic_rule_revision": "sha256:22bdf65003620c83f65971aaa950504dd4e4daffde646204e5ddbceeb1ce58c9",
+      "state_schema_version": "1.0.0",
+      "target": "file://architecture/rationale.md",
+      "target_revision": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36",
+      "validated_at": "2026-10-02T02:17:54.623445Z"
+    },
+    "reason_codes": [
+      "dependency_comparator_changed",
+      "semantic_rule_revision_changed"
+    ],
+    "review_context_id": "reviewctx-b3eff82a68c9822858725af53838367cc5b4f04789068f6261ce008ac31ba4a7",
+    "rule": {
+      "dependencies": [
+        {
+          "comparator": "sequence",
+          "source": "resource://policies/method_policy#/allowed_methods"
+        }
+      ],
+      "dependency_type": "semantic_review",
+      "revision": "sha256:1fdf17a9564ebbd915e6f721603835cc31f04ca603524ed7a1dc3bb8bd47d3ca",
+      "rule_id": "architecture.rationale-method-policy",
+      "target": "file://architecture/rationale.md"
+    },
+    "semantic_judgment": null,
+    "state": {
+      "changed_dependencies": [
+        "rule://architecture.rationale-method-policy"
+      ],
+      "last_receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+      "reason_codes": [
+        "semantic_rule_revision_changed"
+      ],
+      "status": "review_required"
+    },
+    "target": "file://architecture/rationale.md",
+    "target_current": {
+      "content": "# Architecture Rationale\n\nPlain Markdown example that may have a whole-file or semantic dependency without its own JSON.\n",
+      "ref": "file://architecture/rationale.md",
+      "revision": "c90a6d459b920ddee94544dad323bc2de30ec321d812239bf083c4063db75c36",
+      "source_kind": "file"
+    }
+  }
+}

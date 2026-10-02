@@ -1,0 +1,49 @@
+{
+  "accepted": true,
+  "builder_sources": [
+    "file://architecture/rationale.md"
+  ],
+  "builder_target": "resource://architecture/system_summary",
+  "graph": {
+    "edge_count": 2,
+    "edges": [
+      {
+        "source": "resource://architecture/system_summary#/title",
+        "target": "file://architecture/rationale.md"
+      },
+      {
+        "source": "file://architecture/rationale.md",
+        "target": "resource://architecture/system_summary"
+      }
+    ],
+    "rule_edges": [
+      {
+        "comparator": "exact",
+        "dependency_type": "semantic_review",
+        "rule_id": "cycle.semantic",
+        "rule_revision": "sha256:231a3becfb681a45646c73c411cc7e7109ee00dc5572049c8766217e4c3ca8e7",
+        "source": "resource://architecture/system_summary#/title",
+        "target": "file://architecture/rationale.md"
+      }
+    ],
+    "rules": [
+      {
+        "dependencies": [
+          {
+            "comparator": "exact",
+            "source": "resource://architecture/system_summary#/title"
+          }
+        ],
+        "dependency_type": "semantic_review",
+        "revision": "sha256:231a3becfb681a45646c73c411cc7e7109ee00dc5572049c8766217e4c3ca8e7",
+        "rule_id": "cycle.semantic",
+        "target": "file://architecture/rationale.md"
+      }
+    ],
+    "target_count": 2
+  },
+  "semantic_sources": [
+    "resource://architecture/system_summary#/title"
+  ],
+  "semantic_target": "file://architecture/rationale.md"
+}

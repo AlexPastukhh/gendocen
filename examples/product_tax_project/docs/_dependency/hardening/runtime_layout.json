@@ -1,0 +1,8 @@
+{
+  "migrated_at": "2026-10-02T05:53:57.360112Z",
+  "migrated_from": "legacy-p6-unmarked",
+  "migration_id": "p6-unmarked-to-runtime-layout-1",
+  "preserved_evidence_digest": "sha256:f66cff7bce40c61c055f8f30e7a403a8d0cdb2bcdea6611feda5730a62cf1c87",
+  "preserved_file_count": 6,
+  "runtime_layout_version": "1.0.0"
+}

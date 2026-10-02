@@ -1,0 +1,10 @@
+[docengine]
+config_version = 1
+documentation_root = "docs"
+structured_dir = "_structured"
+dependency_dir = "_dependency"
+project_package = "docengine_project"
+
+[schemas]
+"example://schemas/architecture-overview/v1" = "docengine_project/schemas/architecture-overview.schema.json"
+"example://schemas/method-policy/v1" = "docengine_project/schemas/method-policy.schema.json"

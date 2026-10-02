@@ -1,0 +1,45 @@
+{
+  "actor_kind": "ai",
+  "actor_label": "acceptance-agent",
+  "decision": "still-valid",
+  "duplicate": false,
+  "event": {
+    "changed_dependencies": [
+      "resource://policies/method_policy#/allowed_methods"
+    ],
+    "event_id": "event-16fd8f916d2ceff1b6215cb8c7ba452b4024146efd237af40b3a5c4539e229e3",
+    "event_type": "semantic_validation",
+    "reason_codes": [
+      "initial_dependency",
+      "initial_validation_required",
+      "semantic_still-valid"
+    ],
+    "receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+    "recorded_at": "2026-10-02T02:17:54.574639Z",
+    "review": {
+      "actor_kind": "ai",
+      "actor_label": "acceptance-agent",
+      "context_id": "reviewctx-008f864d3adaca3950df4d93a23d6f5822b9ea1593ba71683a203101e3ad35dd",
+      "decision": "still-valid",
+      "evidence": [
+        "evidence:p4-initial"
+      ],
+      "prior_receipt_id": null,
+      "reason": "Initial P4 acceptance evidence.",
+      "rule_id": "architecture.rationale-method-policy",
+      "rule_revision": "sha256:22bdf65003620c83f65971aaa950504dd4e4daffde646204e5ddbceeb1ce58c9"
+    },
+    "state_revision": 1,
+    "status": "valid",
+    "target": "file://architecture/rationale.md"
+  },
+  "evidence": [
+    "evidence:p4-initial"
+  ],
+  "prior_receipt_id": null,
+  "reason": "Initial P4 acceptance evidence.",
+  "receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+  "review_context_id": "reviewctx-008f864d3adaca3950df4d93a23d6f5822b9ea1593ba71683a203101e3ad35dd",
+  "status": "valid",
+  "target": "file://architecture/rationale.md"
+}

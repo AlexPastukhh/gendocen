@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DependencyReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state_schema_version",
+    "receipt_id",
+    "target",
+    "validated_at",
+    "dependency_type",
+    "dependencies",
+    "audit_complete",
+    "receipt_hash"
+  ],
+  "properties": {
+    "state_schema_version": {
+      "const": "1.0.0"
+    },
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^receipt-[0-9a-f]{64}$"
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1
+    },
+    "validated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dependency_type": {
+      "enum": [
+        "copy_reference",
+        "compute",
+        "aggregate",
+        "semantic_review",
+        "validity",
+        "compatibility"
+      ]
+    },
+    "builder_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "builder_revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "output_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "target_revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "audit_complete": {
+      "type": "boolean"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "granularity",
+          "comparator",
+          "baseline_hash",
+          "snapshot_ref",
+          "observed_version",
+          "source_kind"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "granularity": {
+            "enum": [
+              "field",
+              "resource",
+              "whole_file"
+            ]
+          },
+          "comparator": {
+            "enum": [
+              "exact",
+              "json_structured",
+              "sequence",
+              "set",
+              "text_unified"
+            ]
+          },
+          "baseline_hash": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "snapshot_ref": {
+            "type": "string",
+            "pattern": "^baseline://sha256/[0-9a-f]{64}$"
+          },
+          "observed_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_kind": {
+            "enum": [
+              "raw",
+              "derived",
+              "file"
+            ]
+          }
+        }
+      }
+    },
+    "receipt_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "semantic_rule_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "semantic_rule_revision": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "dependentRequired": {
+    "builder_id": [
+      "builder_revision",
+      "output_digest"
+    ],
+    "builder_revision": [
+      "builder_id"
+    ],
+    "output_digest": [
+      "builder_id"
+    ],
+    "semantic_rule_id": [
+      "semantic_rule_revision"
+    ],
+    "semantic_rule_revision": [
+      "semantic_rule_id"
+    ]
+  }
+}

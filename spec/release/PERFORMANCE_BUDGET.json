@@ -1,0 +1,33 @@
+{
+  "budget_schema_version": "1.0.0",
+  "benchmark_schema_version": "2.0.0",
+  "fixture": {
+    "targets": 10000,
+    "edges": 50000,
+    "structured_diffs": 10000,
+    "markdown_renders": 10000
+  },
+  "normalization": {
+    "kind": "pure_python_integer_mix_v1",
+    "iterations": 3000000,
+    "samples": 5,
+    "statistic": "median",
+    "description": "Benchmark total wall time divided by median wall time of a deterministic 3,000,000-iteration Python integer-mix calibration on the same interpreter/environment."
+  },
+  "limits": {
+    "normalized_total_ratio_max": 4.0,
+    "max_rss_kib": 262144,
+    "edge_count_must_equal": 50000,
+    "changed_diffs_must_equal": 100,
+    "targets_must_equal": 10000,
+    "structured_diffs_must_equal": 10000,
+    "markdown_renders_must_equal": 10000,
+    "query_hits_must_equal": 500
+  },
+  "policy": {
+    "blocking": true,
+    "rationale": "The normalized ratio limits CPU-relative runtime without binding release acceptance to one host's clock speed. The 256 MiB RSS ceiling provides >2x headroom over the P7 10k/50k baseline while still catching gross scalability regressions. Exact workload/correctness counts prevent a faster run from passing by doing less work.",
+    "established_before_release_rerun": true,
+    "p7_reference": "plan/evidence/P7/benchmark_10k_50k.json"
+  }
+}

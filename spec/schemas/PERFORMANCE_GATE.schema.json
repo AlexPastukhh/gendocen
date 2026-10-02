@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "P8 Performance Gate Evidence",
+  "type": "object",
+  "required": ["benchmark_schema_version", "ok", "budget", "budget_sha256", "calibration", "benchmark", "checks"],
+  "properties": {
+    "benchmark_schema_version": {"const": "2.0.0"},
+    "ok": {"type": "boolean"},
+    "budget_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "budget": {"type": "object"},
+    "calibration": {"type": "object"},
+    "benchmark": {"type": "object"},
+    "checks": {"type": "object"}
+  }
+}

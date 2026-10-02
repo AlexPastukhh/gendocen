@@ -1,0 +1,2 @@
+sample_project resource://architecture/system_summary True sha256:f0232721e5187829c29cb547e347c86747a27f88b6e77d2b1020ced0cd747b56 {'title': 'System Summary', 'overview_title': 'Architecture Overview', 'allowed_method_count': 2, 'allowed_methods': ['method_a', 'method_b']}
+product_tax_project resource://catalog/price_with_tax True sha256:2ad5a927954472cc7d324378a04e616c83ede0251f86ae18e590c9f10128ed43 {'price': 100, 'tax_rate': 0.2, 'total': 120.0}

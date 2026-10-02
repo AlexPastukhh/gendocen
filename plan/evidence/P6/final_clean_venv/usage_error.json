@@ -1,0 +1,1 @@
+{"attention_required": false, "command": "validate", "data": {}, "errors": [{"code": "usage_error", "details": null, "message": "validate --result must be still-valid or updated", "severity": "error"}], "meta": {"engine_version": "0.1.0.dev12", "exit_code": 4, "status": "usage_error"}, "ok": false, "schema_version": "2.0.0", "warnings": []}

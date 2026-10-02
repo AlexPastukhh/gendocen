@@ -1,0 +1,38 @@
+{
+  "error": "review context is stale: target, dependency state or semantic rule changed after review",
+  "state_after": {
+    "generated_at": "2026-10-02T02:17:54.612464Z",
+    "state_revision": 2,
+    "state_schema_version": "1.0.0",
+    "targets": {
+      "file://architecture/rationale.md": {
+        "changed_dependencies": [
+          "resource://policies/method_policy#/allowed_methods"
+        ],
+        "last_receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+        "reason_codes": [
+          "dependency_changed"
+        ],
+        "status": "review_required"
+      }
+    }
+  },
+  "state_before": {
+    "generated_at": "2026-10-02T02:17:54.612464Z",
+    "state_revision": 2,
+    "state_schema_version": "1.0.0",
+    "targets": {
+      "file://architecture/rationale.md": {
+        "changed_dependencies": [
+          "resource://policies/method_policy#/allowed_methods"
+        ],
+        "last_receipt_id": "receipt-e75051f2e700fb4b5a4ac4217c1d9eb2444771c3c818c9cb85640660504bd92f",
+        "reason_codes": [
+          "dependency_changed"
+        ],
+        "status": "review_required"
+      }
+    }
+  },
+  "unchanged_active_entry": true
+}

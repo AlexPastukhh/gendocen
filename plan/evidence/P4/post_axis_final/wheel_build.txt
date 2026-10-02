@@ -1,0 +1,9 @@
+Processing /mnt/data/generic_documentation_engine_v0_17_p4_postaxis_work
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: generic-documentation-engine
+  Building wheel for generic-documentation-engine (pyproject.toml): started
+  Building wheel for generic-documentation-engine (pyproject.toml): finished with status 'done'
+  Created wheel for generic-documentation-engine: filename=generic_documentation_engine-0.1.0.dev9-py3-none-any.whl size=53033 sha256=cf2563ee15d1d8d8f168d91ca45be7dfd649cce4ff133c0d63505093df3b8a92
+  Stored in directory: /tmp/pip-ephem-wheel-cache-xytbb_ea/wheels/13/1d/10/cc93e8f0d0d38e1f1aa02092a159ed31a0407a4884346ecc9f
+Successfully built generic-documentation-engine

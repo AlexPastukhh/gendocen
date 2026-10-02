@@ -1,0 +1,62 @@
+{
+  "product_tax": {
+    "audit_complete": true,
+    "builder_revision": "sha256:2ad5a927954472cc7d324378a04e616c83ede0251f86ae18e590c9f10128ed43",
+    "data": {
+      "price": 100,
+      "tax_rate": 0.2,
+      "total": 120.0
+    },
+    "dependencies": [
+      {
+        "comparator": "exact",
+        "ref": "resource://catalog/product#/price",
+        "source_audit_complete": true,
+        "source_kind": "raw",
+        "version": "ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306"
+      },
+      {
+        "comparator": "exact",
+        "ref": "resource://catalog/tax_policy#/rate",
+        "source_audit_complete": true,
+        "source_kind": "raw",
+        "version": "44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d"
+      }
+    ],
+    "source_revision": "sha256:2ad5a927954472cc7d324378a04e616c83ede0251f86ae18e590c9f10128ed43",
+    "target": "resource://catalog/price_with_tax",
+    "tracking_assurance": "cooperative"
+  },
+  "sample": {
+    "audit_complete": true,
+    "builder_revision": "sha256:f0232721e5187829c29cb547e347c86747a27f88b6e77d2b1020ced0cd747b56",
+    "data": {
+      "allowed_method_count": 2,
+      "allowed_methods": [
+        "method_a",
+        "method_b"
+      ],
+      "overview_title": "Architecture Overview",
+      "title": "System Summary"
+    },
+    "dependencies": [
+      {
+        "comparator": "exact",
+        "ref": "resource://architecture/overview#/title",
+        "source_audit_complete": true,
+        "source_kind": "raw",
+        "version": "a4584dcc35db9b04ac02acc3a2655e6d7390d20b05de7083529bae2562cd9c70"
+      },
+      {
+        "comparator": "exact",
+        "ref": "resource://policies/method_policy#/allowed_methods",
+        "source_audit_complete": true,
+        "source_kind": "raw",
+        "version": "9cc97ae5dc70a3abe20ca11caf0f1e6848bd7a57811f9548b665c93fcf1ab3f5"
+      }
+    ],
+    "source_revision": "sha256:f0232721e5187829c29cb547e347c86747a27f88b6e77d2b1020ced0cd747b56",
+    "target": "resource://architecture/system_summary",
+    "tracking_assurance": "cooperative"
+  }
+}

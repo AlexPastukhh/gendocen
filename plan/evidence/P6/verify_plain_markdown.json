@@ -1,0 +1,56 @@
+{
+  "exit_code": 0,
+  "payload": {
+    "attention_required": false,
+    "command": "verify",
+    "data": {
+      "report": {
+        "findings": [],
+        "ok": true,
+        "sections": {
+          "current_checks": [],
+          "dependency_integrity": {
+            "issues": [],
+            "ok": true,
+            "receipt_count": 0
+          },
+          "dependency_state": {
+            "counts": {},
+            "generated_at": null,
+            "targets": {}
+          },
+          "materialization": {
+            "drifted": 0,
+            "errors": 0,
+            "needs_materialization": 0,
+            "orphans": [],
+            "outdated": 0,
+            "outputs": [],
+            "unresolved_orphans": 0
+          },
+          "required_builders": [],
+          "semantic_rules": []
+        },
+        "summary": {
+          "blocking_findings": 0,
+          "total_findings": 0,
+          "warnings": 0
+        }
+      },
+      "roots": {
+        "documentation_root": "/tmp/tmp_4ai80iq/plain/docs",
+        "project_root": "/tmp/tmp_4ai80iq/plain",
+        "source": "explicit"
+      }
+    },
+    "errors": [],
+    "meta": {
+      "engine_version": "0.1.0.dev12",
+      "exit_code": 0,
+      "status": "verified"
+    },
+    "ok": true,
+    "schema_version": "2.0.0",
+    "warnings": []
+  }
+}

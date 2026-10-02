@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-10-02T03:18:37.625395Z",
+  "outputs": {
+    "catalog/price_with_tax.md": {
+      "input_revision": "aad015b1b1a5a30b84861d6fec384a28fcb038f496b37ac975ecffde5fe731f3",
+      "output_digest": "sha256:d40a4fd5cb358b69419dc562c7d634ecb3d8e185a89845ae80b9afb788048b04",
+      "owner_ref": "resource://catalog/price_with_tax",
+      "renderer": "markdown",
+      "renderer_revision": "builtin:markdown:v1",
+      "resource_kind": "derived"
+    },
+    "catalog/product.md": {
+      "input_revision": "f92be2969f01873ac708493f1856aefa622ca1f73fe64f0200bd1cfcc29ea6f5",
+      "output_digest": "sha256:4f44713ab1cdbc579dcf8ee20e931ca08d891ffe5cd2843941f220ef2c819666",
+      "owner_ref": "resource://catalog/product",
+      "renderer": "markdown",
+      "renderer_revision": "builtin:markdown:v1",
+      "resource_kind": "managed"
+    },
+    "catalog/tax_policy.md": {
+      "input_revision": "b77cb44212d83ff513e80b28b75131fa2b7534f237efb066cdadbe8a99b60878",
+      "output_digest": "sha256:2fa48f19b9252e2b9be879f26e0850ffed7dc5f2ff4c18fc1551178d552c4977",
+      "owner_ref": "resource://catalog/tax_policy",
+      "renderer": "markdown",
+      "renderer_revision": "builtin:markdown:v1",
+      "resource_kind": "managed"
+    }
+  },
+  "state_revision": 1,
+  "state_schema_version": "1.0.0"
+}

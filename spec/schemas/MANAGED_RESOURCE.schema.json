@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ManagedDocumentationResource",
+  "type": "object",
+  "required": [
+    "$docengine",
+    "data"
+  ],
+  "properties": {
+    "$docengine": {
+      "type": "object",
+      "required": [
+        "resource_id",
+        "materialize"
+      ],
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_.-]+$"
+        },
+        "schema": {
+          "type": "string"
+        },
+        "materialize": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "renderer",
+              "path"
+            ],
+            "properties": {
+              "renderer": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path_base": {
+                "type": "string",
+                "enum": [
+                  "documentation_root"
+                ]
+              }
+            }
+          }
+        },
+        "resource_kind": {
+          "enum": [
+            "structured",
+            "derived_descriptor"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "data": {
+      "type": [
+        "object",
+        "array"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
