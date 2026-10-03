@@ -62,3 +62,5 @@ flowchart TD
 - **Repository persistence patch (v0.26):** Git-safe release inventory, tracked repository controls, CI/release workflows and repository maintenance runbook; engine P0–P8 semantics unchanged.
 
 - **Windows repository portability correction (v0.27):** UTF-8-stable self-audit, portable benchmark RSS measurement, platform-correct lock regression, and Windows/Python 3.14 CI; engine P0–P8 semantics unchanged.
+
+- **Git checkout portability correction (v0.28):** canonical-LF manifest freeze guard, fresh-checkout manifest CI gate, and canonical resolved transaction path identity for Windows long/8.3 aliases; P0–P8 semantics unchanged.

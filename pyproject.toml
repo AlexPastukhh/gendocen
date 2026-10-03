@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "generic-documentation-engine"
-version = "0.1.0.dev19"
+version = "0.1.0.dev20"
 description = "Generic Markdown-first documentation engine with structured resources and dependency-aware workflows"
 readme = "README.md"
 requires-python = ">=3.11"

@@ -1,6 +1,6 @@
 # START HERE — AI / new chat handoff
 
-This archive is canonical through **P8 accepted**, the **v0.25 post-axis consistency correction**, the **v0.26 Git-persistence correction**, and the **v0.27 Windows repository-portability final correction**. Runtime build: **0.1.0.dev19**. No implementation phase follows P8.
+This archive is canonical through **P8 accepted**, the **v0.25 post-axis consistency correction**, the **v0.26 Git-persistence correction**, the **v0.27 Windows repository-portability correction**, and the **v0.28 Git-checkout portability correction**. Runtime build: **0.1.0.dev20**. No implementation phase follows P8.
 
 ## Read first
 
@@ -8,11 +8,12 @@ This archive is canonical through **P8 accepted**, the **v0.25 post-axis consist
 2. `docs/RELEASE_GATE.md`
 3. `docs/PHASE_ACCEPTANCE_MODEL.md`
 4. `docs/REPOSITORY_WORKFLOW.md`
-5. `plan/WINDOWS_REPOSITORY_PORTABILITY_AUDIT.md`
-6. `plan/REPOSITORY_PERSISTENCE_AUDIT.md`
-7. `plan/P8_POST_ACCEPTANCE_CONSISTENCY_REVIEW.md`
-8. `plan/P8_FINAL_AXIS_AUDIT.md`
-9. `plan/phase_records/P8_EXECUTION_RECORD.json`
+5. `plan/GITHUB_CHECKOUT_PORTABILITY_AUDIT.md`
+6. `plan/WINDOWS_REPOSITORY_PORTABILITY_AUDIT.md`
+7. `plan/REPOSITORY_PERSISTENCE_AUDIT.md`
+8. `plan/P8_POST_ACCEPTANCE_CONSISTENCY_REVIEW.md`
+9. `plan/P8_FINAL_AXIS_AUDIT.md`
+10. `plan/phase_records/P8_EXECUTION_RECORD.json`
 
 ## Final invariants
 
@@ -30,6 +31,8 @@ This archive is canonical through **P8 accepted**, the **v0.25 post-axis consist
 - `.git/` and local development caches are never release-manifest content; repository control files are tracked.
 - `dist/` intentionally tracks exactly one active wheel and must not be globally ignored.
 - CI includes Ubuntu/Python 3.11 and Windows/Python 3.14 repository checks.
+- manifest generation refuses CR/CRLF in Git-normalized UTF-8 text; fresh checkout validation runs before install/test.
+- transaction journal relative paths are derived from canonical resolved identities, so equivalent Windows long/8.3 path spellings cannot create false escapes.
 
 ## Required checks
 

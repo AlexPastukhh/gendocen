@@ -30,8 +30,8 @@ Generate only through:
 
 ```bash
 python tools/release_manifest.py generate \
-  --version 0.27.0-p8-windows-repo-ready-final \
-  --runtime 0.1.0.dev19 \
+  --version 0.28.0-p8-git-checkout-portability-candidate \
+  --runtime 0.1.0.dev20 \
   --phase P8 \
   --status accepted
 ```
@@ -48,3 +48,8 @@ DAX14 and DAX16 are non-gating in the axis registry but remain documented in `pl
 ## Repository persistence
 
 For a long-lived Git checkout, follow `REPOSITORY_WORKFLOW.md`. Git internals are intentionally excluded from release inventory, while `.github/`, `.gitignore`, `.gitattributes` and `.editorconfig` are tracked release files. A repository-ready handoff must additionally prove that initializing and using Git does not break audits/manifest validation and does not leave ordinary test/install artifacts visible in `git status`.
+
+
+## Fresh-checkout gate
+
+Repository release integrity is checked on the exact Git checkout bytes before dependency installation or tests. Git-normalized UTF-8 text must already use LF; `tools/release_manifest.py generate` refuses CR/CRLF text instead of freezing a manifest that Git would later rewrite. Transaction path identity is also regression-tested against lexically different paths that resolve to the same documentation root, modeling Windows 8.3/long-name aliasing.

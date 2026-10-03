@@ -15,6 +15,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Checkout manifest integrity
+        run: python tools/release_manifest.py validate --json
       - name: Install
         run: python -m pip install -e '.[test]'
       - name: Full tests
@@ -39,6 +41,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
+      - name: Checkout manifest integrity
+        run: python tools/release_manifest.py validate --json
       - name: Install
         run: python -m pip install -e '.[test]'
       - name: Windows regression suite

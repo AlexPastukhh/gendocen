@@ -65,13 +65,13 @@ Then rebuild/freeze the accepted manifest/archive using the release procedure in
 
 ## Version and tag policy
 
-The repository handoff/package version and Python runtime package version are separate identities. Do not create the stable Git tag `v0.1.0` while the Python package still has a development version such as `0.1.0.dev19`.
+The repository handoff/package version and Python runtime package version are separate identities. Do not create the stable Git tag `v0.1.0` while the Python package still has a development version such as `0.1.0.dev20`.
 
 Suitable repository tags before the stable runtime release include:
 
 ```text
-handoff-v0.27.0
-engine-v0.1.0.dev19
+handoff-v0.28.0
+engine-v0.1.0.dev20
 ```
 
 Reserve `v0.1.0` for a Python package whose actual version is `0.1.0`.
@@ -98,3 +98,10 @@ Lock semantics intentionally differ by platform in v0.1:
 - Windows: safe serialization through `msvcrt`; a second concurrent reader receives the normal `runtime_busy` result rather than sharing the lock.
 
 CI exercises the repository on Ubuntu/Python 3.11 and Windows/Python 3.14. A release must not claim Windows repository readiness from Linux-only evidence.
+
+
+## Fresh-checkout byte integrity
+
+`.gitattributes` canonicalizes repository text to LF. Release generation must therefore happen from already-canonical LF bytes. `tools/release_manifest.py generate` rejects UTF-8 text containing CR/CRLF instead of recording hashes that would change after `git add`/checkout. CI runs manifest validation immediately after `actions/checkout`, before editable installation or pytest, so Git transport/normalization defects fail at the boundary where they occur.
+
+Equivalent Windows lexical path spellings are not distinct transaction roots. Journal paths are derived only after `Path.resolve()` confinement, preventing long-name/8.3 aliases from causing false `relative_to` failures while retaining symlink escape protection.

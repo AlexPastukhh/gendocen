@@ -219,7 +219,7 @@ if runtime_layout_version:
 
 # Active handoff docs must describe the current runtime rather than a prior accepted build.
 if engine_version:
-    for rel in ('README.md', 'START_HERE_AGENT.md', 'plan/WINDOWS_REPOSITORY_PORTABILITY_AUDIT.md'):
+    for rel in ('README.md', 'START_HERE_AGENT.md', 'plan/GITHUB_CHECKOUT_PORTABILITY_AUDIT.md'):
         text = (ROOT/rel).read_text(encoding='utf-8')
         if engine_version not in text:
             errors.append(f"active handoff doc does not name current runtime {engine_version}: {rel}")
@@ -329,6 +329,7 @@ required_repo_files = (
     '.github/workflows/ci.yml', '.github/workflows/release-gate.yml',
     'docs/REPOSITORY_WORKFLOW.md', 'plan/REPOSITORY_PERSISTENCE_AUDIT.md',
     'plan/WINDOWS_REPOSITORY_PORTABILITY_AUDIT.md',
+    'plan/GITHUB_CHECKOUT_PORTABILITY_AUDIT.md',
 )
 for rel in required_repo_files:
     if not (ROOT/rel).is_file():
@@ -347,6 +348,10 @@ for command in ('python -m pytest -q','python tools/audit_spec.py','python tools
         errors.append(f'CI workflow missing required repository check: {command}')
 if not all(token in ci_text for token in ("'git'", "'status'", "'--porcelain'")):
     errors.append('CI workflow missing portable git status --porcelain cleanliness check')
+manifest_step = ci_text.find('name: Checkout manifest integrity')
+install_step = ci_text.find('name: Install')
+if manifest_step < 0 or install_step < 0 or manifest_step > install_step:
+    errors.append('CI workflow must validate manifest immediately after checkout, before install/test')
 if 'windows-latest' not in ci_text or "'3.14'" not in ci_text:
     errors.append('CI workflow missing Windows/Python 3.14 repository regression job')
 release_ci=(ROOT/'.github/workflows/release-gate.yml').read_text(encoding='utf-8') if (ROOT/'.github/workflows/release-gate.yml').is_file() else ''
@@ -385,7 +390,16 @@ if man:
     for rel,e in tracked.items():
         p=ROOT/rel
         if p.exists():
-            h=hashlib.sha256(p.read_bytes()).hexdigest()
+            data=p.read_bytes()
+            if p.suffix.lower() not in {'.whl','.zip','.png','.jpg','.jpeg','.gif','.pdf'} and b'\x00' not in data:
+                try:
+                    data.decode('utf-8')
+                except UnicodeDecodeError:
+                    pass
+                else:
+                    if b'\r' in data:
+                        errors.append(f"manifest tracked UTF-8 text has non-canonical CR/CRLF: {rel}")
+            h=hashlib.sha256(data).hexdigest()
             if h!=e['sha256']: errors.append(f"manifest hash mismatch: {rel}")
 if errors:
     print('SPEC AUDIT FAIL')

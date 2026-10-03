@@ -1,5 +1,7 @@
 # Windows Repository Portability Audit — v0.27
 
+> Historical v0.27 audit. The first real GitHub checkout later exposed two additional repository-boundary defects (Git EOL normalization after manifest freeze and Windows long/8.3 lexical path aliasing). Those are corrected and accepted separately in `GITHUB_CHECKOUT_PORTABILITY_AUDIT.md` / v0.28; the v0.27 findings remain historically valid.
+
 Date: 2026-10-03
 Status: **PASS — real Windows/Python 3.14 gate completed; final package freeze**
 Runtime distribution: **0.1.0.dev19**

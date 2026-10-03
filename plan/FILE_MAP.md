@@ -125,3 +125,5 @@
 - `../.github/workflows/release-gate.yml` — tag/manual full release/performance gate.
 
 - `WINDOWS_REPOSITORY_PORTABILITY_AUDIT.md` — v0.27 Windows/Python 3.14 repository portability defects, corrections and acceptance evidence.
+
+- `GITHUB_CHECKOUT_PORTABILITY_AUDIT.md` — v0.28 post-push fresh-checkout integrity/path-identity defects, corrections, regression coverage and release evidence.

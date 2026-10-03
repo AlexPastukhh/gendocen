@@ -37,6 +37,30 @@ class P8ManifestToolTests(unittest.TestCase):
             self.assertIn('.github/workflows/ci.yml',paths)
             self.assertIn('tracked.txt',paths)
 
+    def test_manifest_refuses_git_normalized_text_with_crlf(self):
+        tool=load_tool('release_manifest')
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td)
+            (root/'.gitattributes').write_text('* text=auto eol=lf\n', encoding='utf-8')
+            (root/'evidence.txt').write_bytes(b'line one\r\nline two\r\n')
+            with self.assertRaises(ValueError):
+                tool.generate(root,'test','0.1.0.dev20','P8','accepted')
+            # Validation also exposes the class explicitly if a stale manifest exists.
+            payload={
+                'manifest_schema_version':'1.0.0',
+                'package':'generic-documentation-engine-spec-runtime',
+                'version':'test',
+                'target_engine_version':'0.1.0',
+                'runtime_build_version':'0.1.0.dev20',
+                'implementation_phase':'P8',
+                'implementation_status':'accepted',
+                'files':tool.entries(root),
+            }
+            (root/'MANIFEST.json').write_text(json.dumps(payload), encoding='utf-8')
+            result=tool.validate(root,root/'MANIFEST.json')
+            self.assertFalse(result['ok'])
+            self.assertIn('manifest_noncanonical_text_eol',{x['code'] for x in result['findings']})
+
     def test_manifest_detects_tamper_and_missing_file(self):
         tool=load_tool('release_manifest')
         with tempfile.TemporaryDirectory() as td:

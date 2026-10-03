@@ -1,0 +1,14 @@
+WARNING: The directory '/home/oai/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Obtaining file:///mnt/data/gde_v028_git_fresh_clone_probe
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: generic-documentation-engine
+  Building editable for generic-documentation-engine (pyproject.toml): started
+  Building editable for generic-documentation-engine (pyproject.toml): finished with status 'done'
+  Created wheel for generic-documentation-engine: filename=generic_documentation_engine-0.1.0.dev20-0.editable-py3-none-any.whl size=3555 sha256=ee6dfa80c27d746150d0632b2f806d68b0b727a969e233510d0f9e587e23f614
+  Stored in directory: /tmp/pip-ephem-wheel-cache-ixr_boid/wheels/7a/0b/06/90cc15f5a284afdf0e9f24a6c13cedb53b730e8d97fcede18b
+Successfully built generic-documentation-engine
+Installing collected packages: generic-documentation-engine
+Successfully installed generic-documentation-engine-0.1.0.dev20

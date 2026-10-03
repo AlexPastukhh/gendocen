@@ -62,6 +62,7 @@ class RepositoryPersistenceContractTests(unittest.TestCase):
             '.github/workflows/ci.yml', '.github/workflows/release-gate.yml',
             'docs/REPOSITORY_WORKFLOW.md', 'plan/REPOSITORY_PERSISTENCE_AUDIT.md',
             'plan/WINDOWS_REPOSITORY_PORTABILITY_AUDIT.md',
+            'plan/GITHUB_CHECKOUT_PORTABILITY_AUDIT.md',
         ]
         for rel in required:
             self.assertTrue((ROOT / rel).is_file(), rel)
@@ -87,6 +88,8 @@ class RepositoryPersistenceContractTests(unittest.TestCase):
             self.assertIn(token, ci)
         self.assertIn('windows-latest', ci)
         self.assertIn("'3.14'", ci)
+        self.assertIn('name: Checkout manifest integrity', ci)
+        self.assertLess(ci.index('name: Checkout manifest integrity'), ci.index('name: Install'))
         release = (ROOT / '.github/workflows/release-gate.yml').read_text(encoding='utf-8')
         self.assertIn('python tools/benchmark_release.py --json', release)
         self.assertIn('windows-portability', release)

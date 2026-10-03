@@ -331,6 +331,26 @@ class P7HardeningPathTests(unittest.TestCase):
 
 
 
+class P7CanonicalPathIdentityTests(unittest.TestCase):
+    def test_transaction_relative_path_uses_resolved_root_identity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp) / "project"
+            shutil.copytree(PRODUCT, project)
+            roots = discover_roots(project_root=project)
+            alias_component = project / "lexical-alias"
+            alias_component.mkdir()
+            # `lexical-alias/../docs` resolves to the same physical directory as
+            # `docs`, but is not a lexical prefix of the canonical target path.
+            # This models Windows long-name/8.3 alias disagreement without
+            # requiring platform-specific filesystem configuration.
+            aliased_docs = alias_component / ".." / "docs"
+            from dataclasses import replace
+            aliased_roots = replace(roots, documentation_root=aliased_docs)
+            tx = FileTransaction(aliased_roots, "canonical_path_identity_probe")
+            target = roots.documentation_root / "catalog/product.md"
+            self.assertEqual(tx._relative(target), "catalog/product.md")
+
+
 class P7PostAxisRegressionTests(unittest.TestCase):
     def test_semantically_impossible_new_file_journal_cannot_delete_existing_file(self):
         with tempfile.TemporaryDirectory() as tmp:

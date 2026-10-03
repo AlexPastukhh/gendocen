@@ -255,7 +255,12 @@ class FileTransaction:
         resolved = path.resolve(strict=False)
         if not is_within(resolved, self.documentation_root):
             raise TransactionError(f"transaction target escapes documentation root: {path}")
-        return path.relative_to(self.roots.documentation_root).as_posix()
+        # Serialize the path from the same canonical identities used for the
+        # confinement check.  On Windows the same directory can be spelled
+        # through an 8.3 alias (for example RUNNER~1) or its long name; mixing
+        # canonical and lexical paths makes Path.relative_to() reject a target
+        # that is physically inside the documentation root.
+        return resolved.relative_to(self.documentation_root).as_posix()
 
     def _journal(self, phase: str) -> dict[str, Any]:
         return {
