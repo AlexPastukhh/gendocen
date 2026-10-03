@@ -2964,8 +2964,8 @@
     },
     {
       "path": "tests/test_p8_release.py",
-      "sha256": "eb9ef26c71274b98865a2bb506563afc35cccbb19ac57c7ad033eedd3b94c4de",
-      "size": 12780
+      "sha256": "282b51e314ed3a98053134a11b7c819e80e67eb5c3b74634f50e528769ef1866",
+      "size": 12770
     },
     {
       "path": "tests/test_project.py",

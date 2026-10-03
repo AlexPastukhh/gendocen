@@ -23,10 +23,10 @@ class P8ManifestToolTests(unittest.TestCase):
             (root/'.git/objects/probe').write_bytes(b'git-internal')
             (root/'.pytest_cache').mkdir()
             (root/'.pytest_cache/probe').write_text('transient')
-            (root/'.gitignore').write_text('__pycache__/\n')
-            (root/'.gitattributes').write_text('* text=auto eol=lf\n')
+            (root/'.gitignore').write_bytes(b'__pycache__/\n')
+            (root/'.gitattributes').write_bytes(b'* text=auto eol=lf\n')
             (root/'.github/workflows').mkdir(parents=True)
-            (root/'.github/workflows/ci.yml').write_text('name: CI\n')
+            (root/'.github/workflows/ci.yml').write_bytes(b'name: CI\n')
             (root/'tracked.txt').write_text('tracked')
             paths={e['path'] for e in tool.generate(root,'test','0.1.0.dev18','P8','accepted')['files']}
             self.assertNotIn('.git/HEAD',paths)
@@ -41,7 +41,7 @@ class P8ManifestToolTests(unittest.TestCase):
         tool=load_tool('release_manifest')
         with tempfile.TemporaryDirectory() as td:
             root=Path(td)
-            (root/'.gitattributes').write_text('* text=auto eol=lf\n', encoding='utf-8')
+            (root/'.gitattributes').write_bytes(b'* text=auto eol=lf\n')
             (root/'evidence.txt').write_bytes(b'line one\r\nline two\r\n')
             with self.assertRaises(ValueError):
                 tool.generate(root,'test','0.1.0.dev20','P8','accepted')
