@@ -57,7 +57,7 @@ All subcommands accept:
 --docs-root PATH
 ```
 
-Structured stdin/bulk-action protocol is intentionally out of v0.1. JSON stdout is mandatory for machine use. Explicit `--project-root` must name an existing directory; an existing `--docs-root` must also be a directory. Root-shape failures are usage/config errors (exit `4`), never clean empty-project success.
+Structured stdin/bulk-action protocol is intentionally out of v0.1. JSON stdout is mandatory for machine use. Explicit `--project-root` and explicit `--docs-root` string values must be non-empty. `--project-root` must name an existing directory; an existing `--docs-root` must also be a directory and remain inside the selected project. Empty explicit root values and other root-shape failures are usage/config errors (exit `4`), never fallback/default selection or clean empty-project success.
 
 ## Commands
 
@@ -108,7 +108,7 @@ Write registered generated views/materialization provenance. `--ack-orphan` requ
 
 ### `docengine verify`
 
-Read-only complete project verification. It aggregates all available findings instead of failing fast and **never fixes state**.
+Read-only complete project verification with respect to engine-managed project state. It aggregates all available findings instead of failing fast and **never fixes/advances engine state**. Verification may execute trusted project builders/validators/renderers for reproducibility checks; project Python is not sandboxed, so the read-only contract is not a guarantee against arbitrary callback side effects.
 
 It checks at least:
 
@@ -147,7 +147,7 @@ Read-only plain/managed/generated/derived inventory.
 
 ## Query/mutation boundary
 
-Strictly read-only engine commands:
+Strictly read-only engine operations (with the trusted-project-code caveat above):
 
 ```text
 status diff explain history graph resources verify

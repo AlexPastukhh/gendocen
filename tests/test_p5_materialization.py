@@ -191,7 +191,7 @@ class P5SyncTests(unittest.TestCase):
                 "    registry.register(\"resource://derived/mixed\", build_mixed, builder_id=\"mixed.builder\")\n",
                 encoding="utf-8",
             )
-            rules = project / "docengine_project/semantic_rules.py"
+            rules = project / "docengine_project/dependency_rules/architecture/rationale.py"
             rules.write_text(
                 '''def register(registry):\n'''
                 '''    registry.register(\n'''

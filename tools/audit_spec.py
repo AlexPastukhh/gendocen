@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import importlib.util
-import json, hashlib, sys, tomllib, zipfile
+import json, hashlib, sys, tomllib, zipfile, re
 try:
     import jsonschema
 except Exception as e:
@@ -29,6 +29,7 @@ def validate(schema_rel, paths):
         except Exception as e: errors.append(f"schema {p.relative_to(ROOT)} vs {schema_rel}: {e.message if hasattr(e,'message') else e}")
 validate('spec/schemas/PHASE_EXECUTION_RECORD.schema.json', sorted((ROOT/'plan/phase_records').glob('P*_EXECUTION_RECORD.json')))
 validate('spec/schemas/USE_CASE_REGISTRY.schema.json', [ROOT/'spec/registries/USE_CASE_REGISTRY.json'])
+validate('spec/schemas/USE_CASE_COVERAGE_AMENDMENTS.schema.json', [ROOT/'spec/registries/USE_CASE_COVERAGE_AMENDMENTS.json'])
 validate('spec/schemas/MANAGED_RESOURCE.schema.json', sorted((ROOT/'examples').glob('*/docs/_structured/**/*.json')))
 validate('spec/schemas/DEPENDENCY_STATE.schema.json', sorted((ROOT/'examples').glob('*/docs/_dependency/state/dependency_state.json')))
 validate('spec/schemas/MATERIALIZATION_STATE.schema.json', sorted((ROOT/'examples').glob('*/docs/_dependency/state/materialization_state.json')))
@@ -128,19 +129,68 @@ if p8 and p8.get('status')=='accepted':
     if bad_criteria: errors.append(f"P8 accepted with non-pass criteria: {bad_criteria}")
     perf=j('plan/evidence/P8/performance_gate.json')
     if not perf or perf.get('ok') is not True: errors.append('P8 accepted without passing performance gate evidence')
-# Use-case coverage and CLI references.
+# Use-case coverage and CLI references. Historical phase records remain canonical/append-only;
+# post-acceptance normalization may add atomic use cases for already-implemented behavior
+# through the additive USE_CASE_COVERAGE_AMENDMENTS registry.
 uc=j('spec/registries/USE_CASE_REGISTRY.json'); cli=j('spec/registries/CLI_COMMANDS.json')
+uc_amend=j('spec/registries/USE_CASE_COVERAGE_AMENDMENTS.json') or {'amendments': []}
 if uc and cli:
     cmds=set(cli['commands']); ids=[u['id'] for u in uc['use_cases']]
     if cli.get('machine_output_schema_version') != '2.0.0': errors.append(f"CLI registry machine schema mismatch: {cli.get('machine_output_schema_version')}")
     if set(cli.get('exit_codes', {})) != {'0','2','3','4','5'}: errors.append(f"CLI exit-code registry mismatch: {sorted(cli.get('exit_codes', {}))}")
     if len(ids)!=len(set(ids)): errors.append('duplicate use case ids')
+    amendments=uc_amend.get('amendments', []) if isinstance(uc_amend, dict) else []
+    amendment_ids=[item.get('use_case_id') for item in amendments]
+    if len(amendment_ids)!=len(set(amendment_ids)):
+        errors.append('duplicate use-case coverage amendment ids')
+    unknown_amendments=sorted(set(amendment_ids)-set(ids))
+    if unknown_amendments:
+        errors.append(f"coverage amendments reference unknown use cases: {unknown_amendments}")
+    known_phases={json.loads(p.read_text(encoding='utf-8'))['phase_id'] for p in sorted((ROOT/'plan/phase_records').glob('P*_EXECUTION_RECORD.json'))}
+    for item in amendments:
+        if item.get('implementation_phase') not in known_phases:
+            errors.append(f"coverage amendment {item.get('use_case_id')} references unknown phase {item.get('implementation_phase')}")
+        for rel in item.get('evidence_refs', []):
+            if not (ROOT/rel).exists():
+                errors.append(f"coverage amendment {item.get('use_case_id')} missing evidence ref: {rel}")
+    current_coverage=set(coverage)|set(amendment_ids)
     v01={u['id'] for u in uc['use_cases'] if u['implementation_target']=='v0.1'}
-    missing=v01-set(coverage)
-    if missing: errors.append(f"v0.1 use cases not mapped to any phase: {sorted(missing)}")
+    missing=v01-current_coverage
+    if missing: errors.append(f"v0.1 use cases not mapped to any phase/amendment: {sorted(missing)}")
+    command_to_use_cases={cmd:set() for cmd in cmds}
     for u in uc['use_cases']:
         bad=set(u['cli_commands'])-cmds
         if bad: errors.append(f"{u['id']} references unknown CLI commands {sorted(bad)}")
+        if u['implementation_target']=='v0.1':
+            for cmd in u['cli_commands']:
+                command_to_use_cases.setdefault(cmd,set()).add(u['id'])
+    uncovered_commands=sorted(cmd for cmd, owners in command_to_use_cases.items() if not owners)
+    if uncovered_commands:
+        errors.append(f"public CLI commands without v0.1 use-case coverage: {uncovered_commands}")
+# Documentation workflow integrity.
+workflows_path=ROOT/'docs/CORE_WORKFLOWS.md'
+if uc and workflows_path.exists():
+    workflow_text=workflows_path.read_text(encoding='utf-8')
+    known_ids={u['id'] for u in uc['use_cases']}
+    referenced=set(re.findall(r'\bDOC\d{2}\b', workflow_text))
+    unknown=sorted(referenced-known_ids)
+    if unknown: errors.append(f"CORE_WORKFLOWS references unknown use cases: {unknown}")
+    if not referenced: errors.append('CORE_WORKFLOWS contains no DOCxx references')
+    future_ids={u['id'] for u in uc['use_cases'] if u['implementation_target']=='future'}
+    if future_ids:
+        marker='# Future authoring helpers'
+        if marker not in workflow_text:
+            errors.append('CORE_WORKFLOWS missing future authoring helpers section')
+        else:
+            future_text=workflow_text.split(marker,1)[1]
+            missing_future=sorted(fid for fid in future_ids if fid not in future_text)
+            if missing_future: errors.append(f"future use cases not represented in future workflow section: {missing_future}")
+readme_text=(ROOT/'README.md').read_text(encoding='utf-8')
+for required in ('docs/CORE_WORKFLOWS.md','examples/product_tax_project/README.md','examples/sample_project/README.md'):
+    if required not in readme_text: errors.append(f"README missing onboarding link: {required}")
+if 'docs/CORE_WORKFLOWS.md' in readme_text and 'START_HERE_AGENT.md' in readme_text and readme_text.index('docs/CORE_WORKFLOWS.md') > readme_text.index('START_HERE_AGENT.md'):
+    errors.append('README remains maintainer-first: CORE_WORKFLOWS appears after START_HERE_AGENT')
+
 # Status vocabulary consistency.
 ds=j('spec/schemas/DEPENDENCY_STATE.schema.json')
 if ds:

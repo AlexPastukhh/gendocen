@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from docengine.project import RootDiscoveryError, confined_path, discover_roots
+from docengine.project import ProjectInitializationError, RootDiscoveryError, confined_path, discover_roots, initialize_project
 
 
 class ProjectDiscoveryTests(unittest.TestCase):
@@ -27,6 +27,28 @@ class ProjectDiscoveryTests(unittest.TestCase):
             self.assertEqual(roots.project_root, root.resolve())
             self.assertEqual(roots.source, "config_marker")
 
+
+    def test_empty_explicit_project_root_is_rejected(self):
+        with tempfile.TemporaryDirectory() as project:
+            root = Path(project)
+            with self.assertRaisesRegex(RootDiscoveryError, "must not be empty"):
+                discover_roots(cwd=root, project_root="")
+            with self.assertRaisesRegex(RootDiscoveryError, "must not be empty"):
+                discover_roots(cwd=root, project_root="   ")
+            with self.assertRaisesRegex(ProjectInitializationError, "must not be empty"):
+                initialize_project(cwd=root, project_root="")
+
+    def test_empty_explicit_docs_root_is_rejected(self):
+        with tempfile.TemporaryDirectory() as project:
+            root = Path(project)
+            with self.assertRaisesRegex(RootDiscoveryError, "documentation root must not be empty"):
+                discover_roots(project_root=root, docs_root="")
+            with self.assertRaisesRegex(RootDiscoveryError, "documentation root must not be empty"):
+                discover_roots(project_root=root, docs_root="   ")
+            with self.assertRaisesRegex(ProjectInitializationError, "documentation root must not be empty"):
+                initialize_project(project_root=root, docs_root="")
+            with self.assertRaisesRegex(ProjectInitializationError, "documentation root must not be empty"):
+                initialize_project(project_root=root, docs_root="   ")
 
     def test_explicit_project_root_must_exist_and_be_directory(self):
         with tempfile.TemporaryDirectory() as tmp:

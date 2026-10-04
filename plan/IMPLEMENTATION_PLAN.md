@@ -416,7 +416,9 @@ Full record: `plan/phase_records/P6_EXECUTION_RECORD.json`.
 - benchmark suite/performance budget
 - optional watch-mode decision
 
-**Use cases:** DOC15, DOC16, DOC17, DOC20
+**Use cases:** DOC15, DOC16, DOC17, DOC20, DOC23, DOC24
+
+> Post-acceptance normalization note: DOC23 (`recover`) and DOC24 (`migrate`) name P7 capabilities that were already implemented/accepted but missing from the atomic use-case catalog. Historical `P7_EXECUTION_RECORD.json` is preserved unchanged; additive provenance is recorded in `spec/registries/USE_CASE_COVERAGE_AMENDMENTS.json`.
 
 **Acceptance axes:** DAX14, DAX15, DAX16, DAX18, DAX19, DAX20
 

@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 Status: **ACCEPTANCE CANDIDATE — local/package gates pass; GitHub fresh-checkout CI pending**
-Runtime distribution: **0.1.0.dev20**
+Runtime distribution at this v0.28 audit: **0.1.0.dev20**. Current archive runtime after the additive v0.39 project-config root-policy documentation sync: **0.1.0.dev22**
 Specification/runtime package: **0.28.0-p8-git-checkout-portability-candidate**
 
 This is a post-P8 repository/runtime bugfix correction, not P9. It introduces no new product semantics and requires no user-owned decision.

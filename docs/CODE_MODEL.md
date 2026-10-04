@@ -2,38 +2,97 @@
 
 ## 1. Reusable engine code
 
-Core framework provides domain-neutral structures:
+`src/docengine/**` provides domain-neutral infrastructure:
 
 - `ResourceRef`, `FieldRef`
-- `ResourceCatalog` / resource-store protocol
+- resource catalog / resolver
 - schema loader / serializer
-- immutable `RawObject`
-- immutable `DerivedObject`
-- `BuilderRegistry`
-- `BuildContext`
-- `BuildEngine`
-- deterministic build provenance / tracked-read evidence
-- P4 `ValidationContext`/semantic rule registry and explicit semantic validation; P5 renderer registry/materialization/sync; later: hardening and final release verification.
+- immutable `RawObject` / transient immutable `DerivedObject`
+- builder/semantic/renderer registries
+- `BuildContext` and deterministic build engine
+- dependency receipts/baselines/state/diffs/history
+- semantic validation runtime
+- materialization/sync/verification
+- locking/transaction/recovery/migration hardening
 
-## 2. Project-specific code
+Project-specific formulas and documentation relationships do not belong in the core runtime.
 
-Project semantics live outside the reusable engine:
+## 2. Project-specific code: accepted mirrored layout
+
+Normal project semantics live outside the reusable engine and mirror the produced documentation target:
 
 ```text
 project/
   docengine.toml
+  docs/
+    architecture/
+      system_summary.md
+    _structured/
+      architecture/
+        system_summary.json
   docengine_project/
     __init__.py
     schemas/
-    builders.py      # or builders/ package
-    validators/      # later
-    renderers/       # optional P5 project renderers
-    dependency_rules/# later
+    builders/
+      architecture/
+        system_summary.py
+    dependency_rules/
+      architecture/
+        rationale.py
+    renderers/
+    validators/
 ```
 
-`docengine.toml` names the local package with `project_package = "docengine_project"`. It must expose `register_builders(registry)` in P2.
+The target path should tell a human/AI where its descriptor and project code live.
 
-## 3. Builder example
+`docengine.toml` names the project package with `project_package = "docengine_project"`. The package remains outside the documentation root.
+
+## 3. Registration is separate from placement
+
+Creating `docengine_project/builders/architecture/system_summary.py` is not sufficient. The module must be imported/registered through the package surface.
+
+Example nested package:
+
+```python
+# docengine_project/builders/architecture/system_summary.py
+
+def build_system_summary(ctx):
+    title = ctx.read("resource://architecture/overview#/title")
+    return {"title": title}
+
+
+def register(registry):
+    registry.register(
+        "resource://architecture/system_summary",
+        build_system_summary,
+        builder_id="architecture.system_summary",
+        dependency_type="compute",
+        comparator="exact",
+    )
+```
+
+```python
+# docengine_project/builders/__init__.py
+from .architecture.system_summary import register as register_system_summary
+
+
+def register(registry):
+    register_system_summary(registry)
+```
+
+```python
+# docengine_project/__init__.py
+
+def register_builders(registry):
+    from .builders import register
+    register(registry)
+```
+
+Semantic rules use the same target-oriented pattern through `register_semantic_dependencies(registry)`.
+
+## 4. Builder example and tracked reads
+
+Keep formulas ordinary/pure Python while the context mediates dependency-bearing reads:
 
 ```python
 def effective_rate(payout, execution_hours, acquisition_hours):
@@ -44,7 +103,6 @@ def build_economics(ctx):
     payout = ctx.read("resource://opportunity/main#/payout")
     execution = ctx.read("resource://opportunity/main#/execution_hours")
     acquisition = ctx.read("resource://measurement/acquisition#/hours")
-
     return {
         "payout": payout,
         "execution_hours": execution,
@@ -53,56 +111,48 @@ def build_economics(ctx):
     }
 ```
 
-The formula stays ordinary Python. The context supplies dependency-aware inputs.
+`ctx.read("resource://...#/field")` records field-level evidence. `ctx.get("resource://...")` records a whole-resource dependency and should be used only when the target intentionally depends on the whole object.
 
-## 4. Registration
+## 5. Do not bypass tracking for dependency-bearing inputs
 
-Canonical form:
-
-```python
-def register_builders(registry):
-    registry.register(
-        "resource://economics/main",
-        build_economics,
-        builder_id="economics.main",
-        dependency_type="compute",
-        comparator="exact",
-    )
-```
-
-Decorator convenience is also available when code already holds a registry:
+Bad normal authoring pattern:
 
 ```python
-@registry.builder("resource://economics/main")
-def build_economics(ctx):
+with open("docs/_structured/catalog/product.json") as f:
     ...
 ```
 
-The explicit registry remains the source of registration truth.
+or hidden network/database/file reads inside helpers. If the output depends on that value but the runtime did not mediate the read, the receipt cannot reliably invalidate the target.
 
-## 5. Tracked versus untracked reads
+An explicit exceptional `ctx.untracked_read(..., reason=...)` exists for acknowledged cases and reduces audit completeness; it must not be used to pretend an untracked dependency is safe.
 
-Dependency-bearing inputs must use `ctx.read()` or `ctx.get()`.
+## 6. Raw/derived ownership
+
+Do not write a computed field back into raw canonical JSON merely because its current value is known. Raw sources own observations/input data; deterministic formulas create new `DerivedObject` values.
+
+The builder result is transient. Persistent build evidence is receipt/baseline/state/events; generated file views are owned by materialization metadata.
+
+## 7. Renderers are presentation-only
+
+Builders/helpers compute. Renderers format an already-built object/view model. Moving dependency computation into renderer code hides it from the intended build/provenance model and prevents clean multi-view reuse.
+
+## 8. Semantic dependencies
+
+Project code may expose:
 
 ```python
-price = ctx.read("resource://catalog/product#/price")  # field dependency
-product = ctx.get("resource://catalog/product")        # whole-resource dependency
+def register_semantic_dependencies(registry):
+    ...
 ```
 
-An explicit exceptional `ctx.untracked_read(..., reason=...)` exists, but makes the build provenance incomplete/auditable as such. Arbitrary direct I/O in builder code is a project-code contract violation for dependency tracking.
+Rules declare target, dependency type, exact sources and comparators. They do not contain an engine-generated semantic verdict. Human/AI review remains explicit. See `SEMANTIC_REVIEW.md`.
 
-## 6. Semantic validators
+## 9. Code revision invalidation
 
-Semantic validator infrastructure is P4. It will consume the same resource-ref/dependency model but will not pretend that semantic text is a computable formula.
+Current v0.1 project extension loading computes a conservative package-wide source revision. A project-Python edit may therefore mark multiple/all deterministic builders `build_required` even when only one mirrored module changed. This is safe over-invalidation; it is not evidence that their data dependencies are shared.
 
-## 7. Pure business functions
+Per-builder code-dependency revisions are a possible future optimization, not the current contract.
 
-Keep formulas pure whenever possible. Builders should orchestrate reads and pass plain values into pure helpers. This makes project semantics independently testable and keeps dependency infrastructure out of business formulas.
+## 10. Trust boundary
 
-
-## Semantic dependency registration (P4)
-
-Project code may expose `register_semantic_dependencies(registry)`. Rules declare target, dependency type, exact sources and comparators. They never contain an engine-generated semantic verdict. See `SEMANTIC_REVIEW.md`.
-
-
-P7 hardening adds `hardening.py`: external process locking, `FileTransaction`, recovery and runtime-layout migrations. Low-level stores remain implementation primitives; official concurrent mutation semantics are provided through the guarded command/orchestration layer.
+`docengine_project/**` is trusted/cooperative Python, not sandboxed execution. It can technically perform arbitrary side effects. Normal AI authoring should stay inside the documented project-owned extension/data paths, use tracked reads and finish with `sync`/`verify`; this organizational boundary does not claim physical prevention of malicious Python.

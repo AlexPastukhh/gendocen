@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DocumentationEngineUseCaseCoverageAmendments",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "policy",
+    "amendments"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "policy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "amendments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "use_case_id",
+          "implementation_phase",
+          "reason",
+          "evidence_refs"
+        ],
+        "properties": {
+          "use_case_id": {
+            "type": "string",
+            "pattern": "^DOC[0-9]{2}$"
+          },
+          "implementation_phase": {
+            "type": "string",
+            "pattern": "^P[0-9]+$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

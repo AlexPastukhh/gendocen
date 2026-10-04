@@ -42,7 +42,7 @@ Precedence:
 2. upward search for `docengine.toml` from cwd without crossing filesystem-device boundaries;
 3. current directory + default `docs` when no marker exists.
 
-The configured documentation root must stay inside the project root in v0.1. An explicit project root must already exist and be a directory. A documentation-root path may be absent for an empty/uninitialized documentation tree, but if it exists it must be a directory rather than a regular file.
+The configured documentation root must stay inside the project root in v0.1. Explicit string overrides for both `--project-root` and `--docs-root` must be non-empty and non-whitespace; empty explicit values are usage/config errors (exit `4` at the CLI boundary), not fallback/default selection. An explicit project root must already exist and be a directory. A non-empty documentation-root path may be absent for an empty/uninitialized documentation tree, but if it exists it must be a directory rather than a regular file. Explicit `--docs-root .` remains a valid deliberate override that selects the project root itself as the documentation root.
 
 ## Initialization
 

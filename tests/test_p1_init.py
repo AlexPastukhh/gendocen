@@ -38,6 +38,20 @@ class P1InitTests(unittest.TestCase):
             self.assertTrue(payload["ok"])
             self.assertEqual(payload["meta"]["status"], "initialized")
 
+    def test_cli_init_rejects_empty_docs_root_without_mutation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            before = sorted(path.relative_to(project).as_posix() for path in project.rglob("*"))
+            stream = io.StringIO()
+            with contextlib.redirect_stdout(stream):
+                code = main(["init", "--project-root", str(project), "--docs-root", "", "--json"])
+            payload = json.loads(stream.getvalue())
+            after = sorted(path.relative_to(project).as_posix() for path in project.rglob("*"))
+            self.assertEqual(code, 4, payload)
+            self.assertFalse(payload["ok"])
+            self.assertIn("documentation root must not be empty", json.dumps(payload))
+            self.assertEqual(after, before)
+
     def test_init_rejects_docs_outside_project(self):
         with tempfile.TemporaryDirectory() as project, tempfile.TemporaryDirectory() as outside:
             with self.assertRaises(ProjectInitializationError):

@@ -137,6 +137,23 @@ docs/architecture/overview.md
 
 The destination itself is still declared explicitly by `$docengine.materialize[].path`; the mirror rule prevents an apparently local structured source from silently owning an unrelated documentation path.
 
+## 10. Mirrored project-code rule for AI/project authoring
+
+Structured data and executable project semantics remain physically separated, but use the same logical target path for discoverability:
+
+```text
+docs/<logical/path>.md
+docs/_structured/<logical/path>.json
+docengine_project/builders/<logical/path>.py
+docengine_project/dependency_rules/<logical/path>.py
+```
+
+The deterministic builder path is organized by the **produced target**, not by whichever upstream source happens to be read. The exact semantic rule subtree is `dependency_rules/` in the v0.1 storage model.
+
+File placement does not register code by itself. Nested modules must be aggregated/imported by the project package `register_builders(registry)` / `register_semantic_dependencies(registry)` surface.
+
+Project code must remain outside the documentation root; this is an ownership/confinement rule, not a Python security sandbox.
+
 ## Reserved documentation-owned subtrees
 
 `structured_dir` and `dependency_dir` are disjoint reserved subtrees. Materialization targets may not write into either subtree, regardless of renderer. This prevents generated output from overwriting canonical structured JSON or dependency runtime state.

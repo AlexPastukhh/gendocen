@@ -30,8 +30,8 @@ Generate only through:
 
 ```bash
 python tools/release_manifest.py generate \
-  --version 0.28.0-p8-git-checkout-portability-candidate \
-  --runtime 0.1.0.dev20 \
+  --version 0.39.0-p8-project-config-root-policy-sync \
+  --runtime 0.1.0.dev22 \
   --phase P8 \
   --status accepted
 ```

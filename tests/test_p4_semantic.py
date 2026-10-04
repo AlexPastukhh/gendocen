@@ -98,7 +98,7 @@ class P4RegistryAndReviewPacketTests(unittest.TestCase):
             project = Path(tmp) / "project"
             shutil.copytree(SAMPLE, project)
             shutil.rmtree(project / "docs/_dependency", ignore_errors=True)
-            rules = project / "docengine_project/semantic_rules.py"
+            rules = project / "docengine_project/dependency_rules/architecture/rationale.py"
             rules.write_text(
                 rules.read_text(encoding="utf-8").replace(
                     'dependency_type="semantic_review"',
@@ -124,7 +124,7 @@ class P4RegistryAndReviewPacketTests(unittest.TestCase):
             legacy = DependencyRuntime(roots, catalog, extension.registry, semantic_rule_revisions={})
             legacy.record_explicit(TARGET, [(SOURCE, "set")], dependency_type="validity")
 
-            rules = project / "docengine_project/semantic_rules.py"
+            rules = project / "docengine_project/dependency_rules/architecture/rationale.py"
             rules.write_text(
                 rules.read_text(encoding="utf-8").replace(
                     'dependency_type="semantic_review"',
@@ -142,7 +142,7 @@ class P4RegistryAndReviewPacketTests(unittest.TestCase):
             project = Path(tmp) / "project"
             shutil.copytree(SAMPLE, project)
             shutil.rmtree(project / "docs/_dependency", ignore_errors=True)
-            rules = project / "docengine_project/semantic_rules.py"
+            rules = project / "docengine_project/dependency_rules/architecture/rationale.py"
             rules.write_text(
                 rules.read_text(encoding="utf-8").replace(
                     'dependency_type="semantic_review"',
@@ -177,7 +177,7 @@ class P4RegistryAndReviewPacketTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp) / "project"
             shutil.copytree(SAMPLE, project)
-            rules = project / "docengine_project/semantic_rules.py"
+            rules = project / "docengine_project/dependency_rules/architecture/rationale.py"
             rules.write_text(
                 "def register(registry):\n"
                 "    registry.register('resource://architecture/system_summary', "
@@ -501,7 +501,7 @@ class P4ValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             project = self._copy(tmp)
             self._initial_validate(project)
-            rules = project / "docengine_project/semantic_rules.py"
+            rules = project / "docengine_project/dependency_rules/architecture/rationale.py"
             rules.write_text(
                 rules.read_text(encoding="utf-8").replace(
                     'dependency_type="semantic_review"',
@@ -526,7 +526,7 @@ class P4ValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             project = self._copy(tmp)
             self._initial_validate(project)
-            rules = project / "docengine_project/semantic_rules.py"
+            rules = project / "docengine_project/dependency_rules/architecture/rationale.py"
             rules.write_text(rules.read_text(encoding="utf-8").replace('"set")', '"sequence")'), encoding="utf-8")
             _, _, ext2, runtime2, _ = services(project)
             checked = runtime2.check(TARGET)
@@ -538,7 +538,7 @@ class P4ValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             project = self._copy(tmp)
             self._initial_validate(project)
-            rules = project / "docengine_project/semantic_rules.py"
+            rules = project / "docengine_project/dependency_rules/architecture/rationale.py"
             rules.write_text(
                 rules.read_text(encoding="utf-8").replace(
                     '[("resource://policies/method_policy#/allowed_methods", "set")]',

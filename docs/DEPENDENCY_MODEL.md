@@ -1,145 +1,152 @@
 # Dependency Model
 
-## 1. Dependency semantics live in code
+## 1. Dependency semantics live in project code
 
-JSON хранит data. Code определяет, как значения используются.
+Canonical JSON stores data. Project code defines how that data affects other targets.
 
-Два способа registration:
+There are two different mechanisms.
 
-### Tracked reads — для computational dependencies
-
-```python
-with ctx.build(target_ref):
-    a = ctx.read(source_a_field)
-    b = ctx.read(source_b_field)
-    ctx.emit(compute(a, b))
-```
-
-Runtime автоматически создаёт dependency receipt из реально прочитанных values.
-
-### Explicit rules — для semantic/review dependencies
+### Deterministic/computational dependencies: actual tracked reads
 
 ```python
-@semantic_dependency(
-    target="file://architecture/rationale.md",
-    sources=[
-        "resource://policy/main#/allowed_methods",
-        "file://policies/method_policy.md"
-    ],
-)
-def review_rationale(...):
-    ...
+def build_price(ctx):
+    price = ctx.read("resource://catalog/product#/price")
+    tax = ctx.read("resource://catalog/tax_policy#/rate")
+    return {"total": price * (1 + tax)}
 ```
 
-## 2. Dependency types
+The runtime creates dependency evidence from the values actually read through `BuildContext`. Project code does not separately maintain a deterministic source-edge table.
 
-- `copy_reference` — target field отражает source field.
-- `compute` — deterministic calculation.
-- `aggregate` — target строится из collection/many resources.
-- `semantic_review` — upstream change требует human/AI review.
-- `validity` — upstream change снимает подтверждение актуальности.
-- `compatibility` — изменение может изменить сопоставимость versions/methods.
+### Semantic/review dependencies: explicit rules
+
+```python
+def register(registry):
+    registry.register(
+        "file://architecture/rationale.md",
+        [("resource://policies/method_policy#/allowed_methods", "set")],
+        rule_id="architecture.rationale-method-policy",
+        dependency_type="semantic_review",
+    )
+```
+
+These rules say which changed context requires renewed judgment; they do not encode the judgment itself.
+
+## 2. Dependency types and changed-state mapping
+
+| Type | Meaning | Changed target state |
+|---|---|---|
+| `copy_reference` | deterministic copy/reference | `build_required` |
+| `compute` | deterministic calculation | `build_required` |
+| `aggregate` | deterministic many-input build | `build_required` |
+| `semantic_review` | context change requires human/AI review | `review_required` |
+| `compatibility` | compatibility/comparability requires review | `review_required` |
+| `validity` | prior validity confirmation no longer applies | `stale` |
+
+`invalid` is used when the runtime cannot safely establish a normal state (for example unavailable source/builder or incomplete audit evidence).
 
 ## 3. Granularity
 
-- field
-- object/resource
-- whole file
-- field set / collection as conceptual aggregation semantics
+Canonical executable v0.1 source refs support:
 
-In executable P3 v0.1 receipts, persisted source refs use only the granularities that have canonical addresses today: `field`, `resource`, and `whole_file`. An aggregate over many inputs records the many exact refs it actually consumed. The engine does not invent a virtual collection-ref syntax merely to compress evidence.
+- field — `resource://x/y#/pointer`
+- whole resource — `resource://x/y`
+- whole plain file — `file://path.md`
 
-Whole-file Markdown dependency не требует structured JSON. `file://` в v0.1 относится только к plain canonical Markdown; structured/derived content адресуется через `resource://`, чтобы не обходить canonical ownership и field-level tracking.
+Field dependency tracks only the addressed JSON Pointer value. Whole-resource dependency changes when any domain data in that resource changes.
 
-В v0.1 Markdown dependency адресуется только на весь файл. Если зависимость нужна только на часть документа, соответствующая часть должна быть вынесена в structured JSON и зависимость ставится на структурированное поле/объект. Markdown section addressing в v0.1 намеренно отсутствует.
+Whole-file Markdown dependency does not require JSON. `file://` is for plain canonical Markdown; structured/derived content is addressed through `resource://` so canonical ownership and field-level tracking are not bypassed.
 
-## 4. Dependency Receipt
+v0.1 intentionally does not address arbitrary Markdown sections. If another target depends on one part of prose, structure that part as addressable data or use whole-file semantic dependency.
 
-После успешного build/validation runtime фиксирует:
+## 4. Aggregation and collection membership
 
-```json
-{
-  "target": "resource://economics/E17",
-  "validated_at": "...",
-  "dependencies": [
-    {
-      "source": "resource://opportunity/O17#/payout",
-      "comparator": "exact",
-      "baseline_hash": "...",
-      "snapshot_ref": "baseline://..."
-    }
-  ]
-}
+`aggregate` is supported, but v0.1 does not persist a first-class virtual `collection://...` identity. A builder records the exact refs it read.
+
+When membership itself may change, make membership an addressable structured input:
+
+```python
+members = ctx.read("resource://indexes/documents#/members")
+for member in members:
+    ctx.read(f"resource://documents/{member}#/A")
 ```
 
-Receipt создаётся infrastructure автоматически, а не вручную project code.
+Then adding a member changes the index dependency, triggers rebuild, and the new build captures the new member field dependency.
 
-## 5. Baseline
+## 5. Receipt and baseline
 
-Baseline хранит **только dependency slice**, реально необходимый target.
+After successful deterministic build or explicit semantic validation the runtime records a dependency receipt. Each entry points to the exact source ref, comparator, observed version and baseline snapshot.
 
-Field dependency → snapshot field value.
-Whole-file dependency → snapshot file content/normalized representation.
-Collection dependency → normalized member set/selected fields.
+Baseline stores only the dependency slice needed for later comparison:
 
-## 6. Diff
+- field dependency → field value;
+- resource dependency → resource-domain value;
+- whole-file dependency → file content/normalized representation.
 
-Когда current state отличается от validated baseline, engine вычисляет diff согласно comparator:
+The receipt is infrastructure evidence; project code does not hand-author it.
 
-- exact scalar diff
-- set/list diff
-- structured JSON diff
-- text/Markdown diff
-- collection diff
+## 6. State transitions
 
-## 7. State transition
+Deterministic:
 
 ```text
 VALID
-  ↓ dependency changed
-STALE / REVIEW_REQUIRED
-  ↓ deterministic target
-REBUILD
-  ↓ success
+  ↓ consumed input / builder revision changes
+BUILD_REQUIRED
+  ↓ explicit rebuild or sync
 VALID
 ```
 
-или:
+Semantic review:
 
 ```text
-STALE / REVIEW_REQUIRED
-  ↓ semantic review by AI/human
+VALID
+  ↓ semantic_review / compatibility source changes
+REVIEW_REQUIRED
+  ↓ external human/AI judgment
 still-valid OR updated
-  ↓
-new baseline
-  ↓
+  ↓ validate
 VALID
 ```
 
-`stale` означает: target больше не подтверждён относительно current dependency state. Это не автоматический вывод, что target неверен.
+Validity:
 
-## 8. Runtime state vs history
+```text
+VALID
+  ↓ validity source changes
+STALE
+  ↓ external human/AI review
+still-valid OR updated
+  ↓ validate
+VALID
+```
 
-Current state:
-`docs/_dependency/state/dependency_state.json`
+A change is evidence that prior validation context changed. It is not an automatic proof that semantic prose is false.
 
-Append-only history:
-`docs/_dependency/events/dependency_events.jsonl`
+## 7. `check`, `sync`, `rebuild`
 
-Receipts/history:
-`docs/_dependency/receipts/...`
+`docengine check` compares active receipts/baselines with current inputs and may update dependency state/events. It does not rebuild targets.
 
-Baselines:
-`docs/_dependency/baselines/...`
+`docengine rebuild TARGET` explicitly executes one deterministic builder and advances dependency evidence for that target; it does not materialize configured views.
 
-Штатные mutations выполняются CLI, а не ручным редактированием state-файлов.
+`docengine sync` performs a check, selectively rebuilds deterministic targets with no active receipt or `build_required`, checks again, materializes affected outputs, and reports unresolved semantic attention. `sync --all` broadens materialization selection; it does not force-rebuild every valid builder.
 
+## 8. Runtime state and history
 
-## 9. Executable P3 runtime
+```text
+docs/_dependency/state/dependency_state.json
+docs/_dependency/events/dependency_events.jsonl
+docs/_dependency/receipts/...
+docs/_dependency/baselines/...
+```
 
-See `DEPENDENCY_RUNTIME.md` for the persisted receipt/baseline/state/event contract, comparator behavior, builder-code invalidation and implemented CLI boundary.
+Current state is mutable engine-owned runtime state. Events/history are append-only evidence. Normal workflows use CLI/runtime APIs rather than direct state-file editing.
 
+## 9. Project-code revision
 
-## 10. P4 semantic review
+The current project extension revision is package-wide. Changing project Python can conservatively invalidate multiple deterministic targets through `builder_revision_changed`. Data dependency edges remain exact; code-revision invalidation is deliberately broader in v0.1.
 
-Explicit semantic rules and the validation workflow are implemented in `SEMANTIC_REVIEW.md`. Structural invalidation produces review evidence; only an explicit actor decision advances semantic validation.
+## 10. Further runtime contracts
+
+- `DEPENDENCY_RUNTIME.md` — persisted receipt/baseline/state/event details and comparators.
+- `SEMANTIC_REVIEW.md` — review packets, context-token validation and explicit verdicts.
+- `CORE_WORKFLOWS.md` — end-to-end authoring and invalidation workflows.

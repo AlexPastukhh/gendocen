@@ -24,7 +24,7 @@ The final command must print nothing. Git metadata (`.git/`) and local caches ar
 
 ## What is canonical
 
-- `START_HERE_AGENT.md` is the first file for a new AI/chat session.
+- New AI/chat sessions that need to **learn or use the engine** start with `README.md` → `docs/CLEAN_CHAT_QUICKSTART.md` → the relevant `docs/CORE_WORKFLOWS.md` workflow. `START_HERE_AGENT.md` is the maintainer/release handoff for continuing engine maintenance.
 - `plan/phase_records/*.json` are canonical execution/decision records.
 - `OPEN_QUESTIONS_AND_AMBIGUITIES.md` is the discoverable ambiguity/deferred-boundary index.
 - `MANIFEST.json` is generated release-package integrity evidence; do not hand-edit it.
@@ -65,13 +65,13 @@ Then rebuild/freeze the accepted manifest/archive using the release procedure in
 
 ## Version and tag policy
 
-The repository handoff/package version and Python runtime package version are separate identities. Do not create the stable Git tag `v0.1.0` while the Python package still has a development version such as `0.1.0.dev20`.
+The repository handoff/package version and Python runtime package version are separate identities. Do not create the stable Git tag `v0.1.0` while the Python package still has a development version such as `0.1.0.dev22`.
 
 Suitable repository tags before the stable runtime release include:
 
 ```text
-handoff-v0.28.0
-engine-v0.1.0.dev20
+handoff-v0.39.0
+engine-v0.1.0.dev22
 ```
 
 Reserve `v0.1.0` for a Python package whose actual version is `0.1.0`.

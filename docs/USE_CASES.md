@@ -1,6 +1,8 @@
 # Documentation Engine Use Cases
 
-Registry version: `0.3.0`; contract version: `1.1.0`.
+Registry version: `0.4.0`; contract version: `1.2.0`.
+
+> `DOCxx` entries are atomic normative contracts. End-to-end user/AI journeys live in `CORE_WORKFLOWS.md` and reference these IDs rather than redefining their behavior.
 
 ## DOC01 — Initialize documentation project
 
@@ -76,41 +78,45 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 - Materialization target определён в $docengine metadata.
 - Регистрация не создаёт dependency logic в JSON.
 
-## DOC03 — Register dependency rule
+## DOC03 — Define dependency semantics
 
 **Implementation target:** `v0.1`
 **Group / interaction:** `dependencies` / `command`
-**Intent:** Определить code-level dependency между source и target.
-**CLI/API surface:** Project code API/registry only; dependency semantics are authored in code, not persisted through a runtime registration CLI.
+**Intent:** Определить project-code dependency semantics: deterministic source edges фиксируются по фактическим tracked reads, semantic dependencies задаются explicit rules.
+**CLI/API surface:** Project code API/registry only. Deterministic source edges are discovered from ctx.read()/ctx.get() during builds; semantic review sources are declared explicitly in project rules.
 **Machine CLI commands:** _none_
 
 **Preconditions:**
 - target/source addressable or file path valid
+- project package loadable
 
 **Inputs:**
-- project code rule
+- deterministic builder code and/or semantic dependency rule
 
 **Reads:**
 - resource/file registry
+- deterministic inputs through BuildContext at build time
 
 **Writes:**
-- project dependency rule code/index
+- project-owned builder/rule code
 
 **Outputs:**
-- registered dependency rule
+- registered builder/rule semantics
 
 **Side effects:**
-- future checks track dependency
+- future deterministic builds capture actual tracked reads; semantic rules provide explicit review dependencies
 
 **Failure modes:**
 - unknown_ref
 - cyclic_dependency_disallowed
 - invalid_dependency_type
+- unregistered_builder_or_rule
 
 **Acceptance:**
-- Dependency semantics находится в code, не canonical resource data.
-- Granularity/type/comparator определены.
-- Rule can be inspected by graph/explain.
+- Dependency semantics находится в project code, не canonical resource data.
+- Deterministic source edges не поддерживаются вручную: receipt captures actual ctx.read()/ctx.get() reads.
+- Semantic dependency rules explicitly declare source refs/comparators and remain external to canonical resource data.
+- Registered/executed dependencies can be inspected by graph/explain.
 
 ## DOC04 — Load structured objects
 
@@ -169,16 +175,17 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 - raw/derived objects via BuildContext
 
 **Writes:**
-- derived object store
 - dependency receipt
 - baseline slices
+- dependency state/events
 
 **Outputs:**
-- derived object
+- transient derived object
 - dependency receipt
 
 **Side effects:**
 - tracked reads captured
+- validated dependency evidence persisted
 
 **Failure modes:**
 - missing_input
@@ -188,9 +195,10 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 
 **Acceptance:**
 - Raw inputs remain unchanged.
-- Derived object is a new object.
+- Derived object is a new immutable in-memory value.
 - Actual dependency-aware reads are captured in receipt.
 - Derived-of-derived is supported.
+- The DerivedObject payload is not a canonical persisted runtime object store; persistent build evidence is receipt/baseline/state/event data.
 
 ## DOC06 — Materialize view
 
@@ -259,7 +267,7 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 - diff summaries
 
 **Side effects:**
-- mark changed targets stale/review/rebuild required
+- persist dependency state/events; changed targets become build_required, review_required, stale or invalid according to dependency type and evidence
 
 **Failure modes:**
 - baseline_missing
@@ -269,7 +277,8 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 **Acceptance:**
 - Only declared/captured dependency slices are compared.
 - Unrelated field changes do not invalidate field-level dependencies.
-- Change detection does not claim semantic incorrectness.
+- Deterministic compute/copy/aggregate changes become build_required; semantic_review/compatibility changes become review_required; validity changes become stale.
+- Change detection does not claim semantic incorrectness and does not rebuild the target.
 
 ## DOC08 — Show project status
 
@@ -394,19 +403,19 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 - target ref
 
 **Reads:**
-- current dependencies
+- current deterministic inputs through registered builder/BuildContext
 
 **Writes:**
-- new derived object
-- new receipt/baseline
-- events
-- views if requested
+- dependency receipt
+- baseline slices
+- dependency state/events
 
 **Outputs:**
-- rebuilt target
+- rebuilt target metadata
+- new dependency receipt
 
 **Side effects:**
-- replace/advance derived version
+- builder executes and current dependency evidence advances
 
 **Failure modes:**
 - builder_error
@@ -415,7 +424,9 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 
 **Acceptance:**
 - Old raw sources are not mutated.
-- Successful rebuild advances baseline.
+- Successful rebuild advances receipt/baseline/state evidence for the target.
+- DerivedObject payload is transient and is not persisted as a canonical derived-object version store.
+- rebuild alone does not materialize configured views; materialize/sync owns generated file writes.
 - Failure leaves previous consistent state recoverable.
 
 ## DOC12 — Review semantic dependency
@@ -552,13 +563,13 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 - resources
 - state
 - baselines
-- rules
+- registered builders/rules
+- materialization metadata
 
 **Writes:**
-- state
-- rebuilt deterministic targets
-- generated views
-- events
+- dependency state/events
+- receipts/baselines for deterministic targets actually rebuilt
+- affected or explicitly selected generated views
 
 **Outputs:**
 - sync summary
@@ -572,9 +583,11 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 - materialization_error
 
 **Acceptance:**
-- Deterministic affected targets rebuild automatically.
-- Semantic targets remain review_required.
-- Summary lists all unresolved work.
+- sync performs dependency checking before rebuild planning.
+- Only missing-receipt/build_required deterministic targets rebuild automatically.
+- Semantic review_required/stale targets remain attention items and are not semantically repaired.
+- Default sync materializes affected outputs; --all broadens materialization selection and does not force-rebuild already-valid builders.
+- Summary lists unresolved attention/invalid/build work.
 
 ## DOC16 — Verify project
 
@@ -597,6 +610,7 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 - generated views
 - receipts
 - release rules
+- current project builders/rules/renderers for reproducibility checks
 
 **Writes:**
 - _none_
@@ -605,7 +619,7 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 - verification report + exit code
 
 **Side effects:**
-- _none_
+- no engine-managed project-state mutation; trusted project Python callbacks are not sandboxed and may have arbitrary external side effects
 
 **Failure modes:**
 - verification_failed
@@ -613,7 +627,8 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 **Acceptance:**
 - Unresolved stale/review-required can fail configured release gate.
 - Generated drift is detected.
-- Command is read-only.
+- The engine verification operation does not repair/advance engine-managed project state.
+- verify may execute trusted project Python; read-only does not mean sandboxed side-effect-free arbitrary callbacks.
 - --json sufficient for CI/AI.
 
 ## DOC17 — Inspect history
@@ -832,3 +847,91 @@ Registry version: `0.3.0`; contract version: `1.1.0`.
 - Generated views can be recreated after deletion.
 - No manual-only state is required to reproduce them.
 - Post-regeneration parity passes.
+
+## DOC23 — Recover interrupted transaction
+
+**Implementation target:** `v0.1`
+**Group / interaction:** `hardening` / `command`
+**Intent:** Безопасно согласовать interrupted mutating transaction, сохранив recovery evidence и не перезаписав неизвестные post-crash изменения без явного решения оператора.
+**CLI/API surface:** `docengine recover [--force]`
+**Machine CLI commands:** `recover`
+
+**Preconditions:**
+- project roots discoverable
+- runtime hardening evidence readable
+
+**Inputs:**
+- optional --force operator decision
+
+**Reads:**
+- open transaction journals
+- pre-images/backups
+- current target bytes
+- hardening audit history
+
+**Writes:**
+- restored/removed transaction targets when recovery is provably safe or force is explicit
+- recovery audit event
+- transaction journal cleanup on success
+
+**Outputs:**
+- recovery result and conflict diagnostics
+
+**Side effects:**
+- exclusive hardening mutation
+- forced recovery records forced=true and conflict paths
+
+**Failure modes:**
+- corrupt_journal
+- unknown_post_crash_change
+- recovery_required
+- rollback_failure
+
+**Acceptance:**
+- Default recovery validates the complete journal before mutation and fails closed on corrupt/rogue evidence.
+- Unknown post-crash changes are preserved; default recovery does not overwrite them.
+- --force is explicit destructive operator intent, is never used automatically, and is audit-recorded.
+- Successful recovery preserves an auditable recovery history and removes only resolved transaction residue.
+
+## DOC24 — Migrate runtime layout
+
+**Implementation target:** `v0.1`
+**Group / interaction:** `hardening` / `command`
+**Intent:** Перевести распознанный released runtime layout в текущий layout без сброса или переписывания released dependency/materialization evidence.
+**CLI/API surface:** `docengine migrate`
+**Machine CLI commands:** `migrate`
+
+**Preconditions:**
+- project roots discoverable
+- persisted runtime layout is current, empty, or a recognized migration source
+
+**Inputs:**
+- recognized migration source/version
+
+**Reads:**
+- runtime layout marker
+- migration registry
+- released dependency/materialization evidence
+- migration audit history
+
+**Writes:**
+- current runtime layout marker
+- migration audit event
+
+**Outputs:**
+- migration result/provenance
+
+**Side effects:**
+- recognized legacy layout becomes explicitly versioned while released evidence bytes remain preserved
+
+**Failure modes:**
+- unknown_runtime_layout
+- corrupt_released_evidence
+- migration_provenance_mismatch
+- migration_failure
+
+**Acceptance:**
+- Only registered/recognized migration paths are executed.
+- Released legacy evidence is integrity-checked and preserved rather than reset.
+- Unknown/future layouts are rejected rather than guessed.
+- Migration provenance is cross-checked against the migration registry and append-only audit event.

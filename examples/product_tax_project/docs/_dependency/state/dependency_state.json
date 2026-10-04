@@ -1,10 +1,11 @@
 {
-  "generated_at": "2026-10-02T00:39:16.257209Z",
+  "generated_at": "2026-10-04T04:53:53.908612Z",
+  "state_revision": 2,
   "state_schema_version": "1.0.0",
   "targets": {
     "resource://catalog/price_with_tax": {
       "changed_dependencies": [],
-      "last_receipt_id": "receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d",
+      "last_receipt_id": "receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa",
       "reason_codes": [],
       "status": "valid"
     }

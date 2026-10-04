@@ -106,7 +106,7 @@ status = attention_required
 ok = true
 ```
 
-P6 freezes final automation exit-code policy; P5 currently returns exit code 0 for this successful-but-attention-required operation.
+P6 freezes the final automation policy: this successful-but-attention-required result uses exit code `2`.
 
 ## Mixed semantic ↔ deterministic cycles
 
@@ -153,6 +153,8 @@ rebuild
 materialize
 sync
 verify
+recover
+migrate
 ```
 
-`verify` is the P6 read-only complete project report/release-gate query. P8 performs the final global release-gate consolidation; it does not imply that the `verify` command is unimplemented.
+`verify` is the P6 read-only complete project report/release-gate query; it does not fix engine-managed state, but may execute trusted unsandboxed project callbacks for reproducibility checks. `recover`/`migrate` are P7 hardening commands. P8 performs final global release-gate consolidation.

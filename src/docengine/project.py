@@ -92,6 +92,10 @@ def discover_roots(
     """
 
     current = _resolved(cwd or Path.cwd())
+    if isinstance(project_root, str) and not project_root.strip():
+        raise RootDiscoveryError("explicit project root must not be empty")
+    if isinstance(docs_root, str) and not docs_root.strip():
+        raise RootDiscoveryError("explicit documentation root must not be empty")
     if project_root is not None:
         project = _resolved(project_root, base=current)
         source = "explicit"
@@ -146,6 +150,10 @@ def initialize_project(
     """Create the v0.1 project contract without promoting plain Markdown."""
 
     current = _resolved(cwd or Path.cwd())
+    if isinstance(project_root, str) and not project_root.strip():
+        raise ProjectInitializationError("explicit project root must not be empty")
+    if isinstance(docs_root, str) and not docs_root.strip():
+        raise ProjectInitializationError("explicit documentation root must not be empty")
     if project_root is not None:
         project = _resolved(project_root, base=current)
     else:
@@ -156,7 +164,7 @@ def initialize_project(
     config_path = project / "docengine.toml"
     if config_path.is_symlink():
         raise ProjectInitializationError("docengine.toml symlinks are not allowed for initialization in v0.1")
-    requested_docs = _resolved(docs_root or "docs", base=project)
+    requested_docs = _resolved(docs_root if docs_root is not None else "docs", base=project)
     if not is_within(requested_docs, project):
         raise ProjectInitializationError("documentation root must be inside project root")
 

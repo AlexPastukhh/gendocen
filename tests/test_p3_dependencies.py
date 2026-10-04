@@ -561,6 +561,32 @@ class P3StateRevisionCompatibilityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp) / "project"
             shutil.copytree(PRODUCT, project)
+
+            # The bundled product fixture is kept current for release/verify coverage.
+            # Construct the legacy P3 representation explicitly so this compatibility
+            # test does not rely on a permanently stale example fixture.
+            events_path = project / "docs/_dependency/events/dependency_events.jsonl"
+            existing_events = [
+                json.loads(line)
+                for line in events_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            legacy_event = next(event for event in existing_events if event.get("state_revision") is None)
+            events_path.write_text(
+                json.dumps(legacy_event, separators=(",", ":"), sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+
+            state_path = project / "docs/_dependency/state/dependency_state.json"
+            state_payload = json.loads(state_path.read_text(encoding="utf-8"))
+            state_payload.pop("state_revision", None)
+            target_state = state_payload["targets"]["resource://catalog/price_with_tax"]
+            target_state["last_receipt_id"] = legacy_event["receipt_id"]
+            target_state["status"] = "valid"
+            target_state["changed_dependencies"] = []
+            target_state["reason_codes"] = []
+            state_path.write_text(json.dumps(state_payload, indent=2), encoding="utf-8")
+
             _, _, _, runtime = runtime_for(project)
 
             legacy_state = runtime.state.load()

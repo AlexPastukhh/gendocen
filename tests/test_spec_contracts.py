@@ -19,6 +19,11 @@ class SpecContractTests(unittest.TestCase):
         registry = load_json(ROOT / "spec/registries/USE_CASE_REGISTRY.json")
         validate_schema_instance(registry, schema)
 
+    def test_use_case_coverage_amendments_validate_against_schema(self):
+        schema = load_json(ROOT / "spec/schemas/USE_CASE_COVERAGE_AMENDMENTS.schema.json")
+        registry = load_json(ROOT / "spec/registries/USE_CASE_COVERAGE_AMENDMENTS.json")
+        validate_schema_instance(registry, schema)
+
     def test_malformed_use_case_registry_fails(self):
         schema = load_json(ROOT / "spec/schemas/USE_CASE_REGISTRY.schema.json")
         registry = load_json(ROOT / "spec/registries/USE_CASE_REGISTRY.json")

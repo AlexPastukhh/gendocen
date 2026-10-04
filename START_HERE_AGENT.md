@@ -1,6 +1,8 @@
-# START HERE — AI / new chat handoff
+# START HERE — engine maintainer / release handoff
 
-This archive is canonical through **P8 accepted**, the **v0.25 post-axis consistency correction**, the **v0.26 Git-persistence correction**, the **v0.27 Windows repository-portability correction**, and the **v0.28 Git-checkout portability correction**. Runtime build: **0.1.0.dev20**. No implementation phase follows P8.
+This archive is canonical through **P8 accepted** and the additive post-acceptance correction chain through **v0.39 project-config root-policy sync** (v0.25–v0.39). Runtime build: **0.1.0.dev22**. No implementation phase follows P8.
+
+> This file is the maintainer/release handoff. To learn or use the engine for project authoring, start with `README.md` → `docs/CLEAN_CHAT_QUICKSTART.md` → the relevant `docs/CORE_WORKFLOWS.md` workflow. Do not use this maintainer path as the default project-authoring tutorial.
 
 ## Read first
 

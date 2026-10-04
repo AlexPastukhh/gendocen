@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "policy": "Additive current use-case coverage corrections for capabilities already implemented in accepted historical phases. Historical phase execution records are not rewritten.",
+  "amendments": [
+    {
+      "use_case_id": "DOC23",
+      "implementation_phase": "P7",
+      "reason": "Post-acceptance documentation normalization: public recover behavior was implemented and accepted in P7 hardening but had no atomic DOC use case.",
+      "evidence_refs": [
+        "docs/HARDENING_RUNTIME.md",
+        "docs/CLI_CONTRACT.md",
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py",
+        "plan/P7_ACCEPTANCE_REVIEW.md"
+      ]
+    },
+    {
+      "use_case_id": "DOC24",
+      "implementation_phase": "P7",
+      "reason": "Post-acceptance documentation normalization: public migrate behavior was implemented and accepted in P7 hardening but had no atomic DOC use case.",
+      "evidence_refs": [
+        "docs/HARDENING_RUNTIME.md",
+        "docs/MIGRATIONS.md",
+        "docs/CLI_CONTRACT.md",
+        "src/docengine/hardening.py",
+        "tests/test_p7_hardening.py",
+        "plan/P7_ACCEPTANCE_REVIEW.md"
+      ]
+    }
+  ]
+}

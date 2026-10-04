@@ -1,79 +1,95 @@
 # Architecture
 
-## 1. Назначение
+## 1. Purpose
 
-Generic Documentation Engine — domain-independent runtime для документации, где часть информации остаётся plain Markdown, а часть получает structured representation и программно управляемые dependencies.
+Generic Documentation Engine is a domain-independent runtime for documentation where most files may remain plain Markdown while selected information becomes structured, addressable, dependency-aware and reproducibly generated.
 
-Главное разделение:
+The core separation is:
 
 ```text
-DATA                 → что сохранено
-SCHEMA               → какую форму имеют structured data
-CODE                 → как строятся/проверяются зависимости
-DEPENDENCY RUNTIME   → что изменилось относительно validated baseline
+DATA                 → canonical stored content
+SCHEMA               → structured-data shape
+PROJECT CODE          → deterministic computation / explicit semantic rules
+DEPENDENCY RUNTIME   → evidence, baselines, change state
 HUMAN / AI           → semantic judgment
-RENDERERS            → Markdown / JSON / HTML / UI / API
+PRESENTATION          → Markdown / custom file views / integration adapters
 ```
 
-## 2. Типы документов
+See `CORE_WORKFLOWS.md` first for end-to-end usage and `USE_CASES.md` for atomic contracts.
+
+## 2. Document/resource classes
 
 ### Plain Markdown
-Самостоятельный `.md`; engine может его полностью игнорировать.
+
+Independent `.md`; the engine may ignore it completely.
 
 ### Plain Markdown + semantic dependency
-Markdown остаётся самостоятельным, но dependency code регистрирует, какие upstream resources/fields делают его требующим повторной проверки.
+
+Markdown remains canonical prose. Project dependency code declares which upstream resource/file slices require the prose to be reviewed again.
 
 ### Structured managed document
-Canonical data живёт в `docs/_structured/...json`; Markdown является materialized human view.
+
+Canonical data lives under mirrored `docs/_structured/...json`; Markdown is a materialized human-facing view.
 
 ### Fully derived document
-Документ строится целиком builders/renderers из других objects; вручную не редактируется.
+
+A `derived_descriptor` owns target identity/materialization path, while a project builder constructs the object from tracked inputs. The generated file is not manually canonical.
 
 ## 3. Object pipeline
 
 ```text
-Structured JSON/YAML/etc.
-        ↓ validate
-Generic loader
-        ↓
-Immutable raw objects
-        ↓
-Builders / validators
-        ↓
-Derived / projection objects
-        ↓
-Renderers
-        ↓
-Markdown / JSON API / HTML / UI
+Structured JSON
+        ↓ validate/load
+Immutable RawObject
+        ↓ project builder / pure helpers
+Transient immutable DerivedObject
+        ↓ renderer / integration adapter
+Markdown / custom managed file / application integration
 ```
 
-Plain Markdown может обходить object pipeline полностью.
+Plain Markdown may bypass the object pipeline entirely.
+
+A successful build persists dependency evidence (receipt/baseline/state/events); it does **not** turn the DerivedObject payload into a canonical persisted object store.
 
 ## 4. Dependency pipeline
 
+Deterministic and semantic invalidation are different operations:
+
 ```text
-builder/validator code
-        ↓
-dependency-aware reads / explicit semantic dependency declarations
-        ↓
-Dependency Receipt
-        ↓
-Validated baseline slices
-        ↓
-upstream change
-        ↓
-diff old baseline vs current slice
-        ↓
-mark affected target stale/review_required
-        ↓
-rebuild deterministic OR semantic review by AI/human
-        ↓
-new baseline
+builder code                         semantic rule
+ctx.read()/ctx.get()                 explicit source refs/comparators
+        ↓                                      ↓
+actual tracked reads                       review dependency
+        └──────────────┬───────────────────────┘
+                       ↓
+                dependency receipt
+                       ↓
+              validated baseline slices
+                       ↓
+                 upstream change
+                       ↓
+                compare current state
+                       ↓
+       ┌───────────────┼────────────────┐
+       ↓               ↓                ↓
+BUILD_REQUIRED   REVIEW_REQUIRED      STALE
+compute/copy/    semantic_review/     validity
+aggregate        compatibility
+       ↓               ↓                ↓
+explicit         human/AI review      human/AI review
+rebuild/sync     still-valid|updated  still-valid|updated
+       └───────────────┴────────────────┘
+                       ↓
+                      VALID
 ```
 
-## 5. Raw vs derived
+`INVALID` is reserved for unusable/incomplete evidence such as unavailable sources/builders or incomplete audit evidence; it is not a synonym for ordinary staleness.
 
-Raw source object никогда не получает derived field "на месте".
+`check` detects/evaluates this state and may persist state/events; it does not rebuild deterministic outputs. `sync` performs the check, selectively rebuilds deterministic targets that are missing a receipt or are `build_required`, and leaves semantic attention unresolved.
+
+## 5. Raw vs derived invariant
+
+Raw source objects never gain derived fields “in place.”
 
 ```text
 Raw A + Raw B → Derived C
@@ -81,45 +97,62 @@ Raw A + Derived C → Derived D
 Derived C + Derived D → Projection E
 ```
 
-Это обязательный invariant для provenance, reproducibility и debugging.
+This is required for provenance, reproducibility and debugging.
 
-## 6. Object graph и dependency graph — разные вещи
+## 6. Object graph and dependency graph are different
 
-Object graph отвечает: какие сущности/refs существуют.
+The object/domain graph answers which resources/references exist.
 
-Dependency graph отвечает: какие конкретные field/resource states были использованы для build/validation другого target.
+The dependency graph answers which exact field/resource/file states were used to build or validate another target.
 
-Dependency graph должен быть runtime-derived из фактических reads и explicit semantic dependency rules, а не поддерживаться вручную как большая таблица.
+Deterministic source edges are runtime-derived from actual `BuildContext` reads. Semantic review edges are explicit project-code rules. Do not maintain a second manual deterministic edge table.
 
-## 7. Domain independence
+## 7. Project-authoring boundary
 
-Runtime не должен знать терминов конкретного проекта (`Opportunity`, `Measurement`, `Contract`, `APIEndpoint`). Он знает только универсальные primitives:
+Recommended target-oriented mirrored layout:
 
-- ResourceRef
-- FieldRef
-- ResourceStore
-- RawObject
-- DerivedObject
-- Builder
-- Validator
-- Renderer
-- DependencyReceipt
-- Baseline
-- Diff
-- DependencyState
-- Event
+```text
+project/
+  docs/<logical/path>.md
+  docs/_structured/<logical/path>.json
+  docengine_project/builders/<logical/path>.py
+  docengine_project/dependency_rules/<logical/path>.py
+```
 
-Project package определяет schemas/models/builders/validators/renderers/dependency rules.
+`docengine_project` stays outside the documentation root. Ordinary project dependency authoring should not require edits to `src/docengine/**`.
 
-## Generated-file ownership rule
+A builder/rule module must also be imported/registered through the project package registration surface; file placement alone does not make it active.
 
-Любой generated documentation file должен иметь явного documentation-owned owner. Для managed/fully-derived file outputs materialization path хранится в JSON descriptor под documentation root; code содержит builder/dependency semantics, но не является единственным местом, где спрятан destination path.
+Project Python is trusted/cooperative code, not a sandbox. Tracking guarantees cover mediated dependency reads, not arbitrary Python side effects.
 
-## P2 concrete build boundary
+## 8. Domain independence
 
-P2 implements the builder path shown above as an in-memory deterministic runtime: project-local builder registration, `BuildContext` tracked reads, immutable `DerivedObject`, direct provenance and cycle detection. Persistent receipts/baselines/state remain P3; materialization execution remains P5. See `BUILD_RUNTIME.md`.
+Core primitives remain generic:
 
+- `ResourceRef`, `FieldRef`
+- resource catalog/store
+- `RawObject`, `DerivedObject`
+- builder/semantic/renderer registries
+- `BuildContext`
+- receipt, baseline, diff, state, event
+- materialization and hardening runtimes
 
-## P5 concrete materialization boundary
+Project packages define schemas/models/builders/helpers/renderers/dependency rules.
 
-P5 adds deterministic renderers, documentation-owned materialization provenance, drift detection and bounded `sync`. Renderers perform presentation only; output paths come from documentation-owned `$docengine.materialize[]`. Sync rebuilds deterministic targets from dependency evidence but never fabricates P4 semantic acceptance. See `MATERIALIZATION_RUNTIME.md`.
+## 9. Generated-file ownership
+
+Every generated documentation output has an explicit documentation-owned owner. Managed/derived file paths live in `$docengine.materialize[]` under the mirrored structured descriptor. Project code owns computation/dependency semantics but is not the only place where destination ownership is hidden.
+
+Before editing visible Markdown, determine ownership with `docengine resources --json`. Managed/derived views resolve to structured ownership there; if a file is plain, additionally inspect `docengine graph file://PATH --json` for semantic `rules`/`rule_edges`. Generated views are edited through their canonical source/builder, not directly.
+
+## 10. Concrete implementation boundaries
+
+- **P2:** project builder registration, `BuildContext`, immutable transient `DerivedObject`, tracked reads, derived-of-derived and deterministic cycle detection.
+- **P3:** persistent receipts/baselines/state/events, comparators/diffs, code-revision invalidation and dependency inspection.
+- **P4:** explicit semantic rules/review/validation; engine never invents semantic verdicts.
+- **P5:** renderer registry, managed materialization, drift detection and bounded selective `sync`.
+- **P6:** complete CLI/AI protocol and project `verify`.
+- **P7:** locking, transactions, recovery/migration and hardening audit.
+- **P8:** final release verification/performance/package integrity.
+
+Built-in presentation is file-oriented (not a ready live UI/API backend). Project-defined renderers and external application adapters can expose other views without changing canonical ownership.

@@ -127,3 +127,74 @@
 - `WINDOWS_REPOSITORY_PORTABILITY_AUDIT.md` — v0.27 Windows/Python 3.14 repository portability defects, corrections and acceptance evidence.
 
 - `GITHUB_CHECKOUT_PORTABILITY_AUDIT.md` — v0.28 post-push fresh-checkout integrity/path-identity defects, corrections, regression coverage and release evidence.
+
+## v0.29 documentation/workflow normalization artifacts
+
+- `DOCUMENTATION_WORKFLOWS_EXECUTION.md` — post-P8 documentation/use-case normalization execution record; historical phase records remain unchanged.
+- `../docs/CORE_WORKFLOWS.md` — real-life authoring/inspection/hardening workflows composed from atomic DOCxx contracts.
+- `../spec/registries/USE_CASE_COVERAGE_AMENDMENTS.json` — additive mapping for post-acceptance atomic use cases naming already-implemented historical capabilities.
+- `../spec/schemas/USE_CASE_COVERAGE_AMENDMENTS.schema.json` — schema for additive coverage amendments.
+- `../tests/test_documentation_workflows.py` — workflow-reference, CLI coverage, mirrored authoring and runnable selective-invalidation checks.
+
+
+## v0.30 independent-review correction artifacts
+
+- `plan/DOCUMENTATION_WORKFLOWS_POST_REVIEW_CORRECTION.md` — additive record for the independent-review fixes applied after v0.29.
+- `tests/test_documentation_workflows.py` — adversarial regression coverage for semantic mirror authority, ownership classification, registration proof, semantic tutorial sequence, onboarding consistency, and future-helper guards.
+
+## v0.31 clean-chat onboarding correction artifacts
+
+- `../docs/CLEAN_CHAT_QUICKSTART.md` — zero-context environment/project-root/trust/ownership/task-routing entrypoint for a new human/AI session.
+- `CLEAN_CHAT_ONBOARDING_CORRECTION.md` — additive execution/scope record for the v0.31 onboarding correction.
+- `../tests/test_documentation_workflows.py` — clean-chat route/preflight regression coverage, including proof that `resources` inventory does not import project extensions.
+
+## v0.32 clean-chat bootstrap finalization artifacts
+
+- `../docs/CLEAN_CHAT_QUICKSTART.md` — adds bundled-wheel offline runtime bootstrap and root-explicit final command examples.
+- `CLEAN_CHAT_BOOTSTRAP_FINALIZATION.md` — additive execution/scope record for the v0.32 correction.
+- `../tests/test_documentation_workflows.py` — regression coverage for offline bootstrap documentation and explicit-root command examples.
+
+## v0.33 explicit-root consistency artifacts
+
+- `CLEAN_CHAT_EXPLICIT_ROOT_CORRECTION.md` — additive execution/scope record for the v0.33 root-selection correction.
+- `../docs/CORE_WORKFLOWS.md`, `../docs/AI_USAGE_PROTOCOL.md`, and runnable example READMEs — explicit-root project-command guidance.
+- `../tests/test_documentation_workflows.py` — two-project and nested-init root-selection regressions.
+
+## v0.34 root-context closure artifacts
+
+- `CLEAN_CHAT_ROOT_CONTEXT_CLOSURE.md` — additive execution/scope record for downstream root-context closure.
+- `../examples/sample_project/README.md` — establishes disposable fixture cwd before `--project-root .`.
+- `../tests/test_documentation_workflows.py` — inline/diagram command and fixture-ordering regression coverage.
+
+## v0.35 root-guard hardening artifacts
+
+- `CLEAN_CHAT_ROOT_GUARD_HARDENING.md` — additive record for compound/plain-prose root-guard hardening.
+- `../tests/test_documentation_workflows.py` — per-command `&&` / `||` / `;`, prose and multiline root-guard regressions.
+
+## v0.36 documentation consistency finalization artifacts
+
+- `WORKFLOW_SCENARIO_TEMPLATE_BASELINE_AMENDMENT.md` — additive refinement of the original identical-heading scenario-template requirement into a semantic minimum; the historical pre-work baseline is not rewritten.
+- `DOCUMENTATION_CONSISTENCY_FINALIZATION.md` — additive execution/scope record for current identity, WF03 baseline-example, scenario-template and root-option guard finalization.
+- `../docs/CORE_WORKFLOWS.md` — exact baseline `A.field3 + B.field2` example plus compact semantic-minimum workflow metadata.
+- `../tests/test_documentation_workflows.py` — identity, exact-example, scenario-minimum and token-aware root-option regressions.
+
+
+## v0.37 empty-root and WF03 hardening artifacts
+
+- `EMPTY_ROOT_WF03_HARDENING.md` — additive scope/decision/evidence record for the targeted runtime + documentation hardening correction.
+- `../src/docengine/project.py` — fail-closed rejection of empty explicit project roots for discovery and initialization.
+- `../docs/CORE_WORKFLOWS.md` — complete fresh-project A/B/C envelopes plus invalidation/sync/verify completion for WF03.
+- `../tests/test_project.py` and `../tests/test_documentation_workflows.py` — empty-root runtime and root-command guard regressions.
+
+## v0.38 empty-docs-root hardening artifacts
+
+- `EMPTY_DOCS_ROOT_HARDENING.md` — additive scope/decision/evidence record for the pre-existing empty documentation-root inconsistency discovered during the v0.37 full-package review.
+- `../src/docengine/project.py` — fail-closed rejection of empty explicit documentation roots for discovery and initialization.
+- `../docs/CLEAN_CHAT_QUICKSTART.md` and `../docs/CLI_CONTRACT.md` — explicit non-empty policy for both project-root and documentation-root CLI overrides.
+- `../tests/test_project.py`, `../tests/test_p1_init.py`, and `../tests/test_documentation_workflows.py` — API/CLI/no-mutation/false-verify regressions.
+
+## v0.39 project-config root-policy sync artifacts
+
+- `PROJECT_CONFIG_ROOT_POLICY_SYNC.md` — additive documentation-only record for synchronizing the active project-configuration reference with the accepted v0.38 explicit-root policy.
+- `../docs/PROJECT_CONFIG.md` — now states that explicit string `--project-root` and `--docs-root` overrides must be non-empty/non-whitespace; empty explicit values are exit-4 usage/config errors, while explicit `--docs-root .` remains valid.
+- `../tests/test_documentation_workflows.py` — regression coverage for current package identity and active project-config root-policy wording.
