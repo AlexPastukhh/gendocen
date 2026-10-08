@@ -1,0 +1,22 @@
+[
+  "tests/test_p1_init.py::P1InitSymlinkSafetyTests::test_existing_docs_symlink_outside_is_rejected_before_runtime_writes",
+  "tests/test_p1_init.py::P1InitConfigSymlinkSafetyTests::test_dangling_config_symlink_is_rejected_without_writing_target",
+  "tests/test_p1_resources.py::P1ResourceSymlinkSafetyTests::test_plain_markdown_symlink_outside_is_rejected",
+  "tests/test_p1_resources.py::P1ResourceSymlinkSafetyTests::test_structured_directory_symlink_outside_is_rejected",
+  "tests/test_p2_extensions.py::ProjectExtensionTests::test_project_package_must_be_confined_local_package",
+  "tests/test_p2_extensions.py::ProjectExtensionTreeSafetyTests::test_symlinked_submodule_is_rejected",
+  "tests/test_p3_dependencies.py::P3ReadOnlyAndFailureSemanticsTests::test_dependency_runtime_refuses_symlinked_baseline_store",
+  "tests/test_p5_materialization.py::P5MaterializationTests::test_materialization_refuses_symlink_replacement_after_catalog_scan",
+  "tests/test_p5_materialization.py::P5PostAxisRegressionTests::test_materialization_state_rejects_symlinked_state_directory_inside_docs",
+  "tests/test_p6_protocol.py::P6VerifyTests::test_verify_dependency_runtime_corruption_is_report_not_internal_error",
+  "tests/test_p7_hardening.py::P7HardeningPathTests::test_hardening_symlink_is_rejected",
+  "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_migration_rejects_symlinked_or_corrupt_released_evidence",
+  "tests/test_p7_hardening.py::P7PostAxisRegressionTests::test_rogue_transaction_entries_are_corruption_not_silently_ignored",
+  "tests/test_project.py::ProjectConfigSafetyTests::test_dangling_config_symlink_is_not_silently_ignored",
+  "tests/test_project.py::ProjectDiscoveryMalformedMarkerTests::test_upward_search_stops_at_dangling_config_marker",
+  "tests/test_transaction_lifecycle.py::test_lifecycle_symlinks_are_rejected_without_touching_destination[preparation_root]",
+  "tests/test_transaction_lifecycle.py::test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_root]",
+  "tests/test_transaction_lifecycle.py::test_lifecycle_symlinks_are_rejected_without_touching_destination[preparation_child]",
+  "tests/test_transaction_lifecycle.py::test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_ticket]",
+  "tests/test_transaction_lifecycle.py::test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_child]"
+]

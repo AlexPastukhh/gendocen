@@ -1,0 +1,9 @@
+{
+  "$docengine": {
+    "resource_id": "inputs.C",
+    "materialize": []
+  },
+  "data": {
+    "rate": 5
+  }
+}

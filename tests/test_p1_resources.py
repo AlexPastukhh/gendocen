@@ -1,3 +1,4 @@
+import pytest
 import contextlib
 import io
 import json
@@ -157,6 +158,7 @@ class P1ResourceTests(unittest.TestCase):
                 ResourceCatalog.scan(discover_roots(project_root=project))
 
 class P1ResourceSymlinkSafetyTests(unittest.TestCase):
+    @pytest.mark.requires_symlink
     def test_plain_markdown_symlink_outside_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
             project = Path(tmp) / "project"
@@ -167,6 +169,7 @@ class P1ResourceSymlinkSafetyTests(unittest.TestCase):
             with self.assertRaisesRegex(ResourceError, "escapes documentation root through symlink"):
                 ResourceCatalog.scan(discover_roots(project_root=project))
 
+    @pytest.mark.requires_symlink
     def test_structured_directory_symlink_outside_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
             project = Path(tmp) / "project"

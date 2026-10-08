@@ -1,0 +1,53 @@
+{
+  "runtime": "0.1.0.dev25",
+  "interpreter": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gdmf92d684\\venv\\Scripts\\python.exe",
+  "installed_module": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gdmf92d684\\venv\\Lib\\site-packages\\docengine\\__init__.py",
+  "platform": "win32",
+  "test_dependencies": {
+    "pytest": "8.4.2",
+    "jsonschema": "4.26.0"
+  },
+  "runs": [
+    {
+      "name": "installed-example",
+      "exit": 0,
+      "seconds": 28.89
+    },
+    {
+      "name": "source-tests",
+      "exit": 0,
+      "seconds": 224.789,
+      "summary": "364 passed, 1 skipped, 20 deselected in 223.25s (0:03:43)"
+    },
+    {
+      "name": "release-check",
+      "exit": 0,
+      "seconds": 8.273
+    },
+    {
+      "name": "spec-audit",
+      "exit": 0,
+      "seconds": 3.512
+    },
+    {
+      "name": "axes-audit",
+      "exit": 0,
+      "seconds": 0.451
+    },
+    {
+      "name": "manifest",
+      "exit": 0,
+      "seconds": 2.241
+    }
+  ],
+  "repository_unchanged_by_checks": true,
+  "manifest_files": 735,
+  "manifest_sha256": "b41ea6352712d64652429cc08f6856ced93bcfc99ad3e27885e5d67dd580b0bb",
+  "head": "df63405953f9de87ef0668e1d6bd99046694bd5c",
+  "ok": true,
+  "example": {
+    "ok": true,
+    "scenarios": 11,
+    "commands": 39
+  }
+}

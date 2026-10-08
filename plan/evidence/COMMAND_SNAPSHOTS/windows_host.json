@@ -1,0 +1,533 @@
+{
+  "runtime": "0.1.0.dev25",
+  "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "win32",
+  "results": [
+    {
+      "name": "wheel-install",
+      "code": 0,
+      "seconds": 4.61,
+      "ok": true
+    },
+    {
+      "name": "installed-version",
+      "code": 0,
+      "seconds": 0.34,
+      "ok": true
+    },
+    {
+      "name": "manifest-before",
+      "code": 0,
+      "seconds": 1.51,
+      "ok": true
+    },
+    {
+      "name": "source-pytest",
+      "code": 1,
+      "seconds": 152.76,
+      "ok": true
+    },
+    {
+      "name": "source-pytest-summary",
+      "counts": {
+        "tests": 382,
+        "failures": 15,
+        "errors": 0,
+        "skipped": 6,
+        "passed": 361
+      },
+      "failed": [
+        {
+          "name": "test_existing_docs_symlink_outside_is_rejected_before_runtime_writes",
+          "classname": "tests.test_p1_init.P1InitSymlinkSafetyTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpt7yukv07' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpgcy4eqzz\\\\docs'"
+        },
+        {
+          "name": "test_dangling_config_symlink_is_rejected_without_writing_target",
+          "classname": "tests.test_p1_init.P1InitConfigSymlinkSafetyTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpwwjyno0f\\\\would_be_written.toml' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpk62c_hhm\\\\docengine.toml'"
+        },
+        {
+          "name": "test_plain_markdown_symlink_outside_is_rejected",
+          "classname": "tests.test_p1_resources.P1ResourceSymlinkSafetyTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpdqir4453\\\\outside.md' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmp_k3gnw7p\\\\project\\\\docs\\\\leak.md'"
+        },
+        {
+          "name": "test_structured_directory_symlink_outside_is_rejected",
+          "classname": "tests.test_p1_resources.P1ResourceSymlinkSafetyTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmp5pq_vcfg\\\\structured' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpc2sjt9ib\\\\project\\\\docs\\\\_structured'"
+        },
+        {
+          "name": "test_project_package_must_be_confined_local_package",
+          "classname": "tests.test_p2_extensions.ProjectExtensionTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmp43wqd51i\\\\outside_package' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmp0uya2_oq\\\\project\\\\docengine_project'"
+        },
+        {
+          "name": "test_symlinked_submodule_is_rejected",
+          "classname": "tests.test_p2_extensions.ProjectExtensionTreeSafetyTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmp2j8dox3t\\\\builders.py' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmp4ppm9cfw\\\\project\\\\docengine_project\\\\builders.py'"
+        },
+        {
+          "name": "test_dependency_runtime_refuses_symlinked_baseline_store",
+          "classname": "tests.test_p3_dependencies.P3ReadOnlyAndFailureSemanticsTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpzijux261\\\\baselines' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpapevy54b\\\\project\\\\docs\\\\_dependency\\\\baselines'"
+        },
+        {
+          "name": "test_materialization_refuses_symlink_replacement_after_catalog_scan",
+          "classname": "tests.test_p5_materialization.P5MaterializationTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpa9dsj1oi\\\\outside.md' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmprtydidgi\\\\project\\\\docs\\\\catalog\\\\product.md'"
+        },
+        {
+          "name": "test_materialization_state_rejects_symlinked_state_directory_inside_docs",
+          "classname": "tests.test_p5_materialization.P5PostAxisRegressionTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmphezjhyuf\\\\project\\\\docs\\\\redirected_state' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmphezjhyuf\\\\project\\\\docs\\\\_dependency\\\\state'"
+        },
+        {
+          "name": "test_verify_dependency_runtime_corruption_is_report_not_internal_error",
+          "classname": "tests.test_p6_protocol.P6VerifyTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'dependency-real' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmp_ozv4116\\\\project\\\\docs\\\\_dependency'"
+        },
+        {
+          "name": "test_hardening_symlink_is_rejected",
+          "classname": "tests.test_p7_hardening.P7HardeningPathTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpxu5cn7aq\\\\project\\\\docs\\\\redirected_hardening' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpxu5cn7aq\\\\project\\\\docs\\\\_dependency\\\\hardening'"
+        },
+        {
+          "name": "test_migration_rejects_symlinked_or_corrupt_released_evidence",
+          "classname": "tests.test_p7_hardening.P7PostAxisRegressionTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpkyfiaxru\\\\project\\\\receipt-copy.json' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpkyfiaxru\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json'"
+        },
+        {
+          "name": "test_rogue_transaction_entries_are_corruption_not_silently_ignored",
+          "classname": "tests.test_p7_hardening.P7PostAxisRegressionTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpmfe_fpus\\\\project\\\\docs\\\\rogue-transaction-target' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpmfe_fpus\\\\project\\\\docs\\\\_dependency\\\\hardening\\\\transactions\\\\txn-rogue'"
+        },
+        {
+          "name": "test_dangling_config_symlink_is_not_silently_ignored",
+          "classname": "tests.test_project.ProjectConfigSafetyTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmpypro_hml\\\\missing.toml' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmp9l6hgc15\\\\docengine.toml'"
+        },
+        {
+          "name": "test_upward_search_stops_at_dangling_config_marker",
+          "classname": "tests.test_project.ProjectDiscoveryMalformedMarkerTests",
+          "message": "OSError: [WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmp7fl6eq93\\\\missing.toml' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\tmph7ulr_h4\\\\docengine.toml'"
+        }
+      ],
+      "skipped": [
+        {
+          "name": "test_concurrent_readers_share_lock",
+          "message": "Windows v0.1 safely serializes readers; shared-reader parity is POSIX-only"
+        },
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[preparation_root]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        },
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_root]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        },
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[preparation_child]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        },
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_ticket]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        },
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_child]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        }
+      ]
+    },
+    {
+      "name": "spec-audit",
+      "code": 0,
+      "seconds": 2.66,
+      "ok": true
+    },
+    {
+      "name": "axes-audit",
+      "code": 0,
+      "seconds": 0.32,
+      "ok": true
+    },
+    {
+      "name": "release-lifecycle",
+      "code": 0,
+      "seconds": 5.83,
+      "ok": true
+    },
+    {
+      "name": "installed-snapshot-operation-lifecycle-pytest",
+      "code": 0,
+      "seconds": 42.73,
+      "ok": true
+    },
+    {
+      "name": "installed-snapshot-operation-lifecycle-summary",
+      "counts": {
+        "tests": 86,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 5,
+        "passed": 81
+      },
+      "failed": [],
+      "skipped": [
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[preparation_root]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        },
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_root]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        },
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[preparation_child]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        },
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_ticket]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        },
+        {
+          "name": "test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_child]",
+          "message": "Windows execution context cannot create symlinks (WinError 1314)"
+        }
+      ]
+    },
+    {
+      "name": "source-snapshot-benchmark",
+      "code": 0,
+      "seconds": 8.88,
+      "ok": true
+    },
+    {
+      "name": "source-snapshot-benchmark-evidence",
+      "benchmark": {
+        "contract": "One capture plus one final byte validation per unique source; one full command validation",
+        "ok": true,
+        "platform": "win32",
+        "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+        "runtime": "0.1.0.dev25",
+        "samples": [
+          {
+            "median_seconds": 0.208896,
+            "ok": true,
+            "records": [
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.200471,
+                "source_byte_reads": 64,
+                "sources": 32
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.208896,
+                "source_byte_reads": 64,
+                "sources": 32
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.239026,
+                "source_byte_reads": 64,
+                "sources": 32
+              }
+            ],
+            "targets": 16
+          },
+          {
+            "median_seconds": 0.536222,
+            "ok": true,
+            "records": [
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.536222,
+                "source_byte_reads": 256,
+                "sources": 128
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.524899,
+                "source_byte_reads": 256,
+                "sources": 128
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.5983,
+                "source_byte_reads": 256,
+                "sources": 128
+              }
+            ],
+            "targets": 64
+          },
+          {
+            "median_seconds": 1.14995,
+            "ok": true,
+            "records": [
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 1.295556,
+                "source_byte_reads": 512,
+                "sources": 256
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 1.000562,
+                "source_byte_reads": 512,
+                "sources": 256
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 1.14995,
+                "source_byte_reads": 512,
+                "sources": 256
+              }
+            ],
+            "targets": 128
+          }
+        ],
+        "workload": "Independent initially unvalidated plain-Markdown semantic pairs"
+      }
+    },
+    {
+      "name": "installed-snapshot-benchmark",
+      "code": 0,
+      "seconds": 7.42,
+      "ok": true
+    },
+    {
+      "name": "installed-snapshot-benchmark-evidence",
+      "benchmark": {
+        "contract": "One capture plus one final byte validation per unique source; one full command validation",
+        "ok": true,
+        "platform": "win32",
+        "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+        "runtime": "0.1.0.dev25",
+        "samples": [
+          {
+            "median_seconds": 0.189234,
+            "ok": true,
+            "records": [
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.189167,
+                "source_byte_reads": 64,
+                "sources": 32
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.195299,
+                "source_byte_reads": 64,
+                "sources": 32
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.189234,
+                "source_byte_reads": 64,
+                "sources": 32
+              }
+            ],
+            "targets": 16
+          },
+          {
+            "median_seconds": 0.504355,
+            "ok": true,
+            "records": [
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.489255,
+                "source_byte_reads": 256,
+                "sources": 128
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.504355,
+                "source_byte_reads": 256,
+                "sources": 128
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.577223,
+                "source_byte_reads": 256,
+                "sources": 128
+              }
+            ],
+            "targets": 64
+          },
+          {
+            "median_seconds": 1.08701,
+            "ok": true,
+            "records": [
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 1.08701,
+                "source_byte_reads": 512,
+                "sources": 256
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 0.987285,
+                "source_byte_reads": 512,
+                "sources": 256
+              },
+              {
+                "exit": 2,
+                "full_validations": 1,
+                "ok": true,
+                "seconds": 1.239025,
+                "source_byte_reads": 512,
+                "sources": 256
+              }
+            ],
+            "targets": 128
+          }
+        ],
+        "workload": "Independent initially unvalidated plain-Markdown semantic pairs"
+      }
+    },
+    {
+      "name": "release-benchmark",
+      "code": 0,
+      "seconds": 12.74,
+      "ok": true
+    },
+    {
+      "name": "field_dependency_project-initial-sync",
+      "code": 0,
+      "seconds": 1.09,
+      "ok": true
+    },
+    {
+      "name": "field_dependency_project-initial-verify",
+      "code": 0,
+      "seconds": 0.65,
+      "ok": true
+    },
+    {
+      "name": "field_dependency_project-changed-check",
+      "code": 2,
+      "seconds": 0.59,
+      "ok": true
+    },
+    {
+      "name": "field_dependency_project-changed-sync",
+      "code": 0,
+      "seconds": 1.16,
+      "ok": true
+    },
+    {
+      "name": "field_dependency_project-changed-verify",
+      "code": 0,
+      "seconds": 0.79,
+      "ok": true
+    },
+    {
+      "name": "field_dependency_project-updated-output",
+      "ok": true,
+      "output": "# A\n\n**A:** 11\n\n**G:** 24\n"
+    },
+    {
+      "name": "nested_field_project-initial-sync",
+      "code": 0,
+      "seconds": 1.36,
+      "ok": true
+    },
+    {
+      "name": "nested_field_project-initial-verify",
+      "code": 0,
+      "seconds": 0.72,
+      "ok": true
+    },
+    {
+      "name": "nested_field_project-changed-check",
+      "code": 2,
+      "seconds": 0.82,
+      "ok": true
+    },
+    {
+      "name": "nested_field_project-changed-sync",
+      "code": 0,
+      "seconds": 1.55,
+      "ok": true
+    },
+    {
+      "name": "nested_field_project-changed-verify",
+      "code": 0,
+      "seconds": 0.8,
+      "ok": true
+    },
+    {
+      "name": "nested_field_project-updated-output",
+      "ok": true,
+      "output": "# Migration\n\n## Plan\n\n**Budget:** 60\n\n**Deadline:** 12\n\n### Description\n\n<a id=\"migration-plan\"></a>\nMigration execution.\n\n**Note:** Migration plan\n"
+    },
+    {
+      "name": "manifest-after",
+      "code": 0,
+      "seconds": 1.59,
+      "ok": true
+    }
+  ],
+  "limitations": [
+    {
+      "id": "UA-H1",
+      "type": "Windows symlink privilege",
+      "source_fixtures_blocked": 15,
+      "full_suite_passed": false,
+      "reason": "Known fixture creation failures: Path.symlink_to raises WinError 1314 before engine assertions"
+    }
+  ],
+  "complete": true,
+  "full_source_suite_passed": false,
+  "installed_runtime_origin": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-sync-20261008-92d68484\\verification-venv\\Lib\\site-packages\\docengine\\__init__.py",
+  "source_pytest_exit_note": "Exit 1 is retained; the runner continued only after checking the exact 15 prior symlink-fixture failures and WinError 1314 mechanism. An accepted runner exit is not a passing full suite.",
+  "recorded_at_utc": "2026-10-07T19:46:02.919936+00:00",
+  "host_repository": "C:\\Users\\alexa\\gendocen",
+  "transfer": {
+    "baseline_runtime": "0.1.0.dev24",
+    "baseline_files_sha256_matched": 687,
+    "applied_runtime": "0.1.0.dev25",
+    "applied_files_sha256_matched_before_evidence": 696,
+    "branch": "main",
+    "head": "df63405953f9de87ef0668e1d6bd99046694bd5c",
+    "user_changes_conflicted": false,
+    "commit_or_push_performed": false,
+    "desktop_gui_used": false
+  }
+}

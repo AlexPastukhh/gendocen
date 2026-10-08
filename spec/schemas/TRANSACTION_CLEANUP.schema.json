@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Docengine Completed Transaction Cleanup Ticket",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["cleanup_schema_version", "transaction_id", "outcome", "journal_hash", "completed_at"],
+  "properties": {
+    "cleanup_schema_version": {"const": "1.0.0"},
+    "transaction_id": {"type": "string", "pattern": "^txn-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"},
+    "outcome": {"enum": ["committed", "rolled_back"]},
+    "journal_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "completed_at": {"type": "string", "format": "date-time"}
+  }
+}

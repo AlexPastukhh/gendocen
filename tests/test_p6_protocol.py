@@ -1,3 +1,4 @@
+import pytest
 import argparse
 import contextlib
 import hashlib
@@ -192,6 +193,7 @@ class P6VerifyTests(unittest.TestCase):
 
 
 
+    @pytest.mark.requires_symlink
     def test_verify_dependency_runtime_corruption_is_report_not_internal_error(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp) / "project"

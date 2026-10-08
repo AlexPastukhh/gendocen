@@ -83,3 +83,9 @@ Release gate: **yes**.
 ## DAX20 — Release, manifest, documentation & handoff integrity
 Package contents, docs, schemas, examples, manifests and handoff instructions agree with implemented behavior.
 Release gate: **yes**.
+
+## Applying axes to project dependency authoring
+
+The axes above are the existing acceptance framework; their canonical machine definitions remain in [`spec/registries/ACCEPTANCE_AXES.json`](../spec/registries/ACCEPTANCE_AXES.json). An axis is a direction of review, not by itself an automatically executed check.
+
+[`Dependency Authoring Checks`](../docs/DEPENDENCY_AUTHORING_CHECKS.md) maps concrete known mistakes DAE01–DAE06 to these axes. DAE01 applies DAX06 to the case where a consumer relies on a value/assumption absent from its declared source slice. Use applicable checks when authoring/changing a connection; do not impose all twenty axes on each daily documentation edit. Historical phase/release pass records do not certify every future project's source map.

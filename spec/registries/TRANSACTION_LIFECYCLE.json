@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "runtime_layout_version": "1.0.0",
+  "active_journal_schema_version": "1.0.0",
+  "cleanup_schema_version": "1.0.0",
+  "compatibility": "additive namespaces; existing active journals, layout markers and released dependency evidence remain unchanged",
+  "preparation": {
+    "path": "hardening/transaction_preparation/txn-<uuid>",
+    "target_writes": false,
+    "allowed_contents": ["empty", "complete open journal with zero operations", "regular initial-journal atomic-write temporary files"],
+    "activation": "same-filesystem rename into active transactions after durable complete journal"
+  },
+  "active": {
+    "path": "hardening/transactions/txn-<uuid>",
+    "missing_journal": "blocking corruption, never disposable"
+  },
+  "cleanup": {
+    "ticket_path": "hardening/transaction_cleanup/txn-<uuid>.json",
+    "payload_path": "hardening/transaction_cleanup/txn-<uuid>",
+    "ticket_schema": "spec/schemas/TRANSACTION_CLEANUP.schema.json",
+    "order": ["durable completion and recovery audit when applicable", "durable ticket", "rename active payload", "remove payload contents and directory", "remove external ticket"],
+    "target_writes": false,
+    "incomplete_ticket_temporaries": "recognized regular atomic-write temporaries are disposable, not recovery authority"
+  },
+  "unknown_or_unsafe_entries": "blocking corruption; no guessed target writes or unconditional removal"
+}

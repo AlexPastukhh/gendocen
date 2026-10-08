@@ -260,6 +260,18 @@ if runtime_layout_version:
         props=tx_schema.get('properties',{})
         if props.get('journal_schema_version',{}).get('const') != '1.0.0' or 'transaction_id' not in props or 'operations' not in props:
             errors.append('TRANSACTION_JOURNAL schema missing required identity/operations contract')
+    lifecycle=j('spec/registries/TRANSACTION_LIFECYCLE.json')
+    cleanup_schema=j('spec/schemas/TRANSACTION_CLEANUP.schema.json')
+    if lifecycle and cleanup_schema:
+        cleanup_props=cleanup_schema.get('properties',{})
+        if lifecycle.get('runtime_layout_version') != runtime_layout_version or lifecycle.get('active_journal_schema_version') != '1.0.0':
+            errors.append('transaction lifecycle extension must preserve current layout/active journal versions')
+        if lifecycle.get('cleanup_schema_version') != cleanup_props.get('cleanup_schema_version',{}).get('const'):
+            errors.append('transaction cleanup schema/registry version mismatch')
+        if cleanup_schema.get('additionalProperties') is not False or set(cleanup_schema.get('required',[])) != {'cleanup_schema_version','transaction_id','outcome','journal_hash','completed_at'}:
+            errors.append('transaction cleanup ticket must pin completion authority and reject unknown fields')
+        if lifecycle.get('preparation',{}).get('target_writes') is not False or lifecycle.get('cleanup',{}).get('target_writes') is not False:
+            errors.append('transaction preparation/cleanup must never authorize target writes')
     recovery_schema=j('spec/schemas/HARDENING_RECOVERY_EVENT.schema.json')
     migration_event_schema2=j('spec/schemas/HARDENING_MIGRATION_EVENT.schema.json')
     if recovery_schema and recovery_schema.get('additionalProperties') is not False:

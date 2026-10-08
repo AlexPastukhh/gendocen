@@ -1,0 +1,4 @@
+[docengine]
+config_version = 1
+documentation_root = "docs"
+project_package = "docengine_project"

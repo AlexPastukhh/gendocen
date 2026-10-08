@@ -39,7 +39,58 @@ Before a file is changed, the transaction durably records:
 
 Only after this journal/pre-image is durable does the file change occur. Ordinary file changes still use atomic same-directory replacement.
 
-A successful command marks the journal `committed` and removes it before the lock is released. An exception rolls the transaction back synchronously. If that synchronous rollback itself fails, P7 **preserves the transaction journal and pre-images**; it never deletes the only recovery evidence while the target may still contain transactional bytes.
+A successful command marks the journal `committed` and retires it through the
+cleanup protocol below before the lock is released. An exception rolls the
+transaction back synchronously, then uses the same retirement protocol. If that
+synchronous rollback itself fails, P7 **preserves the transaction journal and
+pre-images**; it never deletes the only recovery evidence while the target may
+still contain transactional bytes.
+
+### Safe preparation and retirement (dev24)
+
+The lifecycle contract is in
+[`TRANSACTION_LIFECYCLE.json`](../spec/registries/TRANSACTION_LIFECYCLE.json);
+implementation and acceptance are recorded in
+[`TRANSACTION_LIFECYCLE_FIX.md`](../plan/TRANSACTION_LIFECYCLE_FIX.md).
+
+1. Preparation uses `hardening/transaction_preparation/txn-<uuid>`. No target
+   file may be changed before activation. The complete initial journal is written
+   and flushed before the directory is renamed into `hardening/transactions/`.
+   A failed initial journal write therefore leaves preparation, not an active
+   journal-free transaction.
+2. After durable commit or completed rollback, the runtime writes an external
+   `hardening/transaction_cleanup/txn-<uuid>.json` ticket. The ticket pins the
+   transaction ID, outcome, completion timestamp and original journal digest.
+   Explicit recovery records its recovery audit event before publishing this ticket.
+3. The active directory is renamed into `transaction_cleanup/txn-<uuid>` before
+   recursive deletion. The ticket remains outside that directory until the
+   entire payload is removed. An interruption after deleting `journal.json`
+   therefore leaves valid completion authority rather than corrupt active state.
+
+Preparation and cleanup entries are maintenance, never instructions to modify
+target files. Recognized preparation may be empty, contain an `open` journal with
+zero operations, or contain regular initial-journal atomic-write temporaries.
+Completed cleanup may have a partially removed payload or only its ticket.
+Recognized incomplete ticket temporaries have no recovery authority and can be
+discarded. Unknown names/files, symlinks, malformed tickets, mismatched hashes
+or identities, duplicate active/cleanup payloads and corrupt active journals
+remain blocking evidence and are preserved.
+
+Read-only commands do not remove maintenance entries; `verify` reports
+`transaction_cleanup_required` as a warning. Explicit `recover`, or automatic
+recovery before an ordinary mutation, safely retries the maintenance. If cleanup
+I/O continues to fail, the error remains visible; losing a child journal during
+cleanup no longer creates a permanent metadata blocker.
+
+An old empty **active** transaction directory remains corruption: this repair
+does not infer whether its missing journal once described uncommitted writes.
+Keep the evidence and diagnose it rather than deleting it by assumption.
+
+The new cleanup ticket schema is 1.0.0. Active journals, released dependency
+evidence, layout markers and migration histories retain their existing versions
+and bytes. This is an additive extension to layout 1.0.0; no data migration is
+required. Older runtimes can read existing active journals, but do not maintain
+the new preparation/cleanup namespaces. Use dev24 or later for that maintenance.
 
 ## Crash recovery
 

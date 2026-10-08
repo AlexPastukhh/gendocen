@@ -1,6 +1,14 @@
 # START HERE — engine maintainer / release handoff
 
-This archive is canonical through **P8 accepted** and the additive post-acceptance correction chain through **v0.39 project-config root-policy sync** (v0.25–v0.39). Runtime build: **0.1.0.dev22**. No implementation phase follows P8.
+This checkout preserves **P8 accepted** and the additive post-acceptance correction chain through **v0.39 project-config root-policy sync** (v0.25–v0.39), then adds **v0.40 field dependency expansion**. Then **v0.41 transaction lifecycle repair** closes the prepared-journal/cleanup interruption windows. Then **v0.42 command snapshots** remove repeated source I/O while retaining final validation. Runtime build: **0.1.0.dev25**. No implementation phase follows P8.
+
+Additive work in this checkout: v0.40 implements [`plan/FIELD_DEPENDENCY_EXPANSION.md`](plan/FIELD_DEPENDENCY_EXPANSION.md), following the flat `FIELD-AUTHORING-1` helper. It adds nested fields, P-2 error handling and operation-scoped reuse. Expansion acceptance is recorded separately from historical P0–P8 evidence.
+
+The additive [Markdown-field example](examples/markdown_field_project/README.md)
+demonstrates author-selected slices from tracked canonical prose with the same
+helper/runtime. Its checks and scope are recorded in
+[`plan/MARKDOWN_FIELD_EXAMPLE.md`](plan/MARKDOWN_FIELD_EXAMPLE.md); no runtime,
+wheel or persisted-schema version changes accompany this example.
 
 > This file is the maintainer/release handoff. To learn or use the engine for project authoring, start with `README.md` → `docs/CLEAN_CHAT_QUICKSTART.md` → the relevant `docs/CORE_WORKFLOWS.md` workflow. Do not use this maintainer path as the default project-authoring tutorial.
 
@@ -48,3 +56,18 @@ python tools/release_manifest.py validate --json
 ```
 
 No caller `PYTHONPATH` setup is required.
+
+For Windows link-fixture privilege failures, use the maintained
+[`tools/test_symlinks.py`](tools/test_symlinks.py) profile described in
+[`docs/SYMLINK_TESTS.md`](docs/SYMLINK_TESTS.md). Preparation runs without elevation
+and prints manual execution/readback commands. Future real-link tests require
+the `requires_symlink` marker; full CI checks direct creators for missing markers.
+Never infer a passing security gate from a closed console or skipped cases.
+
+The maintained targeted Windows profile is now verified: **20 selected / 20
+passed**, zero failures/errors/skips, including all five lifecycle confinement
+cases. Ordinary report readback and short independent fixture storage are also
+confirmed. Current acceptance/evidence is in
+[`plan/SYMLINK_TEST_WORKFLOW.md`](plan/SYMLINK_TEST_WORKFLOW.md). Older P-1/P-2
+Windows counts remain historical; ordinary Python privileges are unchanged and
+the full Windows/remote CI matrix was not rerun by this targeted follow-up.

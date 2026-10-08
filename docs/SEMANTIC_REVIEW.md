@@ -38,7 +38,7 @@ A rule has a deterministic revision derived from its target, type, exact sources
 ### Registration boundaries
 
 - Markdown dependencies are whole-file only. No Markdown-section addressing exists in v0.1.
-- Partial-document dependencies must be represented as structured JSON and addressed as a field/object.
+- Partial-document dependencies use a structured field/object ref. Its JSON-compatible value may come from canonical structured data or from a project producer that reads tracked canonical Markdown and exposes an explicitly bounded derived slice; the original prose can remain Markdown. See the runnable [Markdown field project](../examples/markdown_field_project/README.md).
 - Current target/source availability is checked at runtime, not while importing the project extension. This preserves diagnostics when a reviewed file is later deleted or temporarily broken.
 - An exact whole target may not simultaneously be a deterministic builder target and a semantic-rule target in v0.1. Current dependency state selects one active receipt per exact target. Field-level semantic refs remain distinct refs and are not affected by this exact-target restriction.
 - Exact semantic-rule cycles are rejected.

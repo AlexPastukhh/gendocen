@@ -31,6 +31,8 @@ def register(registry):
 
 These rules say which changed context requires renewed judgment; they do not encode the judgment itself.
 
+The declared source must cover what the consumer actually uses. A depends on C's exact value when B's selected field only points to C and does not expose that value; an indirect dependency is valid when B exposes the needed tracked derived field. Structural validity cannot detect every omitted assumption. Apply [Dependency Authoring Checks](DEPENDENCY_AUTHORING_CHECKS.md) when designing or changing a connection, especially DAE01/DAX06.
+
 ## 2. Dependency types and changed-state mapping
 
 | Type | Meaning | Changed target state |
@@ -53,6 +55,8 @@ Canonical executable v0.1 source refs support:
 - whole plain file — `file://path.md`
 
 Field dependency tracks only the addressed JSON Pointer value. Whole-resource dependency changes when any domain data in that resource changes.
+
+Reading a field of a registered derived resource completes its owning builder. To demand independently computed nested fields, use [`FIELD_DEPENDENCIES.md`](FIELD_DEPENDENCIES.md): each atomic provider has its own internal whole target, and root/intermediate composites gather declared children. A leaf read leaves unrelated siblings unevaluated; a whole composite read requires all its declared descendants. Computed providers and optional raw overrides are explicit. This pattern uses the existing ref/receipt scheme.
 
 Whole-file Markdown dependency does not require JSON. `file://` is for plain canonical Markdown; structured/derived content is addressed through `resource://` so canonical ownership and field-level tracking are not bypassed.
 
@@ -124,11 +128,13 @@ A change is evidence that prior validation context changed. It is not an automat
 
 ## 7. `check`, `sync`, `rebuild`
 
-`docengine check` compares active receipts/baselines with current inputs and may update dependency state/events. It does not rebuild targets.
+`docengine check` compares active receipts/baselines with current inputs and may update dependency state/events. It can execute builders in memory to resolve current derived sources; it does not record replacement deterministic build receipts or materialize their outputs.
 
 `docengine rebuild TARGET` explicitly executes one deterministic builder and advances dependency evidence for that target; it does not materialize configured views.
 
 `docengine sync` performs a check, selectively rebuilds deterministic targets with no active receipt or `build_required`, checks again, materializes affected outputs, and reports unresolved semantic attention. `sync --all` broadens materialization selection; it does not force-rebuild every valid builder.
+
+In dev23, CLI evaluation paths reuse each complete successful build within one stable operation, including sync's initial/final checks and materialization. Separate commands get fresh scopes. Persisted valid evidence can mean no target appears in `sync.data.rebuilt` even though current values were evaluated to compare dependencies. A successful cached value does not replace receipt/state/provenance validation.
 
 ## 8. Runtime state and history
 

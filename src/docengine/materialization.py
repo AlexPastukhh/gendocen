@@ -377,12 +377,14 @@ class MaterializationRuntime:
 
     def _resolve_input(self, item: MaterializationOwner, cache: dict[str, RawObject | DerivedObject]) -> tuple[Any, str, str]:
         owner_ref = item.owner_ref
+        if self.dependency_runtime.operation is not None:
+            self.dependency_runtime.operation.observe_source(owner_ref)
         owner_s = str(owner_ref)
         if owner_s in cache:
             obj = cache[owner_s]
         elif self.builders.has_target(owner_ref):
             try:
-                obj = BuildEngine(self.catalog, self.builders).build(owner_ref)
+                obj = BuildEngine(self.catalog, self.builders, operation=self.dependency_runtime.operation).build(owner_ref)
             except BuilderError as exc:
                 raise MaterializationError(f"cannot build materialization owner {owner_ref}: {exc}") from exc
             cache[owner_s] = obj
@@ -395,7 +397,9 @@ class MaterializationRuntime:
         if isinstance(obj, DerivedObject):
             self._validate_derived_evidence(owner_ref, obj)
             return obj.data, obj.version, "derived"
-        return obj.data, self.catalog.version(owner_ref), "managed"
+        operation = self.dependency_runtime.operation
+        version = operation.source_value_and_version(owner_ref)[1] if operation is not None else self.catalog.version(owner_ref)
+        return obj.data, version, "managed"
 
     def _record_for(self, item: MaterializationOwner, *, input_revision: str, output_digest: str) -> dict[str, str]:
         renderer = self.renderers.get(item.target.renderer)
@@ -550,6 +554,8 @@ class MaterializationRuntime:
 
         results: list[dict[str, Any]] = []
         updates = dict(outputs)
+        if self.dependency_runtime.operation is not None:
+            self.dependency_runtime.operation.checkpoint()
         for item, path, rendered, record, current_digest in prepared:
             written = current_digest != record["output_digest"]
             if written:
@@ -724,7 +730,7 @@ class SyncRuntime:
         if not self.builders.has_target(ref):
             raise MaterializationError(f"no deterministic builder registered for {ref}")
         try:
-            result = BuildEngine(self.materialization.catalog, self.builders).build(ref)
+            result = BuildEngine(self.materialization.catalog, self.builders, operation=self.runtime.operation).build(ref)
         except BuilderError as exc:
             raise MaterializationError(f"deterministic rebuild failed for {ref}: {exc}") from exc
         receipt = self.runtime.record_build(result)

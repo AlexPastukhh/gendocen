@@ -1,6 +1,6 @@
 # Build Runtime Contract — P2
 
-P2 implements the generic, in-memory builder layer. Persisted receipts/baselines/state remain P3.
+P2 names the implemented generic, in-memory builder layer; P3 names the implemented persisted receipt/baseline/state layer. The current dev25 runtime includes the accepted P0–P8 layers and the additive stable-operation behavior below. Phase names in this contract identify responsibilities rather than future work.
 
 ## Project registration
 
@@ -120,7 +120,9 @@ No timestamp is included in deterministic build provenance. The project-package 
 
 A read of a registered derived target recursively invokes its builder in the same build session. One build session caches a derived target once.
 
-P2 records **direct** dependencies for each derived object. Transitive provenance remains available through the provenance of downstream derived inputs; P3 will persist receipts/graph state.
+In v0.1 a registered builder target is a whole resource. Reading a field of that target first completes the whole builder; it does not expose partially returned fields. For independent computed-field dependencies, the project-owned recipe in [`FIELD_DEPENDENCIES.md`](FIELD_DEPENDENCIES.md) registers small internal resources with `{"value": ...}` and composes final documents afterward. Internal resources need no descriptor JSON. CLI evaluation paths now share one BuildOperation per command; standalone BuildEngine calls stay fresh unless explicitly supplied that scope. No value cache or new ref scheme is persisted.
+
+P2 records **direct** dependencies for each derived object. Transitive provenance remains available through the provenance of downstream derived inputs; P3 persists receipts/graph state when a successful build is recorded.
 
 ## Cycles
 
@@ -141,7 +143,7 @@ P2 does **not** persist:
 - dependency state/events;
 - built derived objects as canonical runtime state.
 
-Those begin in P3/P5 according to the implementation plan. P2 proves the build semantics and dependency evidence in memory first.
+These are provided by the implemented P3/P5 layers. A standalone BuildEngine build produces values/provenance in memory; recording and materialization are separate runtime actions.
 
 
 ## P3 persistence
@@ -149,3 +151,63 @@ Those begin in P3/P5 according to the implementation plan. P2 proves the build s
 P2 build execution remains ordinary Python logic, but P3 can persist a successful `DerivedObject` as a dependency receipt. Exact values observed by tracked reads are carried in-memory only long enough to create content-addressed dependency-slice baselines. The public provenance envelope exposes a digest, not the full snapshot value.
 
 Builder code revision is a first-class invalidation input. P3 compares the recorded `builder_revision` to the current project package revision and marks deterministic targets `build_required` when code changed.
+
+
+## Stable-operation builds (dev23)
+
+`BuildOperation(store, registry)` reuses successful immutable DerivedObjects and captured provenance across whole-target builds. The CLI supplies the same operation to dependency resolution, sync rebuilding, inspection/materialization and read-only verification. Library calls opt in with `BuildEngine(..., operation=operation)` and `DependencyRuntime(..., operation=operation)`; no global cache is created.
+
+With an already discovered catalog and registered project builders, explicit library reuse is:
+
+```python
+from docengine import BuildEngine, BuildOperation, DependencyRuntime
+
+operation = BuildOperation(catalog, registry)
+engine = BuildEngine(catalog, registry, operation=operation)
+runtime = DependencyRuntime(roots, catalog, registry, operation=operation)
+first = engine.build("resource://views/A")
+second = engine.build("resource://views/B")
+operation.assert_current()
+```
+
+Both roots may reuse a shared successful prerequisite. This snippet only creates in-memory values. Callers that persist evidence/output must use the existing lock/transaction contract and check consistency before publishing; BuildOperation itself does not open a transaction. Catalog and registry identity must match the operation. CLI users receive the full integration automatically.
+
+Canonical whole sources are pinned before exact-slice reads. Catalog values and physical hashes come from the same bytes. Explicit consistency checks compare consumed source fingerprints and project Python revision; an observed mismatch poisons the operation, including when a producer catches the first error. CLI final checks happen inside existing transaction/read guards. A mismatch at that boundary rolls back engine-managed writes. Successful results alone are cached; ordinary failed producers are retryable. Separate commands capture current inputs again.
+
+Derived-source BuilderError is normalized at DependencyResolver into a caused DependencyError. Check classifies unavailable source as invalid, retaining the source/cycle message; direct BuildEngine callers retain BuilderError subclasses. Recursive execution and default Python recursion depth remain unchanged.
+
+## Command snapshots (dev25)
+
+CLI evaluation and `verify` use `BuildOperation(catalog, registry, validation="command")`.
+Each canonical Markdown source is read once to capture both its normalized text
+and exact physical-byte hash. Managed JSON objects retain the immutable data and
+physical hash captured together by catalog scan. Exact pointer versions are
+computed from that pinned data and reused; they are not whole-file versions.
+Repeated tracked reads and successful builders reuse the same values in the
+command. Metadata-only materialization owners are also tracked once.
+
+The CLI performs one complete source/code validation before returning its result,
+inside the existing read guard or transaction. `verify` turns a final mismatch
+into a blocking report finding. Source validation reads actual bytes; size and
+timestamps alone are insufficient. A final mismatch or earlier explicitly detected
+failure cannot publish new success: engine receipts, baselines, state, events and
+generated Markdown roll back. External canonical edits are not engine writes and
+are not rolled back. No cache is persisted or reused by the next command.
+
+Edit canonical inputs/project code between commands; keep them stable while a
+command runs. Builders compute values using tracked reads; renderers produce
+outputs. Generated output/runtime writes are normal. A temporary external edit
+completely restored before validation is not guaranteed to be observed. The
+command consistently uses its pinned value; an already detected failure stays
+failed even after restoration. This is cooperative tracking, not a filesystem
+watcher or sandbox for arbitrary project Python.
+
+The default library constructor remains `BuildOperation(store, registry)` with
+`validation="per_call"`: it retains strict before/after-call checks. Library callers
+opting into `validation="command"` must call `assert_current()` before externally
+publishing work and arrange their own lock/transaction. `assert_current()` always
+forces a full check. Internal `checkpoint()` is cheap only in command mode and
+still propagates a sticky failure. Custom stores without catalog snapshot support
+retain their normal per-read version semantics and guards.
+
+Acceptance and measured I/O/timing: [Command snapshot checks](../plan/COMMAND_SNAPSHOT_CHECKS.md).

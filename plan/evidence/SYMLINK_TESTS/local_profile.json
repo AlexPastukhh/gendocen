@@ -1,0 +1,22 @@
+{
+  "report_schema_version": "1.0.0",
+  "repository": "/workspace/scratch/92d68484d013/repos/gendocen-symlink-checks",
+  "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "platform": "linux",
+  "elevated": null,
+  "collection_only": false,
+  "output_directory": "/workspace/scratch/92d68484d013/analysis/symlink-runs-final/20261007T201854Z-1e40c9ac73be",
+  "complete": true,
+  "ok": true,
+  "symlinks_available": true,
+  "pytest_exit": 0,
+  "selected_count": 20,
+  "counts": {
+    "tests": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 20
+  },
+  "repository_unchanged": true
+}

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "generic-documentation-engine"
-version = "0.1.0.dev22"
+version = "0.1.0.dev25"
 description = "Generic Markdown-first documentation engine with structured resources and dependency-aware workflows"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -26,3 +26,4 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+markers = ["requires_symlink: requires creation of real filesystem symbolic links; included by tools/test_symlinks.py"]

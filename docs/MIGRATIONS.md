@@ -14,6 +14,15 @@ These are distinct concepts:
 
 P7 keeps released state schema at `1.0.0`, machine output at `2.0.0`, and introduces runtime layout `1.0.0`.
 
+Dev24 adds the separately versioned transaction preparation/cleanup protocol
+documented in [Hardening Runtime](HARDENING_RUNTIME.md#safe-preparation-and-retirement-dev24).
+It preserves active journal schema 1.0.0 and existing layout marker/provenance.
+The side namespaces contain no dependency receipts or target rollback authority;
+cleanup tickets authorize only retirement of already completed transactions.
+No released evidence or existing marker is rewritten. Old active journals recover
+through the same parser and are retired safely by dev24. Older engines do not
+maintain the new side namespaces; resume maintenance with the updated runtime.
+
 ## Registered P7 migration
 
 `legacy-p6-unmarked → 1.0.0`

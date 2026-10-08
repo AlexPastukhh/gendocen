@@ -1,0 +1,50 @@
+{
+  "status": "accepted_targeted_windows_profile",
+  "checked_at_utc": "2026-10-07T21:08:04.709800+00:00",
+  "result": {
+    "report_schema_version": "1.0.0",
+    "repository": "C:\\Users\\alexa\\gendocen",
+    "python": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-sync-20261008-92d68484\\verification-venv\\Scripts\\python.exe",
+    "platform": "win32",
+    "elevated": true,
+    "collection_only": false,
+    "output_directory": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-symlink-maintenance-20261008-92d68484\\corrected-reports\\20261007T205419Z-ba31cc168948",
+    "complete": true,
+    "ok": true,
+    "temporary_directory": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gda2aabc30",
+    "symlinks_available": true,
+    "pytest_exit": 0,
+    "selected_count": 20,
+    "counts": {
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 20
+    },
+    "repository_unchanged": true
+  },
+  "independent_validation": {
+    "junit_matches_selected_nodes": true,
+    "all_cases_passed": true,
+    "p7_migration_case_passed": true,
+    "all_five_lifecycle_cases_passed": true,
+    "stderr_empty": true
+  },
+  "pre_evidence_manifest_sha256": "617b77166f1cebd27c5a309a20b0f213855368732d755812cfb847f8085590a4",
+  "normal_support": {
+    "counts": {
+      "tests": 79,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "repository_status_unchanged": true
+  },
+  "limits": [
+    "Targeted 20-case elevated Windows run; not a repeated full Windows suite or remote CI matrix.",
+    "Ordinary Python still requires a capable context to create symlinks; no OS policy/account rights were changed."
+  ],
+  "runtime": "0.1.0.dev25",
+  "wheel_unchanged": true
+}

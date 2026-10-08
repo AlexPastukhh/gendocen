@@ -1,6 +1,6 @@
 """Generic Documentation Engine foundation."""
 
-from .builders import BuildContext, BuildEngine, BuilderRegistry, DerivedObject
+from .builders import BuildContext, BuildEngine, BuildOperation, BuilderRegistry, DerivedObject
 from .dependencies import ComparatorRegistry, DependencyRuntime, ExplicitDependency
 from .materialization import MaterializationRuntime, RendererRegistry, SyncRuntime
 from .semantic import SemanticDependencyRegistry, SemanticReviewRuntime, ValidationContext
@@ -11,6 +11,7 @@ from .versions import ENGINE_VERSION, MACHINE_OUTPUT_SCHEMA_VERSION, PERSISTED_S
 __all__ = [
     "BuildContext",
     "BuildEngine",
+    "BuildOperation",
     "BuilderRegistry",
     "DerivedObject",
     "ComparatorRegistry",

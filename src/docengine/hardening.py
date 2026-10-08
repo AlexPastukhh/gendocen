@@ -105,6 +105,15 @@ def _valid_transaction_id(value: Any) -> bool:
     return str(parsed) == value[4:]
 
 
+def _real_stage_root(path: Path) -> None:
+    if path.is_symlink() or (path.exists() and not path.is_dir()):
+        raise HardeningError(f"transaction stage must be a real directory: {path.name}")
+
+
+def _journal_temp_name(name: str) -> bool:
+    return re.fullmatch(r"journal\.json\.tmp-[0-9]+-[0-9a-f]{8}", name) is not None
+
+
 def _fsync_dir(path: Path) -> None:
     try:
         fd = os.open(path, os.O_RDONLY)
@@ -242,7 +251,9 @@ class FileTransaction:
             raise TransactionError("dependency runtime directory must not be a symlink")
         self.hardening_root = dep / "hardening"
         self.tx_root = self.hardening_root / "transactions"
-        if self.hardening_root.is_symlink() or self.tx_root.is_symlink():
+        self.preparation_root = self.hardening_root / "transaction_preparation"
+        self.cleanup_root = self.hardening_root / "transaction_cleanup"
+        if any(p.is_symlink() for p in (self.hardening_root, self.tx_root, self.preparation_root, self.cleanup_root)):
             raise TransactionError("hardening transaction path must not contain symlinks")
         self.transaction_id = f"txn-{uuid.uuid4()}"
         self.path = self.tx_root / self.transaction_id
@@ -250,6 +261,20 @@ class FileTransaction:
         self._ops: dict[str, dict[str, Any]] = {}
         self._token = None
         self._write_count = 0
+
+    def _activate(self) -> None:
+        HardeningManager._validate_preparation(self.path)
+        HardeningManager._parse_journal(self.path)  # a complete journal is mandatory
+        destination = self.tx_root / self.transaction_id
+        _real_stage_root(self.tx_root)
+        self.tx_root.mkdir(parents=True, exist_ok=True)
+        if destination.exists() or destination.is_symlink():
+            raise TransactionError(f"active transaction identity already exists: {self.transaction_id}")
+        os.rename(self.path, destination)
+        self.path = destination
+        self.journal_path = self.path / "journal.json"
+        _fsync_dir(self.tx_root)
+        _fsync_dir(self.preparation_root)
 
     def _relative(self, path: Path) -> str:
         resolved = path.resolve(strict=False)
@@ -283,13 +308,20 @@ class FileTransaction:
         if active_transaction() is not None:
             raise TransactionError("nested hardening transactions are not supported")
         self.started_at = _utc_now()
+        _real_stage_root(self.preparation_root)
+        self.path = self.preparation_root / self.transaction_id
+        self.journal_path = self.path / "journal.json"
         self.path.mkdir(parents=True, exist_ok=False)
         _fsync_dir(self.path.parent)
         self._write_journal("open")
+        _fsync_dir(self.path)
+        self._activate()
         self._token = _ACTIVE_TRANSACTION.set(self)
         return self
 
     def before_write(self, path: Path, *, planned_after_hash: str | None = None) -> None:
+        if self._token is None or active_transaction() is not self:
+            raise TransactionError("target writes require an activated transaction")
         rel = self._relative(path)
         if rel in self._ops:
             op = self._ops[rel]
@@ -348,8 +380,7 @@ class FileTransaction:
     def commit(self) -> None:
         self._write_journal("committed")
         _fsync_dir(self.path)
-        shutil.rmtree(self.path)
-        _fsync_dir(self.tx_root)
+        HardeningManager(self.roots)._retire_transaction(self.path, "committed")
 
     def rollback(self) -> None:
         # Restore in reverse registration order. Repeating rollback is idempotent.
@@ -377,9 +408,7 @@ class FileTransaction:
         # rollback itself fails.  A later explicit recovery must still be able to
         # diagnose the interrupted transaction.
         self.rollback()
-        shutil.rmtree(self.path, ignore_errors=False)
-        if self.tx_root.exists():
-            _fsync_dir(self.tx_root)
+        HardeningManager(self.roots)._retire_transaction(self.path, "rolled_back")
         return False
 
 
@@ -396,9 +425,102 @@ class HardeningManager:
             raise HardeningError("dependency runtime directory must not be a symlink")
         self.hardening_root = self.dep / "hardening"
         self.tx_root = self.hardening_root / "transactions"
-        if self.hardening_root.is_symlink() or self.tx_root.is_symlink():
+        self.preparation_root = self.hardening_root / "transaction_preparation"
+        self.cleanup_root = self.hardening_root / "transaction_cleanup"
+        if any(p.is_symlink() for p in (self.hardening_root, self.tx_root, self.preparation_root, self.cleanup_root)):
             raise HardeningError("hardening runtime path must not contain symlinks")
         self.recovery_events = self.hardening_root / "recovery_events.jsonl"
+
+    @classmethod
+    def _validate_preparation(cls, directory: Path) -> None:
+        if directory.is_symlink() or not directory.is_dir() or not _valid_transaction_id(directory.name):
+            raise HardeningError(f"invalid transaction preparation: {directory.name}")
+        for entry in directory.iterdir():
+            if entry.is_symlink() or not entry.is_file() or (entry.name != "journal.json" and not _journal_temp_name(entry.name)):
+                raise HardeningError(f"unknown preparation contents: {directory.name}/{entry.name}")
+        if (directory / "journal.json").exists():
+            journal = cls._parse_journal(directory)
+            if journal["phase"] != "open" or journal["operations"]:
+                raise HardeningError(f"preparation contains active transaction evidence: {directory.name}")
+
+    @staticmethod
+    def _parse_cleanup_ticket(path: Path) -> dict[str, Any]:
+        if path.is_symlink() or not path.is_file() or not _valid_transaction_id(path.stem) or path.suffix != ".json":
+            raise HardeningError(f"invalid cleanup ticket: {path.name}")
+        try:
+            ticket = json.loads(path.read_text(encoding="utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise HardeningError(f"invalid cleanup ticket JSON: {path.name}: {exc}") from exc
+        required = {"cleanup_schema_version", "transaction_id", "outcome", "journal_hash", "completed_at"}
+        if not isinstance(ticket, dict) or set(ticket) != required or ticket.get("cleanup_schema_version") != "1.0.0":
+            raise HardeningError(f"invalid cleanup ticket shape/version: {path.name}")
+        if ticket["transaction_id"] != path.stem or not isinstance(ticket["outcome"], str) or ticket["outcome"] not in {"committed", "rolled_back"} or not _is_sha256(ticket["journal_hash"]):
+            raise HardeningError(f"invalid cleanup ticket authority: {path.name}")
+        _parse_timestamp(ticket["completed_at"], label=f"cleanup {path.stem} completed_at")
+        return ticket
+
+    @classmethod
+    def _validate_cleanup_payload(cls, directory: Path, ticket: Mapping[str, Any], *, active: bool = False) -> None:
+        if directory.is_symlink() or not directory.is_dir() or directory.name != ticket["transaction_id"]:
+            raise HardeningError(f"invalid cleanup payload: {directory.name}")
+        journal = directory / "journal.json"
+        if journal.exists() or journal.is_symlink() or active:
+            parsed = cls._parse_journal(directory)
+            if "sha256:" + _sha256(journal.read_bytes()) != ticket["journal_hash"]:
+                raise HardeningError(f"cleanup journal hash mismatch: {directory.name}")
+            expected = "committed" if ticket["outcome"] == "committed" else "open"
+            if parsed["phase"] != expected:
+                raise HardeningError(f"cleanup outcome/journal mismatch: {directory.name}")
+        for entry in directory.iterdir():
+            allowed = entry.name == "journal.json" or _journal_temp_name(entry.name) or re.fullmatch(r"backup-[0-9]{5}\.bin", entry.name)
+            if not allowed or entry.is_symlink() or not entry.is_file():
+                raise HardeningError(f"unknown cleanup payload contents: {directory.name}/{entry.name}")
+
+    def _publish_cleanup_ticket(self, directory: Path, outcome: str) -> dict[str, Any]:
+        _real_stage_root(self.cleanup_root)
+        self.cleanup_root.mkdir(parents=True, exist_ok=True)
+        ticket_path = self.cleanup_root / (directory.name + ".json")
+        ticket = {"cleanup_schema_version": "1.0.0", "transaction_id": directory.name,
+                  "outcome": outcome, "journal_hash": "sha256:" + _sha256((directory / "journal.json").read_bytes()),
+                  "completed_at": _utc_now()}
+        self._validate_cleanup_payload(directory, ticket, active=True)
+        if ticket_path.exists() or ticket_path.is_symlink():
+            existing = self._parse_cleanup_ticket(ticket_path)
+            if any(existing[k] != ticket[k] for k in ("transaction_id", "outcome", "journal_hash")):
+                raise HardeningError(f"conflicting cleanup ticket: {directory.name}")
+            return existing
+        _direct_atomic_write(ticket_path, _canonical_json(ticket) + b"\n")
+        return ticket
+
+    def _move_to_cleanup(self, directory: Path) -> Path:
+        destination = self.cleanup_root / directory.name
+        if destination.exists() or destination.is_symlink():
+            raise HardeningError(f"active and cleanup transaction both exist: {directory.name}")
+        os.rename(directory, destination)
+        _fsync_dir(self.cleanup_root)
+        _fsync_dir(self.tx_root)
+        return destination
+
+    def _finish_cleanup(self, ticket: Mapping[str, Any]) -> None:
+        directory = self.cleanup_root / str(ticket["transaction_id"])
+        if directory.exists() or directory.is_symlink():
+            self._validate_cleanup_payload(directory, ticket)
+            shutil.rmtree(directory)
+            _fsync_dir(self.cleanup_root)
+        # The authority stays outside the recursively deleted payload until last.
+        (self.cleanup_root / (str(ticket["transaction_id"]) + ".json")).unlink()
+        _fsync_dir(self.cleanup_root)
+
+    def _retire_transaction(self, directory: Path, outcome: str) -> None:
+        if outcome not in {"committed", "rolled_back"}:
+            raise HardeningError(f"invalid transaction completion outcome: {outcome}")
+        journal = self._parse_journal(directory)
+        if directory.parent != self.tx_root or journal["phase"] != ("committed" if outcome == "committed" else "open"):
+            raise HardeningError(f"invalid transaction retirement: {directory.name}")
+        ticket = self._publish_cleanup_ticket(directory, outcome)
+        self._validate_cleanup_payload(directory, ticket, active=True)
+        self._move_to_cleanup(directory)
+        self._finish_cleanup(ticket)
 
     @staticmethod
     def _validate_operation(op: Any, *, txid: str, index: int) -> dict[str, Any]:
@@ -458,7 +580,7 @@ class HardeningManager:
             raise HardeningError(f"transaction id/directory mismatch: {directory.name}")
         if not isinstance(payload.get("operation"), str) or not payload["operation"]:
             raise HardeningError(f"transaction operation must be non-empty: {txid}")
-        if payload.get("phase") not in {"open", "committed"}:
+        if not isinstance(payload.get("phase"), str) or payload["phase"] not in {"open", "committed"}:
             raise HardeningError(f"invalid transaction phase for {txid}: {payload.get('phase')!r}")
         _parse_timestamp(payload.get("started_at"), label=f"transaction {txid} started_at")
         _parse_timestamp(payload.get("updated_at"), label=f"transaction {txid} updated_at")
@@ -478,12 +600,55 @@ class HardeningManager:
         return result
 
     def pending_transactions(self) -> list[dict[str, Any]]:
-        if not self.tx_root.exists():
-            return []
-        if self.tx_root.is_symlink() or not self.tx_root.is_dir():
-            raise HardeningError("transaction directory must be a real directory, not a symlink/file")
+        for root in (self.tx_root, self.preparation_root, self.cleanup_root):
+            _real_stage_root(root)
         pending: list[dict[str, Any]] = []
-        for entry in sorted(self.tx_root.iterdir(), key=lambda p: p.name):
+        linked_active: set[str] = set()
+        cleanup_entries = list(self.cleanup_root.iterdir()) if self.cleanup_root.exists() else []
+        ticket_names = {entry.stem for entry in cleanup_entries if entry.suffix == ".json"}
+        for entry in sorted(cleanup_entries, key=lambda p: p.name):
+            try:
+                if entry.suffix == ".json":
+                    ticket = self._parse_cleanup_ticket(entry)
+                    active = self.tx_root / ticket["transaction_id"]
+                    payload = self.cleanup_root / ticket["transaction_id"]
+                    has_active = active.exists() or active.is_symlink()
+                    has_payload = payload.exists() or payload.is_symlink()
+                    if has_active and has_payload:
+                        raise HardeningError(f"active and cleanup transaction both exist: {entry.stem}")
+                    if has_active:
+                        self._validate_cleanup_payload(active, ticket, active=True)
+                        linked_active.add(entry.stem)
+                    elif has_payload:
+                        self._validate_cleanup_payload(payload, ticket)
+                    pending.append({**ticket, "phase": "cleanup", "cleanup_only": True,
+                                    "lifecycle_stage": "active_cleanup" if has_active else "cleanup"})
+                elif _valid_transaction_id(entry.name) and entry.name in ticket_names:
+                    # This payload is inspected through its external ticket.
+                    continue
+                elif re.fullmatch(r"txn-[0-9a-f-]{36}\.json\.tmp-[0-9]+-[0-9a-f]{8}", entry.name) and _valid_transaction_id(entry.name[:40]):
+                    if entry.is_symlink() or not entry.is_file():
+                        raise HardeningError(f"invalid cleanup temporary file: {entry.name}")
+                    pending.append({"transaction_id": entry.name[:40], "phase": "cleanup", "cleanup_only": True,
+                                    "lifecycle_stage": "cleanup_temporary", "temporary_name": entry.name})
+                else:
+                    raise HardeningError(f"unknown cleanup entry or missing ticket: {entry.name}")
+            except HardeningError as exc:
+                pending.append({"transaction_id": entry.name, "phase": "corrupt", "error": str(exc)})
+        if self.preparation_root.exists():
+            for entry in sorted(self.preparation_root.iterdir(), key=lambda p: p.name):
+                try:
+                    self._validate_preparation(entry)
+                    if (self.tx_root / entry.name).exists() or (self.cleanup_root / entry.name).exists() or entry.name in ticket_names:
+                        raise HardeningError(f"transaction preparation identity conflict: {entry.name}")
+                    pending.append({"transaction_id": entry.name, "phase": "preparing", "cleanup_only": True,
+                                    "lifecycle_stage": "preparation"})
+                except HardeningError as exc:
+                    pending.append({"transaction_id": entry.name, "phase": "corrupt", "error": str(exc)})
+        active_entries = list(self.tx_root.iterdir()) if self.tx_root.exists() else []
+        for entry in sorted(active_entries, key=lambda p: p.name):
+            if entry.name in linked_active:
+                continue
             try:
                 payload = self._parse_journal(entry)
             except HardeningError as exc:
@@ -612,14 +777,35 @@ class HardeningManager:
         pending = self.pending_transactions()
         recovered: list[dict[str, Any]] = []
         for journal in pending:
-            txid = str(journal.get("transaction_id", "unknown"))
             if journal.get("phase") == "corrupt":
-                raise RecoveryRequiredError(f"cannot automatically recover corrupt transaction journal: {txid}: {journal.get('error')}")
+                raise RecoveryRequiredError(f"cannot automatically recover corrupt transaction journal: {journal['transaction_id']}: {journal.get('error')}")
+        for journal in pending:
+            txid = str(journal.get("transaction_id", "unknown"))
+            stage = journal.get("lifecycle_stage")
+            if stage == "preparation":
+                directory = self.preparation_root / txid
+                self._validate_preparation(directory)
+                shutil.rmtree(directory)
+                _fsync_dir(self.preparation_root)
+                recovered.append({"transaction_id": txid, "action": "discard_preparation"})
+                continue
+            if stage == "cleanup_temporary":
+                (self.cleanup_root / journal["temporary_name"]).unlink(missing_ok=True)
+                _fsync_dir(self.cleanup_root)
+                recovered.append({"transaction_id": txid, "action": "discard_cleanup_temporary"})
+                continue
+            if stage in {"cleanup", "active_cleanup"}:
+                if stage == "active_cleanup":
+                    self._retire_transaction(self.tx_root / txid, journal["outcome"])
+                else:
+                    self._finish_cleanup(journal)
+                recovered.append({"transaction_id": txid, "action": "cleanup_" + journal["outcome"]})
+                continue
             directory = self.tx_root / txid
             if directory.parent != self.tx_root or not directory.is_dir() or directory.is_symlink():
                 raise RecoveryRequiredError(f"unsafe transaction directory during recovery: {txid}")
             if journal["phase"] == "committed":
-                shutil.rmtree(directory)
+                self._retire_transaction(directory, "committed")
                 recovered.append({"transaction_id": txid, "action": "cleanup_committed"})
                 continue
 
@@ -648,7 +834,7 @@ class HardeningManager:
             }
             self._validate_recovery_event(event, lineno=0)
             self._append_recovery_event(event)
-            shutil.rmtree(directory)
+            self._retire_transaction(directory, "rolled_back")
             recovered.append(event)
         if self.tx_root.exists():
             _fsync_dir(self.tx_root)

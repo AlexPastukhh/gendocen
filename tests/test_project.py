@@ -1,3 +1,4 @@
+import pytest
 import tempfile
 import unittest
 from pathlib import Path
@@ -100,6 +101,7 @@ class ProjectConfigDiscoveryTests(unittest.TestCase):
             self.assertEqual(roots.documentation_root, (root / "manual_docs").resolve())
 
 class ProjectConfigSafetyTests(unittest.TestCase):
+    @pytest.mark.requires_symlink
     def test_dangling_config_symlink_is_not_silently_ignored(self):
         with tempfile.TemporaryDirectory() as project, tempfile.TemporaryDirectory() as outside:
             root = Path(project)
@@ -108,6 +110,7 @@ class ProjectConfigSafetyTests(unittest.TestCase):
                 discover_roots(project_root=root)
 
 class ProjectDiscoveryMalformedMarkerTests(unittest.TestCase):
+    @pytest.mark.requires_symlink
     def test_upward_search_stops_at_dangling_config_marker(self):
         with tempfile.TemporaryDirectory() as project, tempfile.TemporaryDirectory() as outside:
             root = Path(project)

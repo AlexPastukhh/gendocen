@@ -1,0 +1,83 @@
+{
+  "complete": true,
+  "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+  "runtime": "0.1.0.dev25",
+  "results": [
+    {
+      "name": "marker-contract",
+      "exit_code": 0,
+      "seconds": 1.02,
+      "ok": true
+    },
+    {
+      "name": "runner-prepare",
+      "exit_code": 0,
+      "seconds": 4.21,
+      "ok": true
+    },
+    {
+      "name": "runner-unprivileged",
+      "exit_code": 4,
+      "seconds": 0.93,
+      "ok": true
+    },
+    {
+      "name": "manifest",
+      "exit_code": 0,
+      "seconds": 1.77,
+      "ok": true
+    },
+    {
+      "name": "spec",
+      "exit_code": 0,
+      "seconds": 2.5,
+      "ok": true
+    },
+    {
+      "name": "axes",
+      "exit_code": 0,
+      "seconds": 0.3,
+      "ok": true
+    }
+  ],
+  "preparation": {
+    "report_schema_version": "1.0.0",
+    "repository": "C:\\Users\\alexa\\gendocen",
+    "python": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-sync-20261008-92d68484\\verification-venv\\Scripts\\python.exe",
+    "platform": "win32",
+    "elevated": false,
+    "collection_only": true,
+    "output_directory": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-symlink-maintenance-20261008-92d68484\\readable-reports\\20261007T202447Z-8ced3a303efa",
+    "complete": true,
+    "ok": true,
+    "pytest_exit": 0,
+    "selected_count": 20,
+    "repository_unchanged": true
+  },
+  "execution": {
+    "report_schema_version": "1.0.0",
+    "repository": "C:\\Users\\alexa\\gendocen",
+    "python": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-sync-20261008-92d68484\\verification-venv\\Scripts\\python.exe",
+    "platform": "win32",
+    "elevated": false,
+    "collection_only": false,
+    "output_directory": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-symlink-maintenance-20261008-92d68484\\readable-reports\\20261007T202447Z-8ced3a303efa",
+    "complete": false,
+    "ok": false,
+    "error_type": "OSError",
+    "error": "[WinError 1314] \u041a\u043b\u0438\u0435\u043d\u0442 \u043d\u0435 \u043e\u0431\u043b\u0430\u0434\u0430\u0435\u0442 \u0442\u0440\u0435\u0431\u0443\u0435\u043c\u044b\u043c\u0438 \u043f\u0440\u0430\u0432\u0430\u043c\u0438: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202447Z-8ced3a303efa\\\\capability\\\\file' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202447Z-8ced3a303efa\\\\capability\\\\file-link'",
+    "winerror": 1314
+  },
+  "normal_process_can_read_reports": true,
+  "repository_status_unchanged": true,
+  "previous_user_run_unread": true,
+  "elevated_runner_acceptance_pending": true,
+  "host_repository": "C:\\Users\\alexa\\gendocen",
+  "transfer": {
+    "baseline_files_matched": 697,
+    "initial_files_matched": 703,
+    "existing_user_changes_preserved": true,
+    "commit_or_push": false,
+    "GUI_automation": false
+  }
+}

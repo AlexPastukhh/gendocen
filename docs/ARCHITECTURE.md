@@ -85,7 +85,7 @@ rebuild/sync     still-valid|updated  still-valid|updated
 
 `INVALID` is reserved for unusable/incomplete evidence such as unavailable sources/builders or incomplete audit evidence; it is not a synonym for ordinary staleness.
 
-`check` detects/evaluates this state and may persist state/events; it does not rebuild deterministic outputs. `sync` performs the check, selectively rebuilds deterministic targets that are missing a receipt or are `build_required`, and leaves semantic attention unresolved.
+`check` detects/evaluates this state and may persist state/events. Resolving current derived sources can execute their builders in memory; recording replacement deterministic build receipts and materializing outputs remain explicit rebuild/sync actions. `sync` performs the check, selectively rebuilds deterministic targets that are missing a receipt or are `build_required`, and leaves semantic attention unresolved.
 
 ## 5. Raw vs derived invariant
 
@@ -134,10 +134,13 @@ Core primitives remain generic:
 - `RawObject`, `DerivedObject`
 - builder/semantic/renderer registries
 - `BuildContext`
+- `BuildOperation` — explicit reuse of complete successful builds/provenance within one stable operation
 - receipt, baseline, diff, state, event
 - materialization and hardening runtimes
 
 Project packages define schemas/models/builders/helpers/renderers/dependency rules.
+
+Independent nested field authoring uses the project-owned [`FieldPlan` recipe](FIELD_DEPENDENCIES.md) over whole internal resources. Atomic providers remain complete computational units; composites gather independent children at root/intermediate levels. CLI evaluation paths share a BuildOperation across resolution/check/rebuild/materialization, then discard it at command completion. In-memory reuse preserves the existing source ownership and persisted ref/receipt contracts.
 
 ## 9. Generated-file ownership
 

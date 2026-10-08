@@ -14,6 +14,11 @@
 - `PLAN_AUDIT.md` — findings/fixes from the plan consistency audit.
 - `../tools/audit_spec.py` — executable self-audit for schemas, mappings, coverage, gates and manifest.
 
+- `MARKDOWN_FIELD_EXAMPLE.md` — copyable Markdown-derived field route and its acceptance scope.
+- `../examples/markdown_field_project/README.md` — runnable whole-file/selected-section dependency, nested quotation and explicit review example.
+- `../examples/markdown_field_project/check_example.py` — installed-wheel disposable lifecycle/negative checks; no pytest dependency.
+- `../tests/test_markdown_field_project.py` — normal repository regression for that executable route.
+
 - `P0_ACCEPTANCE_REVIEW.md` — P0 implementation/acceptance review and evidence summary.
 - `evidence/P0/` — P0 test, clean-install and CLI-envelope evidence.
 - `../pyproject.toml` — installable runtime package metadata and console entry point.
@@ -96,6 +101,19 @@
 - `../docs/MIGRATIONS.md` — persistence migration contract.
 - `../src/docengine/hardening.py` — P7 hardening runtime.
 - `../spec/registries/MIGRATIONS.json` — registered runtime migration surface.
+
+- `TRANSACTION_LIFECYCLE_FIX.md` — post-acceptance P-1 preparation/activation/retirement repair and evidence.
+- `COMMAND_SNAPSHOT_CHECKS.md` — P-2 command snapshot, final validation and source-I/O acceptance.
+- `evidence/COMMAND_SNAPSHOTS/` — source/installed-wheel tests and broad-check measurements.
+- `../tests/test_command_snapshots.py` — bounded reads, exact versions, final failures and rollback.
+- `../tools/benchmark_command_snapshots.py` — reproducible 16/64/128 whole-check I/O regression and timings.
+- `../tools/test_symlinks.py` — maintained marked security profile, localized execution and readable retained reports.
+- `../docs/SYMLINK_TESTS.md` — preparation/run/readback workflow and future-test marking contract.
+- `../tests/test_symlink_profile_contract.py` — full-suite guard for forgotten direct-creator markers.
+- `SYMLINK_TEST_WORKFLOW.md` / `evidence/SYMLINK_TESTS/` — maintained runner acceptance and Windows report-access limits.
+- `../spec/registries/TRANSACTION_LIFECYCLE.json` — additive stage ownership/compatibility contract.
+- `../spec/schemas/TRANSACTION_CLEANUP.schema.json` — cleanup-only ticket schema.
+- `../tests/test_transaction_lifecycle.py` — interruption, retry and corruption regressions.
 
 - `P7_POST_ACCEPTANCE_AXIS_REVIEW.md` — independent post-acceptance P7 DAX re-audit and correction evidence.
 
@@ -198,3 +216,14 @@
 - `PROJECT_CONFIG_ROOT_POLICY_SYNC.md` — additive documentation-only record for synchronizing the active project-configuration reference with the accepted v0.38 explicit-root policy.
 - `../docs/PROJECT_CONFIG.md` — now states that explicit string `--project-root` and `--docs-root` overrides must be non-empty/non-whitespace; empty explicit values are exit-4 usage/config errors, while explicit `--docs-root .` remains valid.
 - `../tests/test_documentation_workflows.py` — regression coverage for current package identity and active project-config root-policy wording.
+
+## v0.40 field dependency expansion artifacts
+
+- `FIELD_DEPENDENCY_EXPANSION.md` — agreed contracts and expansion acceptance.
+- `FIELD_DEPENDENCY_AUTHORING.md` — preserved original flat baseline.
+- `../docs/FIELD_DEPENDENCIES.md` — project helper, path composition and new-chat route.
+- `../docs/DEPENDENCY_AUTHORING_CHECKS.md` — DAE01–DAE06 known authoring errors mapped to existing DAX axes; source coverage and bounded connection checks.
+- `../examples/nested_field_project/` — deadline / estimate / nested budget fixture.
+- `../tests/test_build_operation.py`, `../tests/test_nested_field_project.py` — cache, mutation and nested composition regressions.
+
+- `evidence/FIELD_EXPANSION/`: fresh Linux/Python 3.12 source, installed-wheel, lifecycle and performance evidence; remote platform matrix remains pending.

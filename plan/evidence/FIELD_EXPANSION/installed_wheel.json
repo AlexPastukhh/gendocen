@@ -1,0 +1,192 @@
+{
+  "ok": true,
+  "python": "3.12.14",
+  "platform": "linux",
+  "runtime": "0.1.0.dev23",
+  "wheel_sha256": "3a307c7d1e45447cef8ec66aad93da8912cd7254a8e0774d650de188ae8c8c71",
+  "source_bytes_match_wheel": true,
+  "isolated_install": true,
+  "steps": [
+    {
+      "fixture": "field_dependency_project",
+      "args": [
+        "sync"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "field_dependency_project",
+      "args": [
+        "check"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "field_dependency_project",
+      "args": [
+        "diff",
+        "resource://views/A"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "field_dependency_project",
+      "args": [
+        "graph"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "field_dependency_project",
+      "args": [
+        "explain",
+        "resource://views/A"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "field_dependency_project",
+      "args": [
+        "verify"
+      ],
+      "exit_code": 0,
+      "status": "verified"
+    },
+    {
+      "fixture": "field_dependency_project",
+      "args": [
+        "sync"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "sync"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "check"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "diff",
+        "resource://views/A"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "graph"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "explain",
+        "resource://views/A"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "verify"
+      ],
+      "exit_code": 0,
+      "status": "verified"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "sync"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "sync"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "verify"
+      ],
+      "exit_code": 0,
+      "status": "verified"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "check"
+      ],
+      "exit_code": 3,
+      "status": "domain_failure"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "sync"
+      ],
+      "exit_code": 3,
+      "status": "sync_failed"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "sync"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "verify"
+      ],
+      "exit_code": 0,
+      "status": "verified"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "materialize",
+        "--all"
+      ],
+      "exit_code": 0,
+      "status": "materialized"
+    },
+    {
+      "fixture": "nested_field_project",
+      "args": [
+        "verify"
+      ],
+      "exit_code": 0,
+      "status": "verified"
+    }
+  ]
+}

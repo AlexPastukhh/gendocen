@@ -45,7 +45,7 @@ python -m pip install -e .
 If package-index access is unavailable and the release archive contains the bundled wheel, ordinary project use can bootstrap offline without invoking the source build backend:
 
 ```bash
-python -m pip install --no-index dist/generic_documentation_engine-0.1.0.dev22-py3-none-any.whl
+python -m pip install --no-index dist/generic_documentation_engine-0.1.0.dev25-py3-none-any.whl
 docengine --version
 ```
 
@@ -143,15 +143,19 @@ A mirrored Python file is not active until the project registration surface impo
 | Inputs changed; selectively recompute deterministic outputs | WF04 |
 | Semantic assumptions changed; review prose/policy | WF05 |
 | Build a derived target from another derived target | WF06 |
+| Resolve dependencies between independent raw/computed fields, including nested objects | WF06 → [`FIELD_DEPENDENCIES.md`](FIELD_DEPENDENCIES.md), then the flat or [`nested fixture`](../examples/nested_field_project/README.md) |
 | Aggregate many resources with changing membership | WF07 |
 | Produce Markdown/JSON/HTML or integrate with an application | WF08 |
 | Understand why a target is affected/stale | WF09 |
+| Check whether a source map covers the information actually used by a consumer | [Dependency Authoring Checks](DEPENDENCY_AUTHORING_CHECKS.md) → DAE01/DAX06 |
 | Regenerate/verify reproducibility and drift | WF10 |
 | Recover an interrupted mutation | WF11 |
 | Migrate persisted runtime layout | WF12 |
 | Promote/demote plain vs managed docs | Future only: FWF01/FWF02; no v0.1 command |
 
 Atomic normative behavior is in `USE_CASES.md`; use it when a workflow points to a `DOCxx` contract or when exact command semantics matter.
+
+For independent fields, use the documented dev25 runtime and matching copyable project helper. Locate the canonical raw sources, declare required inputs/computed providers/explicit overrides, bind nested documents, and register the plan plus final views. The provider decision table and error-recovery table in FIELD_DEPENDENCIES are the short authoring reference. A missing required input is an error; only a declared computed provider can supply a fallback. `FieldPlan` is copied into project code; it is not imported from the installed `docengine` package.
 
 ## 7. Default project-authoring loop
 
@@ -194,6 +198,7 @@ For dependency-authoring work, confirm all of the following:
 - you edited the canonical owner, not a generated view;
 - project-specific logic lives in `docengine_project/**`, not `src/docengine/**`;
 - dependency-bearing builder inputs use `ctx.read()` / `ctx.get()`;
+- each newly configured source slice supplies the value/assumption actually used by its consumer; apply relevant [known authoring errors](DEPENDENCY_AUTHORING_CHECKS.md), not only structural validity;
 - the mirrored builder/rule is actually registered;
 - `sync` reaches the expected deterministic/semantic state;
 - `graph`/`explain` show the expected dependency evidence;

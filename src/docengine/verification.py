@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Iterable
 
-from .builders import BuildEngine, BuilderError, BuilderRegistry
+from .builders import BuildEngine, BuildOperation, BuilderError, BuilderRegistry
 from .dependencies import DependencyError, DependencyRuntime
 from .materialization import MaterializationError, MaterializationRuntime, RendererRegistry
 from .project import ProjectRoots
@@ -85,6 +85,7 @@ class VerificationRuntime:
     def run(self) -> dict[str, Any]:
         findings: list[VerificationFinding] = list(self.component_errors)
         sections: dict[str, Any] = {}
+        operation = BuildOperation(self.catalog, self.builders, validation="command") if self.catalog is not None else None
 
         # Dependency runtime construction itself is domain verification work.  A
         # malformed/symlinked runtime tree must therefore become a blocking finding,
@@ -97,6 +98,7 @@ class VerificationRuntime:
                 self.catalog,
                 self.builders,
                 semantic_rule_revisions=self.semantic_registry.revisions_by_target(),
+                operation=operation,
             )
         except (DependencyError, OSError) as exc:
             runtime_error = str(exc)
@@ -234,7 +236,7 @@ class VerificationRuntime:
                     active_receipts = runtime.active_receipts()
                 except DependencyError as exc:
                     findings.append(self._finding("active_receipts_unreadable", str(exc)))
-            engine = BuildEngine(self.catalog, self.builders)
+            engine = BuildEngine(self.catalog, self.builders, operation=operation)
             for resource in self.catalog.managed:
                 if resource.raw.resource_kind != "derived_descriptor":
                     continue
@@ -320,6 +322,11 @@ class VerificationRuntime:
                 findings.append(self._finding("materialization_inspection_failed", str(exc)))
         sections["materialization"] = materialization_section
 
+        if operation is not None:
+            try:
+                operation.assert_current()
+            except BuilderError as exc:
+                findings.append(self._finding("build_sources_changed", str(exc)))
         findings = self._dedupe(findings)
         blocking = [f for f in findings if f.severity == "blocking"]
         warnings = [f for f in findings if f.severity != "blocking"]

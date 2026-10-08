@@ -16,6 +16,17 @@ python tools/audit_spec.py
 
 `release_check.py` runs bundled lifecycle checks only on temporary copies. `sample_project` intentionally remains an onboarding fixture with initial semantic review outstanding; release readiness is proven by completing the explicit review lifecycle on a clean temporary copy.
 
+## Windows filesystem-link test profile
+
+For the maintained symlink security profile and localized elevated test process,
+follow [Filesystem symlink tests](SYMLINK_TESTS.md). Run
+`python tools/test_symlinks.py --prepare` in an ordinary test environment, then
+use its printed execution/readback commands. Require the actual run's retained
+JSON/JUnit result; successful collection, console closure, `WinError 1314` or
+skipped link cases do not close the security check. Full CI still includes every
+marked case. New link tests use `@pytest.mark.requires_symlink`; the full-suite
+marker contract catches unmarked direct creators.
+
 ## Performance budget
 
 The blocking budget is `spec/release/PERFORMANCE_BUDGET.json`. It was established before the final P8 release rerun. CPU time is normalized by a deterministic same-interpreter calibration and combined with an independent RSS ceiling plus exact workload/correctness counts.
@@ -30,8 +41,8 @@ Generate only through:
 
 ```bash
 python tools/release_manifest.py generate \
-  --version 0.39.0-p8-project-config-root-policy-sync \
-  --runtime 0.1.0.dev22 \
+  --version 0.42.0-p8-command-snapshot-checks \
+  --runtime 0.1.0.dev25 \
   --phase P8 \
   --status accepted
 ```

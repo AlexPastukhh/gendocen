@@ -1,0 +1,125 @@
+{
+  "status": "failed_before_correction",
+  "runs": [
+    {
+      "run": "ad_hoc",
+      "result": {
+        "repository": "C:\\Users\\alexa\\gendocen",
+        "manifest_sha256": "de66c81b51d833d0f9fb93244c686f87ce4936b0d72bc4395987c6136a039a27",
+        "elevated": true,
+        "collection_only": false,
+        "run_directory": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-p2-20261008-92d68484\\symlink-check-nhz490hm",
+        "symlinks_available": true,
+        "pytest_exit": 1,
+        "complete": true,
+        "counts": {
+          "tests": 20,
+          "failures": 3,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 17
+        },
+        "ok": false,
+        "repository_unchanged": true
+      },
+      "non_passing_cases": [
+        {
+          "test": "tests.test_transaction_lifecycle::test_lifecycle_symlinks_are_rejected_without_touching_destination[preparation_child]",
+          "outcome": "failure",
+          "message": "FileNotFoundError: [WinError 3] Системе не удается найти указанный путь: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\symlink-check-nhz490hm\\\\pytest-of-alexa\\\\pytest-0\\\\test_lifecycle_symlinks_are_re2\\\\outside\\\\sentinel' -> 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\symlink-check-nhz490hm\\\\pytest-of-alexa\\\\pytest-0\\\\test_lifecycle_symlinks_are_re2\\\\project\\\\docs\\\\_dependency\\\\hardening\\\\transaction_preparation\\\\txn-00000000-0000-4000-8000-000000000079\\\\journal.json.tmp-12-abcdef01'"
+        },
+        {
+          "test": "tests.test_transaction_lifecycle::test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_ticket]",
+          "outcome": "failure",
+          "message": "StopIteration"
+        },
+        {
+          "test": "tests.test_transaction_lifecycle::test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_child]",
+          "outcome": "failure",
+          "message": "FileNotFoundError: [WinError 3] Системе не удается найти указанный путь: 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-p2-20261008-92d68484\\\\symlink-check-nhz490hm\\\\pytest-of-alexa\\\\pytest-0\\\\test_lifecycle_symlinks_are_re4\\\\project\\\\docs\\\\_dependency\\\\hardening\\\\transaction_cleanup'"
+        }
+      ]
+    },
+    {
+      "run": "maintained_before_short_path_fix",
+      "result": {
+        "report_schema_version": "1.0.0",
+        "repository": "C:\\Users\\alexa\\gendocen",
+        "python": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-sync-20261008-92d68484\\verification-venv\\Scripts\\python.exe",
+        "platform": "win32",
+        "elevated": true,
+        "collection_only": false,
+        "output_directory": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-symlink-maintenance-20261008-92d68484\\readable-reports\\20261007T202830Z-c4c3aaf2c52e",
+        "complete": true,
+        "ok": false,
+        "symlinks_available": true,
+        "pytest_exit": 1,
+        "selected_count": 20,
+        "counts": {
+          "tests": 20,
+          "failures": 1,
+          "errors": 5,
+          "skipped": 0,
+          "passed": 14
+        },
+        "repository_unchanged": true
+      },
+      "non_passing_cases": [
+        {
+          "test": "tests.test_p7_hardening.P7PostAxisRegressionTests::test_migration_rejects_symlinked_or_corrupt_released_evidence",
+          "outcome": "failure",
+          "message": "AssertionError: 5 != 3"
+        },
+        {
+          "test": "tests.test_transaction_lifecycle::test_lifecycle_symlinks_are_rejected_without_touching_destination[preparation_root]",
+          "outcome": "error",
+          "message": "failed on setup with \"shutil.Error: [('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re0\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re0\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re0\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re0\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', '[WinError 3] Системе не удается найти указанный путь')]\""
+        },
+        {
+          "test": "tests.test_transaction_lifecycle::test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_root]",
+          "outcome": "error",
+          "message": "failed on setup with \"shutil.Error: [('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re1\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re1\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re1\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re1\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', '[WinError 3] Системе не удается найти указанный путь')]\""
+        },
+        {
+          "test": "tests.test_transaction_lifecycle::test_lifecycle_symlinks_are_rejected_without_touching_destination[preparation_child]",
+          "outcome": "error",
+          "message": "failed on setup with \"shutil.Error: [('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re2\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re2\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re2\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re2\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', '[WinError 3] Системе не удается найти указанный путь')]\""
+        },
+        {
+          "test": "tests.test_transaction_lifecycle::test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_ticket]",
+          "outcome": "error",
+          "message": "failed on setup with \"shutil.Error: [('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re3\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re3\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re3\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re3\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', '[WinError 3] Системе не удается найти указанный путь')]\""
+        },
+        {
+          "test": "tests.test_transaction_lifecycle::test_lifecycle_symlinks_are_rejected_without_touching_destination[cleanup_child]",
+          "outcome": "error",
+          "message": "failed on setup with \"shutil.Error: [('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re4\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re4\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re4\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\20261007T202830Z-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re4\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', '[WinError 3] Системе не удается найти указанный путь')]\""
+        }
+      ]
+    }
+  ],
+  "short_path_probe": {
+    "records": [
+      {
+        "mode": "long",
+        "project": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gendocen-symlink-maintenance-20261008-92d68484\\readable-reports\\path-probe-20261008-c4c3aaf2c52e\\pytest-temporary\\test_lifecycle_symlinks_are_re0\\project",
+        "copy_ok": false,
+        "error_type": "Error",
+        "error": "[('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\path-probe-20261008-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re0\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-c4d00bc067e647f54f5539b9e88a517c521b3ee117680cfc4d3709ccbcd20bc6.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\path-probe-20261008-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re0\\\\project\\\\docs\\\\_dependency\\\\baselines\\\\sha256-d241f78685057b1456a6b237578922164c22d3ba3b10ed6ef8d10c497e9888fd.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\path-probe-20261008-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re0\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-7ec1b38016c179027b2697a77751343e75b384326f4fab1ad67975244ec1ea4d.json', '[WinError 3] Системе не удается найти указанный путь'), ('C:\\\\Users\\\\alexa\\\\gendocen\\\\examples\\\\product_tax_project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', 'C:\\\\Users\\\\alexa\\\\AppData\\\\Local\\\\Temp\\\\gendocen-symlink-maintenance-20261008-92d68484\\\\readable-reports\\\\path-probe-20261008-c4c3aaf2c52e\\\\pytest-temporary\\\\test_lifecycle_symlinks_are_re0\\\\project\\\\docs\\\\_dependency\\\\receipts\\\\receipt-a44b71d059da07a3a65788dd851f680682e473528bb99a0502c8c121c13c21fa.json', '[WinError 3] Системе не удается найти указанный путь')]"
+      },
+      {
+        "mode": "short",
+        "project": "C:\\Users\\alexa\\AppData\\Local\\Temp\\gd73b8fd75\\test_lifecycle_symlinks_are_re0\\project",
+        "transaction_error": "pause",
+        "cleanup_tickets": [
+          "C:\\Users\\alexa\\AppData\\Local\\Temp\\gd73b8fd75\\test_lifecycle_symlinks_are_re0\\project\\docs\\_dependency\\hardening\\transaction_cleanup\\txn-130a60ed-13fe-421e-b110-c4e866113eb0.json"
+        ],
+        "max_existing_path_length": 188,
+        "copy_ok": true
+      }
+    ],
+    "manifest_before": "5f66b6f987c71bd15849ab346f97bd9ec3490e9f8c2fc636003063a1e90c2606",
+    "manifest_after": "5f66b6f987c71bd15849ab346f97bd9ec3490e9f8c2fc636003063a1e90c2606"
+  },
+  "interpretation": "Long fixture copies fail with WinError 3; short copies and cleanup-ticket preparation succeed. Actual elevated acceptance after correction is pending; the P7 failure is not independently closed yet."
+}

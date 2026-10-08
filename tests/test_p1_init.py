@@ -1,3 +1,4 @@
+import pytest
 import contextlib
 import io
 import json
@@ -58,6 +59,7 @@ class P1InitTests(unittest.TestCase):
                 initialize_project(project_root=project, docs_root=outside)
 
 class P1InitSymlinkSafetyTests(unittest.TestCase):
+    @pytest.mark.requires_symlink
     def test_existing_docs_symlink_outside_is_rejected_before_runtime_writes(self):
         with tempfile.TemporaryDirectory() as project_tmp, tempfile.TemporaryDirectory() as outside_tmp:
             project = Path(project_tmp)
@@ -72,6 +74,7 @@ class P1InitSymlinkSafetyTests(unittest.TestCase):
             self.assertEqual(list(outside.iterdir()), [])
 
 class P1InitConfigSymlinkSafetyTests(unittest.TestCase):
+    @pytest.mark.requires_symlink
     def test_dangling_config_symlink_is_rejected_without_writing_target(self):
         with tempfile.TemporaryDirectory() as project_tmp, tempfile.TemporaryDirectory() as outside_tmp:
             project = Path(project_tmp)

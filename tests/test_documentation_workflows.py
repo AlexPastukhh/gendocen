@@ -357,7 +357,7 @@ class DocumentationWorkflowIntegrityTests(unittest.TestCase):
             "python --version",
             "docengine --version",
             "python -m pip install -e .",
-            "python -m pip install --no-index dist/generic_documentation_engine-0.1.0.dev22-py3-none-any.whl",
+            "python -m pip install --no-index dist/generic_documentation_engine-0.1.0.dev25-py3-none-any.whl",
             "--project-root",
             "docengine.toml",
             "Trust preflight before importing project Python",
@@ -380,7 +380,7 @@ class DocumentationWorkflowIntegrityTests(unittest.TestCase):
 
     def test_clean_chat_offline_runtime_fallback_matches_bundled_wheel(self):
         quick = (ROOT / "docs/CLEAN_CHAT_QUICKSTART.md").read_text(encoding="utf-8")
-        wheel = ROOT / "dist/generic_documentation_engine-0.1.0.dev22-py3-none-any.whl"
+        wheel = ROOT / "dist/generic_documentation_engine-0.1.0.dev25-py3-none-any.whl"
         self.assertTrue(wheel.is_file())
         self.assertIn(f"python -m pip install --no-index dist/{wheel.name}", quick)
         self.assertIn("offline fallback for using the released runtime", quick)
@@ -437,6 +437,7 @@ class DocumentationWorkflowIntegrityTests(unittest.TestCase):
             ROOT / "docs/AI_USAGE_PROTOCOL.md",
             ROOT / "examples/product_tax_project/README.md",
             ROOT / "examples/sample_project/README.md",
+            ROOT / "examples/markdown_field_project/README.md",
         )
         for path in paths:
             text = path.read_text(encoding="utf-8")
@@ -535,20 +536,22 @@ class DocumentationWorkflowIntegrityTests(unittest.TestCase):
                 f"{path.relative_to(ROOT)} uses --project-root . before establishing fixture cwd",
             )
 
-    def test_active_documentation_identity_is_synchronized_through_v039(self):
+    def test_active_documentation_identity_is_synchronized_through_v041(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         start = (ROOT / "START_HERE_AGENT.md").read_text(encoding="utf-8")
         workflow = (ROOT / "docs/REPOSITORY_WORKFLOW.md").read_text(encoding="utf-8")
         system_map = (ROOT / "docs/SYSTEM_MAP.md").read_text(encoding="utf-8")
         file_map = (ROOT / "plan/FILE_MAP.md").read_text(encoding="utf-8")
         release_gate = (ROOT / "docs/RELEASE_GATE.md").read_text(encoding="utf-8")
-        self.assertIn("v0.39 project-config root-policy sync", readme)
-        self.assertIn("0.39.0-p8-project-config-root-policy-sync", readme)
-        self.assertIn("v0.39 project-config root-policy sync", start)
-        self.assertIn("handoff-v0.39.0", workflow)
+        self.assertIn("v0.40 field dependency expansion", readme)
+        self.assertIn("0.42.0-p8-command-snapshot-checks", readme)
+        self.assertIn("v0.40 field dependency expansion", start)
+        self.assertIn("handoff-v0.42.0", workflow)
         self.assertIn("Project-config root-policy sync (v0.39)", system_map)
-        self.assertIn("v0.39 project-config root-policy sync artifacts", file_map)
-        self.assertIn("0.39.0-p8-project-config-root-policy-sync", release_gate)
+        self.assertIn("v0.40 field dependency expansion artifacts", file_map)
+        self.assertIn("0.42.0-p8-command-snapshot-checks", release_gate)
+        self.assertIn("Transaction lifecycle repair (v0.41)", system_map)
+        self.assertIn("TRANSACTION_LIFECYCLE_FIX.md", file_map)
 
     def test_project_config_reference_matches_explicit_root_policy(self):
         config = (ROOT / "docs/PROJECT_CONFIG.md").read_text(encoding="utf-8")

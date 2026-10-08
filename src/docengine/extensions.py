@@ -229,6 +229,7 @@ def load_project_extension(roots: ProjectRoots, catalog: ResourceCatalog, *, inc
                 f"project package {roots.config.project_package!r} must expose callable register_builders(registry)"
             )
         registry = BuilderRegistry(source_revision=source_revision)
+        registry.bind_revision_check(lambda: _package_revision(_package_paths(roots)[1]))
         try:
             outcome = register(registry)
         except BuilderRegistrationError:

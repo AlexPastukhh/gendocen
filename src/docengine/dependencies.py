@@ -18,7 +18,7 @@ from pathlib import Path
 from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
 
-from .builders import BuildEngine, BuilderRegistry, DependencyRead, DerivedObject
+from .builders import BuildEngine, BuildOperation, BuilderError, BuilderRegistry, DependencyRead, DerivedObject
 from .objects import FrozenMapping, RawObject, thaw
 from .project import ProjectRoots, is_within
 from .refs import RefError, ResourceRef
@@ -762,9 +762,12 @@ class ExplicitDependency:
 
 
 class DependencyResolver:
-    def __init__(self, catalog: ResourceCatalog, registry: BuilderRegistry | None = None) -> None:
+    def __init__(self, catalog: ResourceCatalog, registry: BuilderRegistry | None = None, *, operation: BuildOperation | None = None) -> None:
         self.catalog = catalog
         self.registry = registry or BuilderRegistry()
+        if operation is not None and (operation.store is not catalog or operation.registry is not self.registry):
+            raise DependencyError("build operation belongs to a different catalog/registry")
+        self.operation = operation
 
     @staticmethod
     def _whole(ref: ResourceRef) -> ResourceRef:
@@ -783,14 +786,23 @@ class DependencyResolver:
     def value_and_version(self, ref: ResourceRef | str) -> tuple[Any, str, str]:
         resource_ref = ResourceRef.parse(ref) if isinstance(ref, str) else ref
         if self._is_derived(resource_ref):
-            obj = BuildEngine(self.catalog, self.registry).build(self._whole(resource_ref))
+            try:
+                obj = BuildEngine(self.catalog, self.registry, operation=self.operation).build(self._whole(resource_ref))
+            except BuilderError as exc:
+                raise DependencyError(f"cannot resolve derived source {resource_ref}: {exc}") from exc
             if resource_ref.pointer_parts:
                 return obj.read(resource_ref), obj.version_for(resource_ref), "derived"
             return obj.data, obj.version, "derived"
-        value = self.catalog.resolve(resource_ref)
+        try:
+            if self.operation is None:
+                value, version = self.catalog.get(resource_ref), self.catalog.version(resource_ref)
+            else:
+                value, version = self.operation.source_value_and_version(resource_ref)
+        except BuilderError as exc:
+            raise DependencyError(str(exc)) from exc
         if isinstance(value, RawObject):
             value = value.data
-        return value, self.catalog.version(resource_ref), "file" if resource_ref.scheme == "file" else "raw"
+        return value, version, "file" if resource_ref.scheme == "file" else "raw"
 
 
 class DependencyGraph:
@@ -827,11 +839,14 @@ class DependencyGraph:
 class DependencyRuntime:
     """P3 runtime: persist receipts/baselines, detect changes, explain state."""
 
-    def __init__(self, roots: ProjectRoots, catalog: ResourceCatalog | None = None, registry: BuilderRegistry | None = None, *, semantic_rule_revisions: Mapping[str, tuple[str, str]] | None = None) -> None:
+    def __init__(self, roots: ProjectRoots, catalog: ResourceCatalog | None = None, registry: BuilderRegistry | None = None, *, semantic_rule_revisions: Mapping[str, tuple[str, str]] | None = None, operation: BuildOperation | None = None) -> None:
         self.roots = roots
         self.catalog = catalog
         self.registry = registry or BuilderRegistry()
-        self.resolver = DependencyResolver(catalog, self.registry) if catalog is not None else None
+        if operation is not None and catalog is None:
+            raise DependencyError("build operation requires a catalog")
+        self.operation = operation
+        self.resolver = DependencyResolver(catalog, self.registry, operation=operation) if catalog is not None else None
         self.semantic_rule_revisions = dict(semantic_rule_revisions or {})
         self.builder_load_error: str | None = None
         self.comparators = ComparatorRegistry()
@@ -897,6 +912,11 @@ class DependencyRuntime:
         )
 
     def _mark_valid(self, receipt: DependencyReceipt, *, event_type: str) -> DependencyReceipt:
+        if self.operation is not None:
+            try:
+                self.operation.checkpoint()
+            except BuilderError as exc:
+                raise DependencyError(str(exc)) from exc
         stored = self.receipts.put(receipt)
         status = "valid" if stored.audit_complete else "invalid"
         reasons = () if stored.audit_complete else ("audit_incomplete",)
@@ -934,7 +954,10 @@ class DependencyRuntime:
         self._require_resolver()
         assert self.catalog is not None
         if target_ref.scheme == "file":
-            self.catalog.resolve(target_ref)
+            if self.operation is not None:
+                self.operation.source_value_and_version(target_ref)
+            else:
+                self.catalog.resolve(target_ref)
             return
         if target_ref.scheme == "resource":
             whole = ResourceRef(

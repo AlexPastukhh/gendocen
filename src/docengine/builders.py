@@ -36,6 +36,10 @@ class BuilderExecutionError(BuilderError):
     pass
 
 
+class BuildSourceChangedError(BuilderExecutionError):
+    """Consumed source/code changed during an explicit build operation."""
+
+
 class BuildStore(Protocol):
     def get(self, ref: ResourceRef | str) -> Any: ...
     def version(self, ref: ResourceRef | str) -> str: ...
@@ -129,6 +133,15 @@ class BuilderRegistry:
         self.source_revision = source_revision.strip()
         self._by_target: dict[str, BuilderSpec] = {}
         self._by_id: dict[str, BuilderSpec] = {}
+        self._revision_check: Callable[[], str] | None = None
+
+    def bind_revision_check(self, check: Callable[[], str]) -> None:
+        """Project loader supplies a live, read-only code-bundle fingerprint."""
+        self._revision_check = check
+
+    def assert_current_revision(self) -> None:
+        if self._revision_check is not None and self._revision_check() != self.source_revision:
+            raise BuildSourceChangedError("project Python changed during build operation")
 
     @staticmethod
     def _parse_target(target: ResourceRef | str) -> ResourceRef:
@@ -535,17 +548,186 @@ class _BuildSession:
             assert popped == logical_id
 
 
+class _PinnedStore:
+    def __init__(self, source, *, command_snapshot=False):
+        self.source = source
+        self.values = {}
+        self.versions = {}
+        self.ref_versions = {}
+        self.command_snapshot = command_snapshot and all(
+            callable(getattr(source, name, None)) for name in
+            ("capture_source", "version_for_snapshot", "assert_snapshot_current")
+        )
+        self.consistency_error = None
+
+    @staticmethod
+    def _whole(ref):
+        return _whole_resource_ref(ref) if ref.scheme == "resource" else ref
+
+    def _check(self, ref):
+        key = str(self._whole(ref))
+        if self.consistency_error is not None:
+            raise self.consistency_error
+        try:
+            if self.command_snapshot:
+                self.source.assert_snapshot_current(self._whole(ref), self.versions[key])
+                return
+            check = getattr(self.source, "assert_source_current", None)
+            if check is not None:
+                check(self._whole(ref))
+            if self.source.version(self._whole(ref)) != self.versions[key]:
+                raise BuildSourceChangedError(f"source changed during build operation: {key}")
+        except (BuildSourceChangedError, KeyError, OSError, ValueError) as exc:
+            self.consistency_error = BuildSourceChangedError(f"source changed during build operation: {key}: {exc}")
+            raise self.consistency_error from exc
+
+    def get(self, ref):
+        ref = ResourceRef.parse(ref) if isinstance(ref, str) else ref
+        whole = self._whole(ref)
+        key = str(whole)
+        if self.consistency_error is not None:
+            raise self.consistency_error
+        if key not in self.values:
+            if self.command_snapshot:
+                value, before = self.source.capture_source(whole)
+            else:
+                before = self.source.version(whole)
+                value = self.source.get(whole)
+                if self.source.version(whole) != before:
+                    self.consistency_error = BuildSourceChangedError(f"source changed while reading: {whole}")
+                    raise self.consistency_error
+            self.values[key] = value
+            self.versions[key] = before
+        if not self.command_snapshot:
+            self._check(ref)
+        value = self.values[key]
+        if ref.pointer_parts:
+            if not isinstance(value, RawObject):
+                raise BuilderExecutionError(f"expected RawObject for {whole}")
+            return value.read(ref)
+        return value
+
+    def version(self, ref):
+        ref = ResourceRef.parse(ref) if isinstance(ref, str) else ref
+        self.get(ref)
+        if self.command_snapshot:
+            whole_key = str(self._whole(ref))
+            if not ref.pointer_parts:
+                return self.versions[whole_key]
+            key = str(ref)
+            if key not in self.ref_versions:
+                self.ref_versions[key] = self.source.version_for_snapshot(ref, self.values[whole_key])
+            return self.ref_versions[key]
+        # Same whole-source revision is checked before slicing; preserve custom
+        # BuildStore version semantics instead of imposing a new hash scheme.
+        return self.source.version(ref)
+
+    def assert_current(self):
+        if self.consistency_error is not None:
+            raise self.consistency_error
+        for key in self.values:
+            self._check(ResourceRef.parse(key))
+
+
+class BuildOperation:
+    """Explicit in-memory scope: one successful execution per stable operation.
+
+    Standalone BuildEngine calls stay fresh. Operations cannot cross stores or
+    registries, contain only complete immutable results and expose no disk cache.
+    Call assert_current immediately before committing externally visible work.
+    """
+
+    def __init__(self, store: BuildStore, registry: BuilderRegistry, *, validation: str = "per_call"):
+        if validation not in {"per_call", "command"}:
+            raise BuilderError(f"unsupported operation validation mode: {validation!r}")
+        self.store, self.registry = store, registry
+        self.validation = validation
+        self._specs = registry.specs
+        self._revision = registry.source_revision
+        self._pinned = _PinnedStore(store, command_snapshot=validation == "command")
+        self._session = _BuildSession(self._pinned, registry)
+        self._consistency_error = None
+        self._observed_sources = set()
+
+    def observe_source(self, ref):
+        """Pin metadata-only materialization ownership from the catalog scan."""
+        ref = ResourceRef.parse(ref) if isinstance(ref, str) else ref
+        check = getattr(self.store, "assert_source_current", None)
+        if check is not None:
+            if self.validation == "command":
+                self.checkpoint()
+                self._observed_sources.add(ref)
+                return
+            try:
+                check(ref)
+            except (KeyError, OSError, ValueError) as exc:
+                self._consistency_error = BuildSourceChangedError(f"source changed: {ref}: {exc}")
+                self._session.cache.clear()
+                raise self._consistency_error from exc
+            self._observed_sources.add(ref)
+
+    def assert_current(self):
+        if self._consistency_error is not None:
+            raise self._consistency_error
+        try:
+            if self.registry.specs != self._specs or self.registry.source_revision != self._revision:
+                raise BuildSourceChangedError("builder registry changed during build operation")
+            self.registry.assert_current_revision()
+            self._pinned.assert_current()
+            for ref in self._observed_sources:
+                if self.validation == "command" and str(_PinnedStore._whole(ref)) in self._pinned.values:
+                    continue
+                self.store.assert_source_current(ref)
+        except Exception as exc:
+            error = exc if isinstance(exc, BuildSourceChangedError) else BuildSourceChangedError(str(exc))
+            self._consistency_error = error
+            self._session.cache.clear()
+            raise error from (None if error is exc else exc)
+
+    def checkpoint(self):
+        """Keep library guards strict; defer command-wide rereads to finalization."""
+        if self.validation == "per_call":
+            return self.assert_current()
+        error = self._consistency_error or self._pinned.consistency_error
+        if error is not None:
+            self._consistency_error = error
+            self._session.cache.clear()
+            raise error
+
+    def build(self, target):
+        ref = ResourceRef.parse(target) if isinstance(target, str) else target
+        if ref.scheme != "resource" or ref.pointer_parts:
+            raise BuilderError("build target must be a whole structured resource ref")
+        self.checkpoint()
+        result = self._session.build(ref)
+        self.checkpoint()
+        return result
+
+    def source_value_and_version(self, ref):
+        """Read a canonical source through the pinned operation snapshot."""
+        self.checkpoint()
+        value = self._pinned.get(ref)
+        version = self._pinned.version(ref)
+        self.checkpoint()
+        return value, version
+
+
 class BuildEngine:
     """Execute registered builders without persisting P3 dependency state."""
 
-    def __init__(self, store: BuildStore, registry: BuilderRegistry):
+    def __init__(self, store: BuildStore, registry: BuilderRegistry, *, operation: BuildOperation | None = None):
         self.store = store
         self.registry = registry
+        if operation is not None and (operation.store is not store or operation.registry is not registry):
+            raise BuilderError("build operation belongs to a different store/registry")
+        self.operation = operation
 
     def build(self, target: ResourceRef | str) -> DerivedObject:
         ref = ResourceRef.parse(target) if isinstance(target, str) else target
         if ref.scheme != "resource" or ref.pointer_parts:
             raise BuilderError("build target must be a whole structured resource ref")
+        if self.operation is not None:
+            return self.operation.build(ref)
         return _BuildSession(self.store, self.registry).build(ref)
 
 
@@ -553,6 +735,8 @@ __all__ = [
     "BuildContext",
     "BuildCycleError",
     "BuildEngine",
+    "BuildOperation",
+    "BuildSourceChangedError",
     "BuildProvenance",
     "BuilderError",
     "BuilderExecutionError",

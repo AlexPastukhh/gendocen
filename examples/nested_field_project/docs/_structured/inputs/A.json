@@ -1,0 +1,13 @@
+{
+  "$docengine": {
+    "resource_id": "inputs.A",
+    "materialize": []
+  },
+  "data": {
+    "plan": {
+      "note": "Migration plan",
+      "description": "<a id=\"migration-plan\"></a>\nMigration execution."
+    },
+    "title": "Migration"
+  }
+}

@@ -6,6 +6,8 @@ Read this file after `START_HERE_AGENT.md` and before implementing the next phas
 
 Canonical question/answer/decision records remain in `plan/phase_records/P<n>_EXECUTION_RECORD.json`. This file is an index and handoff aid; when a point becomes a firm decision, the relevant phase record must also be updated.
 
+Additive post-P8 field work has its canonical current plan/decisions in `plan/FIELD_DEPENDENCY_EXPANSION.md` (`FIELD-EXPANSION-1`). Its implementation is delivered in runtime `0.1.0.dev23`; local acceptance evidence is recorded there separately from historical accepted phase records.
+
 ## Status vocabulary
 
 - **OPEN / DEFERRED** — a legitimate future design choice; not required for the next phase unless promoted by evidence.
@@ -113,6 +115,26 @@ A concrete fixture confirms that P4 can persist this graph. This is not automati
 P7 uses true shared-reader/exclusive-writer `fcntl` locking on POSIX. The Windows `msvcrt` fallback safely serializes access but does not guarantee concurrent-reader parity.
 
 **P8 decision:** safe Windows serialization is accepted for v0.1. Concurrent-reader parity on Windows is not a v0.1 release requirement and is deferred as a post-v0.1 optimization. This is a documented portability limitation, not an unresolved release question or a correctness defect.
+
+### A8 — Independent computed fields across documents
+
+**Status:** RESOLVED / IMPLEMENTED; native API deferred, non-blocking.
+
+The user selected a project helper over immediate native field-target registration. Independent computations are represented by small internal whole resources and final documents compose their values. The runnable example and new-chat instructions are in `docs/FIELD_DEPENDENCIES.md` and `examples/field_dependency_project/README.md`; canonical additive decision: `plan/FIELD_DEPENDENCY_AUTHORING.md` / `FIELD-AUTHORING-1`.
+
+The extension in `plan/FIELD_DEPENDENCY_EXPANSION.md` / `FIELD-EXPANSION-1` implements independent nested fields and composition at every level, explicit raw ownership/overrides, backward-compatible pointer-path APIs and stable-operation reuse. The copyable helper is demonstrated in `examples/nested_field_project`; installed runtime `0.1.0.dev23` supplies BuildOperation and the narrow P-2 transitive-source error fix. Native field-target registration and persistent cross-command reuse remain deferred. Existing P0–P8 historical acceptance records are preserved; platform limits are stated in the expansion evidence.
+
+### A9 — Recursive dependency depth
+
+**Status:** ACCEPTED DEFAULT by user, non-blocking for the implemented field expansion.
+
+Retain recursive execution and the normal Python recursion limit. Independent review observed 128 levels passing and 256 failing in one Python 3.12/Linux environment; these numbers are evidence, not a fixed supported-depth guarantee. No depth requirement was promoted into a current defect. Return if an actual project exceeds the limit; test a bounded limit increase or revisit iterative execution when long chains become routine. Canonical decision: `FIELD-EXPANSION-1` / FE-D06; review follow-up D-3.
+
+### A10 — Dynamic array membership and cross-command field reuse
+
+**Status:** OPEN / DEFERRED, non-blocking.
+
+The expansion permits paths inside existing arrays but does not independently create/resize/reorder their elements; canonical raw data or an atomic array producer owns shape. Operation cache ends with the command and does not persist field values. These are deliberate scope boundaries, not current defects. Revisit stable per-element identity when independently changing array membership is required, or persistent reuse when measurements show material repeated cost across commands. Canonical references: `FIELD-EXPANSION-1` / FE-D05, FE-D09 and section 8.
 
 ## Historical non-blocking implementation questions already resolved
 

@@ -1,0 +1,13 @@
+{
+  "$docengine": {
+    "resource_id": "views.guide",
+    "resource_kind": "derived_descriptor",
+    "materialize": [
+      {
+        "renderer": "guide-markdown",
+        "path": "views/guide.md"
+      }
+    ]
+  },
+  "data": {}
+}

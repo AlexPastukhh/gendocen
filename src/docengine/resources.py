@@ -8,7 +8,8 @@ import json
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-from .jsonio import StrictJsonError, load_strict
+from .jsonio import StrictJsonError, load_strict, loads_strict
+from .builders import BuildSourceChangedError
 from .objects import RawObject, thaw
 from .project import ProjectRoots, RootDiscoveryError, confined_path, is_within
 from .refs import RefError, ResourceRef
@@ -88,10 +89,10 @@ def _canonical_value_hash(value: Any) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
-def _load_json(path: Path) -> dict[str, Any]:
+def _load_json(path: Path, content: bytes | None = None) -> dict[str, Any]:
     try:
-        value = load_strict(path)
-    except StrictJsonError as exc:
+        value = load_strict(path) if content is None else loads_strict(content.decode("utf-8"), source=str(path))
+    except (StrictJsonError, UnicodeError) as exc:
         raise ResourceError(str(exc)) from exc
     if not isinstance(value, dict):
         raise ResourceError(f"managed resource must be a JSON object: {path}")
@@ -165,7 +166,8 @@ def load_managed_resource(path: Path, *, roots: ProjectRoots) -> ManagedResource
     except ValueError as exc:
         raise ResourceError(f"managed resource must live under {structured_root}: {path}") from exc
 
-    value = _load_json(path)
+    content = path.read_bytes()
+    value = _load_json(path, content)
     _validate_envelope(value, source=path)
     meta: dict[str, Any] = value["$docengine"]
     schema_uri = meta.get("schema")
@@ -196,7 +198,7 @@ def load_managed_resource(path: Path, *, roots: ProjectRoots) -> ManagedResource
         raw=raw,
         source_relative=path.relative_to(roots.documentation_root).as_posix(),
         targets=targets,
-        source_hash=hashlib.sha256(path.read_bytes()).hexdigest(),
+        source_hash=hashlib.sha256(content).hexdigest(),
     )
 
 
@@ -317,6 +319,52 @@ class ResourceCatalog:
 
     def get(self, ref: ResourceRef | str) -> Any:
         return self.resolve(ref)
+
+    def capture_source(self, ref: ResourceRef) -> tuple[Any, str]:
+        """Capture whole-source value/version without reading Markdown twice.
+
+        Managed objects already come from the same bytes/hash recorded by scan.
+        Their physical source is checked at the command's final boundary.
+        """
+        if ref.scheme == "resource":
+            return self.get(ref), self.version(ref)
+        if ref.scheme == "file":
+            if ref.file_path not in self._plain_files:
+                raise ResourceError(f"file:// refs may address only plain canonical Markdown: {ref}")
+            try:
+                path = confined_path(self.roots.documentation_root, ref.file_path)
+            except RootDiscoveryError as exc:
+                raise ResourceError(str(exc)) from exc
+            if not path.is_file():
+                raise ResourceError(f"unknown documentation file: {ref.file_path}")
+            content = path.read_bytes()
+            # Match read_text(encoding='utf-8') universal-newline behavior while
+            # retaining the version of the exact physical bytes just captured.
+            value = content.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+            return value, hashlib.sha256(content).hexdigest()
+        raise ResourceError(f"unsupported ref scheme: {ref.scheme}")
+
+    def version_for_snapshot(self, ref: ResourceRef, whole_value: RawObject) -> str:
+        """Preserve canonical exact-slice versions using the pinned raw object."""
+        return _canonical_value_hash(whole_value.read(ref))
+
+    def assert_snapshot_current(self, ref: ResourceRef, version: str) -> None:
+        """Validate one pinned whole source at an explicit publication boundary."""
+        if ref.scheme == "resource":
+            self.assert_source_current(ref)
+        elif self.version(ref) != version:
+            raise BuildSourceChangedError(f"source changed during build operation: {ref}")
+
+    def assert_source_current(self, ref: ResourceRef | str) -> None:
+        """Reject stale scan data before operation-cached values are published."""
+        ref = ResourceRef.parse(ref) if isinstance(ref, str) else ref
+        if ref.scheme == "resource":
+            resource = self._managed[ref.logical_resource_id]
+            if confined_path(self.roots.documentation_root, resource.source_relative) != resource.raw.source_path:
+                raise ResourceError(f"source path changed since catalog scan: {ref}")
+            current = hashlib.sha256(resource.raw.source_path.read_bytes()).hexdigest()
+            if current != resource.source_hash:
+                raise ResourceError(f"source changed since catalog scan: {ref}")
 
     def version(self, ref: ResourceRef | str) -> str:
         resource_ref = ResourceRef.parse(ref) if isinstance(ref, str) else ref

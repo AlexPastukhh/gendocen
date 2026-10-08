@@ -73,6 +73,8 @@ Read current dependency state. Read-only. Non-valid current state may produce ex
 
 Compare current dependencies/rules with validated evidence. May mutate dependency state/events only. It does not perform semantic judgment.
 
+Resolving a derived source can execute its current builder in memory. Check does not record replacement deterministic build receipts or write generated views. Likewise, read-only diff/explain can evaluate derived sources while preserving engine-managed state. CLI evaluation shares successful immutable results within that command; separate commands use fresh operation scopes. Source/code changes observed inside a scope are domain failures (exit `3`).
+
 ### `docengine diff TARGET`
 
 Read-only baseline-vs-current diff. Missing/malformed target is usage/config error. A changed but inspectable target returns attention exit `2`.

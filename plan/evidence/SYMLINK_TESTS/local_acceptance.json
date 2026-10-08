@@ -1,0 +1,39 @@
+{
+  "source_pytest": {
+    "passed": 382,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0
+  },
+  "runner_integration": {
+    "new_marked_parameter_cases_discovered_and_passed": 2,
+    "unmarked_case_excluded_from_profile": true,
+    "full_suite_guard_rejects_forgotten_marker": true,
+    "repeated_run_rejected_and_previous_result_preserved": true
+  },
+  "followup_hygiene_and_marker_passed": 6,
+  "audits": {
+    "spec": true,
+    "axes": true,
+    "manifest": true
+  },
+  "wheel_unchanged": true,
+  "runtime_unchanged": "0.1.0.dev25",
+  "short_path_correction": {
+    "source_pytest": {
+      "passed": 383,
+      "skipped": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    "profile": {
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 20
+    },
+    "repository_unchanged": true,
+    "long_report_regression": "fixture copy and journal write pass with report storage independent of fixture storage"
+  }
+}

@@ -1,3 +1,4 @@
+import pytest
 import json
 import shutil
 import tempfile
@@ -44,6 +45,7 @@ class ProjectExtensionTests(unittest.TestCase):
         self.assertEqual(refs, ["resource://catalog/product#/price", "resource://catalog/tax_policy#/rate"])
         self.assertNotIn("resource://catalog/product#/unused_note", refs)
 
+    @pytest.mark.requires_symlink
     def test_project_package_must_be_confined_local_package(self):
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
             project = Path(tmp) / "project"
@@ -115,6 +117,7 @@ if __name__ == "__main__":
     unittest.main()
 
 class ProjectExtensionTreeSafetyTests(unittest.TestCase):
+    @pytest.mark.requires_symlink
     def test_symlinked_submodule_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
             project = Path(tmp) / "project"

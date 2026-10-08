@@ -15,6 +15,7 @@ The intended reader is a documentation author, developer, or AI agent that is al
 | Selectively recompute after deterministic input changes | WF04 |
 | Review semantic prose after dependency changes | WF05 |
 | Compose derived-of-derived | WF06 |
+| Compose mutually referring documents and nested objects from independent fields | WF06 → [`FIELD_DEPENDENCIES.md`](FIELD_DEPENDENCIES.md) |
 | Aggregate a changing set of resources | WF07 |
 | Present the same object through multiple views / application boundary | WF08 |
 | Diagnose state/provenance | WF09 |
@@ -98,7 +99,7 @@ docengine sync --json --project-root <root>
 docengine verify --json --project-root <root>
 ```
 
-Use `docengine check --project-root <root> --json` separately when you want to inspect dependency changes **before** any deterministic rebuild. `check` can update dependency state/events, but it does not rebuild targets. `sync` already performs a check before planning selective rebuilds.
+Use `docengine check --project-root <root> --json` separately to inspect dependency changes before recording new deterministic build receipts or generated output. `check` can update dependency state/events and evaluate derived sources in memory to compare current values. `sync` already performs a check before planning selective rebuilds. The command name `rebuild` means executing a target and advancing its build evidence; in-memory source evaluation can also occur during inspection.
 
 `sync --all` is **not** “force rebuild every valid builder.” Deterministic rebuild selection remains evidence-driven; `--all` broadens materialization to all registered views.
 
@@ -574,6 +575,18 @@ When B changes:
 
 Deterministic cycles are rejected. Acyclic derived-of-derived composition is supported.
 
+### Independent fields in mutually referring documents
+
+A document-level reference in both directions is not necessarily a computation cycle. For `A.g <- B.a1`, `B.g1 <- A.g + 1`, with B.a1 computed only from a raw C.x, the field graph is acyclic. Reading every prerequisite from a whole final-document builder can still recurse because that builder must complete all its fields before returning.
+
+Use the ready-made project pattern in [`FIELD_DEPENDENCIES.md`](FIELD_DEPENDENCIES.md) and [`examples/field_dependency_project`](../examples/field_dependency_project/README.md): declare field providers, give independent computed fields small internal whole-resource targets, and assemble final documents from their values. No descriptor JSON is required for internal targets. For nested objects, use explicit path declarations and raw document bindings as demonstrated in [`examples/nested_field_project`](../examples/nested_field_project/README.md). Current v0.1 has no direct field-target builder registration.
+
+For a canonical Markdown source, [`examples/markdown_field_project`](../examples/markdown_field_project/README.md) supplies the complete tracked read → explicitly bounded derived field → nested provider → quotation route. Its independent semantic consumers contrast selected-section and whole-file review. The author chooses sufficient bounds; the source prose remains canonical Markdown.
+
+Required raw fields are read from their declared refs. Raw-first fallback is permitted only for an explicitly declared optional override with a known producer; missing required inputs must not trigger a guessed derived builder. The helper tracks override presence through a whole-raw-object read and uses exact computed-value reads for consumers.
+
+Finish with sync, inspect graph/explain, verify, and test raw override addition/removal as well as prerequisite changes. A partial working dictionary is private composition state, not a dependency source. True cycles remain errors. CLI evaluation shares complete successful values/provenance throughout one stable command; separate commands use fresh values. Independent nested children require canonical raw bindings and path declarations before registration; an atomic object/array provider owns its whole subtree.
+
 ---
 
 ## WF07 — Aggregate many resources with explicit membership
@@ -828,4 +841,3 @@ These are common ways to make the engine look configured while defeating its gua
 | Treating `sync --all` as force-rebuild-all | rebuild selection is still evidence-driven; `--all` broadens materialization |
 | Treating semantic `review_required` as automatically fixable | engine can prove context changed, not which new prose is semantically correct |
 | Treating project Python/`verify` as sandboxed | callbacks are trusted cooperative Python and can have arbitrary side effects |
-

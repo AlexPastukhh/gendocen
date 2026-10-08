@@ -278,7 +278,7 @@ Registry version: `0.4.0`; contract version: `1.2.0`.
 - Only declared/captured dependency slices are compared.
 - Unrelated field changes do not invalidate field-level dependencies.
 - Deterministic compute/copy/aggregate changes become build_required; semantic_review/compatibility changes become review_required; validity changes become stale.
-- Change detection does not claim semantic incorrectness and does not rebuild the target.
+- Change detection does not claim semantic incorrectness or record replacement deterministic build evidence for the target. Resolving current derived sources can execute their builders in memory; generated output remains unchanged by check.
 
 ## DOC08 — Show project status
 

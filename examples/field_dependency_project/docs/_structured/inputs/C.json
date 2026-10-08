@@ -1,0 +1,4 @@
+{
+  "$docengine": {"resource_id": "inputs.C", "materialize": []},
+  "data": {"x": 10, "unused_note": "Not consumed by any field producer"}
+}

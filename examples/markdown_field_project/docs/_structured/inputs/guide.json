@@ -1,0 +1,13 @@
+{
+  "$docengine": {
+    "resource_id": "inputs.guide",
+    "materialize": []
+  },
+  "data": {
+    "title": "Reuse policy — generated guide",
+    "note": "Local introductory text remains in this raw input.",
+    "sections": {
+      "reuse": {}
+    }
+  }
+}

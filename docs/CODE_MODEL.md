@@ -113,6 +113,8 @@ def build_economics(ctx):
 
 `ctx.read("resource://...#/field")` records field-level evidence. `ctx.get("resource://...")` records a whole-resource dependency and should be used only when the target intentionally depends on the whole object.
 
+For independent computed fields in mutually referring documents, use the project helper in [`FIELD_DEPENDENCIES.md`](FIELD_DEPENDENCIES.md), implemented in `examples/field_dependency_project/docengine_project/fields.py`. Declare providers in `field_plan.py`, keep producer modules mirrored to internal targets, and register the plan through the package. `fields.read(ctx, document, field)` routes to a required source ref or a small internal computed resource; final builders compose complete views. This is existing whole-resource engine behavior used at field granularity, not a new `docengine` API. Required raw fields never fall back to an undeclared producer; optional raw precedence is explicit and tracked.
+
 ## 5. Do not bypass tracking for dependency-bearing inputs
 
 Bad normal authoring pattern:
@@ -156,3 +158,8 @@ Per-builder code-dependency revisions are a possible future optimization, not th
 ## 10. Trust boundary
 
 `docengine_project/**` is trusted/cooperative Python, not sandboxed execution. It can technically perform arbitrary side effects. Normal AI authoring should stay inside the documented project-owned extension/data paths, use tracked reads and finish with `sync`/`verify`; this organizational boundary does not claim physical prevention of malicious Python.
+
+
+## Nested field authoring
+
+The FIELD_DEPENDENCIES route also supports `document`, `input_path`, `computed_path` and `read_path` with JSON Pointers. Bind canonical raw documents before registration, declare independent child providers, then compose intermediate/root objects. Atomic parent and child ownership may not overlap. The nested fixture is `examples/nested_field_project`; formulas remain mirrored project code. Runtime BuildOperation reuse is automatic for CLI commands and does not permit hidden I/O or persistent global caches. Preserve existing internal IDs when upgrading a populated project; path renames require an explicit compatibility route.

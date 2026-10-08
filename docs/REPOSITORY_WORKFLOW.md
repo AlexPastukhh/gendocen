@@ -53,6 +53,13 @@ python tools/release_check.py --json
 
 The GitHub `CI` workflow runs the same set and fails if the worktree becomes dirty.
 
+Windows users whose ordinary Python cannot create symbolic links can run the
+maintained targeted profile through `python tools/test_symlinks.py --prepare`;
+see [Filesystem symlink tests](SYMLINK_TESTS.md) for the manual UAC step, readable
+retained reports, required verdict and adding new marked tests. This does not
+change system policy or replace the full suite. An unprivileged fixture error
+remains an incomplete security check until an actual capable run is recorded.
+
 ## Release-only checks
 
 Before a release/tag/handoff archive:
@@ -70,8 +77,8 @@ The repository handoff/package version and Python runtime package version are se
 Suitable repository tags before the stable runtime release include:
 
 ```text
-handoff-v0.39.0
-engine-v0.1.0.dev22
+handoff-v0.42.0
+engine-v0.1.0.dev25
 ```
 
 Reserve `v0.1.0` for a Python package whose actual version is `0.1.0`.

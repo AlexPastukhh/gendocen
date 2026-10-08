@@ -1,3 +1,4 @@
+import pytest
 import contextlib
 import io
 import json
@@ -104,6 +105,7 @@ class P5MaterializationTests(unittest.TestCase):
                 materialization.materialize("file://manual.md")
             self.assertEqual(plain.read_text(encoding="utf-8"), "# Manual canonical file\n")
 
+    @pytest.mark.requires_symlink
     def test_materialization_refuses_symlink_replacement_after_catalog_scan(self):
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
             project = fresh_copy(PRODUCT, tmp)
@@ -475,6 +477,7 @@ class P5PostAxisRegressionTests(unittest.TestCase):
             with self.assertRaisesRegex(MaterializationError, "resource_kind"):
                 materialization.state.load()
 
+    @pytest.mark.requires_symlink
     def test_materialization_state_rejects_symlinked_state_directory_inside_docs(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = fresh_copy(PRODUCT, tmp)

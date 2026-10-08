@@ -1,0 +1,615 @@
+{
+  "scope": "Disposable demo; synthetic CI decisions, not real-policy approval.",
+  "project": "/workspace/scratch/92d68484d013/analysis/methodology-practical-20261008/tmp/gdm-c2sy7zk6/project",
+  "commands": [
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "attention_required"
+      },
+      "errors": []
+    },
+    {
+      "command": "check",
+      "args": [],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "explain",
+      "args": [
+        "file://decisions/reuse.md"
+      ],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "validate",
+      "args": [
+        "file://decisions/reuse.md",
+        "--result",
+        "still-valid",
+        "--reason",
+        "Synthetic demo lifecycle check; no real-policy approval.",
+        "--actor-kind",
+        "ci",
+        "--review-context",
+        "reviewctx-4033333510600f389b99601d3857d69182c7015963c5b75e7b67b55afc6701f6"
+      ],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "validated"
+      },
+      "errors": []
+    },
+    {
+      "command": "explain",
+      "args": [
+        "file://decisions/full_policy.md"
+      ],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "validate",
+      "args": [
+        "file://decisions/full_policy.md",
+        "--result",
+        "still-valid",
+        "--reason",
+        "Synthetic demo lifecycle check; no real-policy approval.",
+        "--actor-kind",
+        "ci",
+        "--review-context",
+        "reviewctx-237c013d67c28856cdd855223ccf23f8410a993ef1ef31682ce3697a6ddcb363"
+      ],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "validated"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "verify",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "verified"
+      },
+      "errors": []
+    },
+    {
+      "command": "graph",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "check",
+      "args": [],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "attention_required"
+      },
+      "errors": []
+    },
+    {
+      "command": "explain",
+      "args": [
+        "file://decisions/full_policy.md"
+      ],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "validate",
+      "args": [
+        "file://decisions/full_policy.md",
+        "--result",
+        "still-valid",
+        "--reason",
+        "Synthetic demo lifecycle check; no real-policy approval.",
+        "--actor-kind",
+        "ci",
+        "--review-context",
+        "reviewctx-ccd288a8cec78eeb6e9a77982e9f228d316ebb23fe19f2ae4024ee69f1b9c44d"
+      ],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "validated"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "check",
+      "args": [],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "attention_required"
+      },
+      "errors": []
+    },
+    {
+      "command": "explain",
+      "args": [
+        "file://decisions/reuse.md"
+      ],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "validate",
+      "args": [
+        "file://decisions/reuse.md",
+        "--result",
+        "still-valid",
+        "--reason",
+        "Synthetic demo lifecycle check; no real-policy approval.",
+        "--actor-kind",
+        "ci",
+        "--review-context",
+        "reviewctx-f902f53a6e8e1fdd9688e424944753266c2777c0150758f7ed2634f5206fcfa8"
+      ],
+      "exit": 3,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 3,
+        "status": "validation_failed"
+      },
+      "errors": [
+        {
+          "code": "validation_failed",
+          "details": null,
+          "message": "review context is stale: target, dependency state or semantic rule changed after review",
+          "severity": "error"
+        }
+      ]
+    },
+    {
+      "command": "explain",
+      "args": [
+        "file://decisions/reuse.md"
+      ],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "validate",
+      "args": [
+        "file://decisions/reuse.md",
+        "--result",
+        "still-valid",
+        "--reason",
+        "Synthetic demo lifecycle check; no real-policy approval.",
+        "--actor-kind",
+        "ci",
+        "--review-context",
+        "reviewctx-83545c580fc577ad4607ea9838f158e7f3c1e75e7501a65337e5a15330e92a79"
+      ],
+      "exit": 3,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 3,
+        "status": "validation_failed"
+      },
+      "errors": [
+        {
+          "code": "validation_failed",
+          "details": null,
+          "message": "still-valid cannot accept edited target content; use result='updated' after reviewing the edited target",
+          "severity": "error"
+        }
+      ]
+    },
+    {
+      "command": "explain",
+      "args": [
+        "file://decisions/reuse.md"
+      ],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "validate",
+      "args": [
+        "file://decisions/reuse.md",
+        "--result",
+        "updated",
+        "--reason",
+        "Synthetic demo lifecycle check; no real-policy approval.",
+        "--actor-kind",
+        "ci",
+        "--review-context",
+        "reviewctx-83545c580fc577ad4607ea9838f158e7f3c1e75e7501a65337e5a15330e92a79"
+      ],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "validated"
+      },
+      "errors": []
+    },
+    {
+      "command": "explain",
+      "args": [
+        "file://decisions/full_policy.md"
+      ],
+      "exit": 2,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 2,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "validate",
+      "args": [
+        "file://decisions/full_policy.md",
+        "--result",
+        "still-valid",
+        "--reason",
+        "Synthetic demo lifecycle check; no real-policy approval.",
+        "--actor-kind",
+        "ci",
+        "--review-context",
+        "reviewctx-88ac3b73f7be49672950ef185a9d61e45355a524ddf2eab05df1ce8fef8c3c80"
+      ],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "validated"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "verify",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "verified"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 3,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 3,
+        "status": "sync_failed"
+      },
+      "errors": [
+        {
+          "code": "sync_failed",
+          "details": null,
+          "message": "deterministic rebuild failed for resource://source/policy: builder 'build:source.policy' failed for resource://source/policy: Reuse policy needs exactly one start and one end bound",
+          "severity": "error"
+        }
+      ]
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 3,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 3,
+        "status": "sync_failed"
+      },
+      "errors": [
+        {
+          "code": "sync_failed",
+          "details": null,
+          "message": "deterministic rebuild failed for resource://source/policy: builder 'build:source.policy' failed for resource://source/policy: Reuse policy needs exactly one start and one end bound",
+          "severity": "error"
+        }
+      ]
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 3,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 3,
+        "status": "sync_failed"
+      },
+      "errors": [
+        {
+          "code": "sync_failed",
+          "details": null,
+          "message": "deterministic rebuild failed for resource://source/policy: builder 'build:source.policy' failed for resource://source/policy: Reuse policy needs exactly one start and one end bound",
+          "severity": "error"
+        }
+      ]
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 3,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 3,
+        "status": "sync_failed"
+      },
+      "errors": [
+        {
+          "code": "sync_failed",
+          "details": null,
+          "message": "deterministic rebuild failed for resource://source/policy: builder 'build:source.policy' failed for resource://source/policy: Reuse policy needs exactly one start and one end bound",
+          "severity": "error"
+        }
+      ]
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 3,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 3,
+        "status": "sync_failed"
+      },
+      "errors": [
+        {
+          "code": "sync_failed",
+          "details": null,
+          "message": "deterministic rebuild failed for resource://source/policy: builder 'build:source.policy' failed for resource://source/policy: Reuse policy bounds are inverted",
+          "severity": "error"
+        }
+      ]
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "verify",
+      "args": [],
+      "exit": 3,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 3,
+        "status": "verification_failed"
+      },
+      "errors": []
+    },
+    {
+      "command": "sync",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "ok"
+      },
+      "errors": []
+    },
+    {
+      "command": "verify",
+      "args": [],
+      "exit": 0,
+      "meta": {
+        "engine_version": "0.1.0.dev25",
+        "exit_code": 0,
+        "status": "verified"
+      },
+      "errors": []
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "fresh baseline, tracked graph, nested composition and preserved anchor",
+      "ok": true
+    },
+    {
+      "name": "adjacent edit preserves selected quotation and only whole-file review changes",
+      "ok": true
+    },
+    {
+      "name": "selected edit updates quotation without inventing semantic verdict",
+      "ok": true
+    },
+    {
+      "name": "stale packet rejected after a second source edit",
+      "ok": true
+    },
+    {
+      "name": "edited target needs fresh updated decision",
+      "ok": true
+    },
+    {
+      "name": "missing start fails while retaining previous complete output",
+      "ok": true
+    },
+    {
+      "name": "missing end fails while retaining previous complete output",
+      "ok": true
+    },
+    {
+      "name": "duplicate start fails while retaining previous complete output",
+      "ok": true
+    },
+    {
+      "name": "duplicate end fails while retaining previous complete output",
+      "ok": true
+    },
+    {
+      "name": "inverted bounds fails while retaining previous complete output",
+      "ok": true
+    },
+    {
+      "name": "generated drift detected and restored",
+      "ok": true
+    }
+  ],
+  "ok": true
+}

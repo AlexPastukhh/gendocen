@@ -16,7 +16,7 @@ from .project import (
 )
 from .resources import ResourceCatalog, ResourceError
 from .refs import RefError
-from .builders import BuilderError, BuilderRegistry
+from .builders import BuildOperation, BuildSourceChangedError, BuilderError, BuilderRegistry
 from .dependencies import DependencyError, DependencyRuntime
 from .extensions import ProjectExtensionError, load_project_extension
 from .semantic import SemanticDependencyRegistry, SemanticReviewRuntime, SemanticRuleError, SemanticValidationError
@@ -171,7 +171,9 @@ def _runtime_for(
         catalog,
         registry,
         semantic_rule_revisions=semantic_registry.revisions_by_target(),
+        operation=BuildOperation(catalog, registry, validation="command"),
     )
+    args._build_operation = runtime.operation
     runtime.builder_load_error = builder_load_error
     return runtime, roots, semantic_registry, renderer_registry
 
@@ -390,7 +392,7 @@ def _execute_verify(args: argparse.Namespace) -> tuple[CommandResult, int]:
             component_findings.append(VerificationFinding(
                 code="transaction_cleanup_required",
                 severity="warning",
-                message=f"{len(cleanup_only)} committed transaction journal(s) await cleanup",
+                message=f"{len(cleanup_only)} completed/preparing transaction maintenance item(s) await cleanup",
                 details={"transactions": [item.get("transaction_id") for item in cleanup_only]},
             ))
         if migration.get("migration_required"):
@@ -665,6 +667,11 @@ def _execute_with_hardening(args: argparse.Namespace) -> tuple[CommandResult, in
             attention_required=True,
             issues=(Issue(code="migration_failed", message=str(exc)),),
         ), EXIT_DOMAIN_FAILURE
+    except BuildSourceChangedError as exc:
+        return CommandResult(
+            command=args.command, ok=False, status="build_sources_changed",
+            issues=(Issue(code="build_sources_changed", message=str(exc)),),
+        ), EXIT_DOMAIN_FAILURE
     except HardeningError as exc:
         return CommandResult(
             command=args.command,
@@ -676,6 +683,15 @@ def _execute_with_hardening(args: argparse.Namespace) -> tuple[CommandResult, in
 
 
 def _execute(args: argparse.Namespace) -> tuple[CommandResult, int]:
+    args._build_operation = None
+    result = _dispatch(args)
+    operation = getattr(args, "_build_operation", None)
+    if operation is not None:
+        operation.assert_current()
+    return result
+
+
+def _dispatch(args: argparse.Namespace) -> tuple[CommandResult, int]:
     if args.command == "init":
         return _execute_init(args)
     if args.command == "resources":

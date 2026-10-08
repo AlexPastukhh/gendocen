@@ -1,3 +1,4 @@
+import pytest
 import contextlib
 import io
 import json
@@ -246,6 +247,7 @@ class P3MarkdownDependencyTests(unittest.TestCase):
 
 
 class P3ReadOnlyAndFailureSemanticsTests(unittest.TestCase):
+    @pytest.mark.requires_symlink
     def test_dependency_runtime_refuses_symlinked_baseline_store(self):
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
             project = Path(tmp) / "project"

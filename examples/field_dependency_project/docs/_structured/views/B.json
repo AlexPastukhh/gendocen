@@ -1,0 +1,8 @@
+{
+  "$docengine": {
+    "resource_id": "views.B",
+    "resource_kind": "derived_descriptor",
+    "materialize": [{"renderer": "markdown", "path": "views/B.md", "path_base": "documentation_root"}]
+  },
+  "data": {}
+}

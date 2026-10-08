@@ -1,0 +1,157 @@
+"""Copyable project helper using only public gendocen APIs.
+
+Each computed field is a whole internal resource containing {"value": ...}.
+The engine owns evaluation, per-build-session caching and dependency evidence.
+This module declares providers; it does not maintain another value/state cache.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
+from typing import Any
+
+from docengine.builders import BuilderError
+from docengine.objects import RawObject
+from docengine.refs import ResourceRef
+
+
+class FieldPlanError(BuilderError):
+    """An invalid field declaration or unavailable required input."""
+
+
+@dataclass(frozen=True)
+class _Input:
+    source: ResourceRef
+
+
+@dataclass(frozen=True)
+class _Computed:
+    target: ResourceRef
+    producer: Callable[[Any, FieldPlan], Any]
+    raw_override: ResourceRef | None
+
+
+class FieldPlan:
+    """Explicit providers for top-level document fields.
+
+    Document/field names are project labels, not new engine ref schemes.
+    Declare all providers before registering builders. A field has exactly one
+    provider; optional raw precedence must be declared on that provider.
+    """
+
+    def __init__(self):
+        self._providers: dict[tuple[str, str], _Input | _Computed] = {}
+        self._targets: set[str] = set()
+        self._sealed = False
+
+    @staticmethod
+    def _key(document, field):
+        if not all(isinstance(value, str) and value.strip() for value in (document, field)):
+            raise FieldPlanError("document and field names must be non-empty strings")
+        return document, field
+
+    @staticmethod
+    def _ref(value, *, whole=False):
+        ref = ResourceRef.parse(value)
+        if (ref.scheme != "resource" or (whole and ref.pointer_parts)
+                or (not whole and not ref.pointer_parts)):
+            kind = "whole resource" if whole else "resource field"
+            raise FieldPlanError(f"expected a {kind} ref: {value}")
+        return ref
+
+    def _declare(self, key, provider):
+        if self._sealed:
+            raise FieldPlanError("declare all fields before registering the plan")
+        if key in self._providers:
+            raise FieldPlanError(f"duplicate provider for {key[0]}.{key[1]}")
+        if isinstance(provider, _Computed):
+            target = str(provider.target)
+            if target in self._targets:
+                raise FieldPlanError(f"computed fields must have distinct targets: {target}")
+            self._targets.add(target)
+        self._providers[key] = provider
+
+    def input(self, document, field, source):
+        """Declare a required tracked field; absence is an error, not fallback."""
+        self._declare(self._key(document, field), _Input(self._ref(source)))
+
+    def computed(self, document, field, target, producer, *, raw_override=None):
+        """Declare producer(ctx, fields) and an optional canonical raw override."""
+        if not callable(producer):
+            raise FieldPlanError("field producer must be callable")
+        override = self._ref(raw_override) if raw_override is not None else None
+        if override is not None and len(override.pointer_parts) != 1:
+            raise FieldPlanError("raw_override must address one top-level raw field")
+        self._declare(
+            self._key(document, field),
+            _Computed(self._ref(target, whole=True), producer, override),
+        )
+
+    def _provider(self, document, field):
+        key = self._key(document, field)
+        try:
+            return self._providers[key]
+        except KeyError as exc:
+            raise FieldPlanError(f"no declared provider for {document}.{field}") from exc
+
+    def read(self, ctx, document, field):
+        """Read the declared source through the engine's tracked context."""
+        provider = self._provider(document, field)
+        if isinstance(provider, _Input):
+            try:
+                return ctx.read(str(provider.source))
+            except KeyError as exc:
+                raise FieldPlanError(
+                    f"required input {document}.{field} is missing: {provider.source}"
+                ) from exc
+        return ctx.read(f"{provider.target}#/value")
+
+    @staticmethod
+    def _raw(ctx, ref):
+        raw = ctx.get(str(ref))
+        if not isinstance(raw, RawObject) or not isinstance(raw.data, Mapping):
+            raise FieldPlanError(f"expected an object-shaped canonical raw input: {ref}")
+        return raw
+
+    def compose(self, ctx, document, raw_source):
+        """Copy raw fields, then resolve declared fields into a complete view."""
+        source = self._ref(raw_source, whole=True)
+        keys = [key for key in self._providers if key[0] == document]
+        if not keys:
+            raise FieldPlanError(f"no declared fields for document {document}")
+        result = self._raw(ctx, source).to_builtin()
+        for _, field in keys:
+            provider = self._provider(document, field)
+            escaped = field.replace("~", "~0").replace("/", "~1")
+            raw_field = f"{source}#/{escaped}"
+            if isinstance(provider, _Computed) and field in result:
+                if provider.raw_override is None or str(provider.raw_override) != raw_field:
+                    raise FieldPlanError(
+                        f"raw field conflicts with computed {document}.{field}: {raw_field}; "
+                        "declare matching raw_override or remove the computed value from raw data"
+                    )
+            result[field] = self.read(ctx, document, field)
+        return result
+
+    def register(self, registry):
+        """Register internal whole-resource builders; never publish partial views."""
+        self._sealed = True
+        for provider in self._providers.values():
+            if not isinstance(provider, _Computed):
+                continue
+
+            def build(ctx, spec=provider):
+                if spec.raw_override is not None:
+                    source = ResourceRef.from_resource_id(spec.raw_override.logical_resource_id)
+                    raw = self._raw(ctx, source)
+                    key = spec.raw_override.pointer_parts[0]
+                    if key in raw.data:
+                        return {"value": raw.data[key]}
+                return {"value": spec.producer(ctx, self)}
+
+            registry.register(
+                str(provider.target), build,
+                builder_id=f"field:{provider.target.logical_resource_id}",
+                dependency_type="compute", comparator="exact",
+            )

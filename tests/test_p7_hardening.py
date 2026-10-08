@@ -1,3 +1,4 @@
+import pytest
 import contextlib
 import hashlib
 import io
@@ -317,6 +318,7 @@ class P7LockingTests(unittest.TestCase):
 
 
 class P7HardeningPathTests(unittest.TestCase):
+    @pytest.mark.requires_symlink
     def test_hardening_symlink_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp) / "project"; shutil.copytree(PRODUCT, project)
@@ -408,6 +410,7 @@ class P7PostAxisRegressionTests(unittest.TestCase):
             self.assertEqual(payload["meta"]["status"], "recovery_required")
             self.assertTrue(tx.path.exists())
 
+    @pytest.mark.requires_symlink
     def test_rogue_transaction_entries_are_corruption_not_silently_ignored(self):
         for kind in ("file", "symlink"):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory() as tmp:
@@ -479,6 +482,7 @@ class P7PostAxisRegressionTests(unittest.TestCase):
             self.assertEqual(payload["meta"]["status"], "verification_failed")
             self.assertTrue(any(x["code"] == "hardening_runtime_unavailable" for x in payload["data"]["report"]["findings"]))
 
+    @pytest.mark.requires_symlink
     def test_migration_rejects_symlinked_or_corrupt_released_evidence(self):
         for kind in ("symlink", "tampered_hash"):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory() as tmp:

@@ -114,7 +114,7 @@ If you want inspection before any rebuild, run:
 docengine check --json --project-root <root>
 ```
 
-`check` may persist dependency state/events but does not rebuild generated deterministic content.
+`check` may persist dependency state/events and execute builders in memory to resolve current derived sources. Recording replacement deterministic build receipts and writing generated content belong to rebuild/sync/materialization. An empty `sync.data.rebuilt` list reports no evidence-advancing rebuilds; it does not prove that no source builder was evaluated during checking.
 
 For every semantic attention target:
 
@@ -164,6 +164,10 @@ product = ctx.get("resource://catalog/product")        # whole-resource dependen
 Do not hide dependency-bearing reads behind direct `open()`, `Path.read_text()`, network/database calls, or arbitrary helper I/O. Such reads are not automatically represented in the receipt.
 
 Do not copy computed values into raw canonical JSON merely to avoid writing a builder. Do not calculate dependency-derived values inside renderers. See WF03 in `CORE_WORKFLOWS.md`.
+
+When creating/changing a formula, source map or dependent assertion, use the applicable [Dependency Authoring Checks](DEPENDENCY_AUTHORING_CHECKS.md). In particular, the selected source must supply every used value/contract: if A uses a period owned by C, a dependency only on B's prose "consult C" does not capture that period. Read/depend on C's exact field, or on a tracked derived B field that actually exposes it. A structurally valid receipt does not establish completeness of undeclared assumptions. These checks apply when authoring/changing the connection; ordinary source edits use the normal sync loop without a repeated full manual catalogue review.
+
+When documents refer to independently computed fields in both directions, route to WF06 and [`FIELD_DEPENDENCIES.md`](FIELD_DEPENDENCIES.md). Reuse the project `FieldPlan` helper, declare one provider per field, and resolve computed prerequisites through internal field resources rather than final whole-document views. Missing required inputs are errors; raw-first behavior requires an explicit override and producer. Register the plan plus final builders, test source switching, inspect graph/explain and finish with verify. This authoring route does not require engine-core edits or direct runtime-state changes.
 
 ## 8. Registration and discoverability
 
@@ -222,3 +226,10 @@ Unknown/future layouts or corrupt released evidence remain failures. Never delet
 ## 13. Error handling
 
 When `--json` is present, consume the canonical envelope. Do not parse human stderr/tracebacks as protocol. `warnings` are non-blocking; `errors` explain execution/usage failure; domain-state evidence may live inside `data` (for example verification findings). `meta.status` and `meta.exit_code` remain stable machine fields.
+
+
+## Nested field authoring
+
+The FIELD_DEPENDENCIES route also supports `document`, `input_path`, `computed_path` and `read_path` with JSON Pointers. Bind canonical raw documents before registration, declare independent child providers, then compose intermediate/root objects. Atomic parent and child ownership may not overlap. The nested fixture is `examples/nested_field_project`; formulas remain mirrored project code. Runtime BuildOperation reuse is automatic for CLI commands and does not permit hidden I/O or persistent global caches. Preserve existing internal IDs when upgrading a populated project; path renames require an explicit compatibility route.
+
+Before choosing a source, follow the provider decision table in FIELD_DEPENDENCIES. Reuse the prepared helper and implement the project's source map/formulas/view builders from its stated requirements. A missing raw-only field cannot justify guessing a producer, changing the generic runtime, or copying generated values into raw data. An override declares input authority; add it only when that authority is part of the project contract. For an unavailable source/cycle/shape/old-target error, follow the recovery table and finish with sync/verify.
